@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>タスク優先順位 — 5つのアプローチ比較</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;min-height:100vh;transition:background .4s,color .4s}
+
+/* ===== CSS VARIABLES (THEMES) ===== */
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#141414;--bg4:#1a1a1a;--bg5:#1f1f1f;
+  --border:#222;--border2:#252525;--border3:#333;
+  --text:#e5e5e5;--text2:#ccc;--text-dim:#666;--text-dim2:#555;--text-dim3:#444;
+  --accent:#818cf8;--accent2:#8b5cf6;--accent-bg:rgba(99,102,241,.15);
+  --card-hover:#1f1f1f;--shadow:rgba(0,0,0,.3);
+}
+body{background:var(--bg);color:var(--text)}
+
+/* LIGHT THEME */
+body.light{
+  --bg:#f8f9fa;--bg2:#fff;--bg3:#fff;--bg4:#f1f3f5;--bg5:#e9ecef;
+  --border:#dee2e6;--border2:#e9ecef;--border3:#ced4da;
+  --text:#212529;--text2:#495057;--text-dim:#868e96;--text-dim2:#adb5bd;--text-dim3:#ced4da;
+  --accent:#6366f1;--accent2:#8b5cf6;--accent-bg:rgba(99,102,241,.1);
+  --card-hover:#f1f3f5;--shadow:rgba(0,0,0,.08);
+}
+
+/* COLORFUL THEME */
+body.colorful{
+  --bg:#fefefe;--bg2:#fff;--bg3:#fff;--bg4:#fafafa;--bg5:#f5f5f5;
+  --border:#e5e7eb;--border2:#f3f4f6;--border3:#d1d5db;
+  --text:#1f2937;--text2:#374151;--text-dim:#6b7280;--text-dim2:#9ca3af;--text-dim3:#d1d5db;
+  --accent:#6366f1;--accent2:#8b5cf6;--accent-bg:rgba(99,102,241,.08);
+  --card-hover:#f9fafb;--shadow:rgba(0,0,0,.06);
+}
+
+/* GLASS THEME */
+body.glass{
+  --bg:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+  --bg2:rgba(255,255,255,.04);--bg3:rgba(255,255,255,.06);--bg4:rgba(255,255,255,.08);--bg5:rgba(255,255,255,.12);
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.06);--border3:rgba(255,255,255,.15);
+  --text:#f0f0f0;--text2:#e0e0e0;--text-dim:rgba(255,255,255,.4);--text-dim2:rgba(255,255,255,.25);--text-dim3:rgba(255,255,255,.15);
+  --accent:#a78bfa;--accent2:#c084fc;--accent-bg:rgba(167,139,250,.15);
+  --card-hover:rgba(255,255,255,.12);--shadow:rgba(0,0,0,.4);
+}
+body.glass{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)}
+body.glass .quad,body.glass .task,body.glass .inbox-task,body.glass .sorted-task,
+body.glass .stack-task,body.glass .time-task,body.glass .focus-card,body.glass .result-quad{
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+
+/* COLORFUL: quadrant background colors */
+body.colorful .quad[data-q="q1"],body.colorful .result-quad:nth-child(1){background:#fef2f2!important;border-color:#fecaca!important}
+body.colorful .quad[data-q="q1"] .quad-label{color:#dc2626!important}
+body.colorful .quad[data-q="q2"],body.colorful .result-quad:nth-child(2){background:#fffbeb!important;border-color:#fde68a!important}
+body.colorful .quad[data-q="q2"] .quad-label{color:#d97706!important}
+body.colorful .quad[data-q="q3"],body.colorful .result-quad:nth-child(3){background:#f0fdf4!important;border-color:#bbf7d0!important}
+body.colorful .quad[data-q="q3"] .quad-label{color:#16a34a!important}
+body.colorful .quad[data-q="q4"],body.colorful .result-quad:nth-child(4){background:#f5f5f5!important;border-color:#e5e5e5!important}
+body.colorful .quad[data-q="q4"] .quad-label{color:#737373!important}
+body.colorful .task,body.colorful .inbox-task,body.colorful .sorted-task,
+body.colorful .stack-task,body.colorful .time-task,body.colorful .focus-card{
+  background:#fff!important;box-shadow:0 1px 3px rgba(0,0,0,.05);
+}
+
+/* ===== THEME SWITCHER ===== */
+.theme-bar{
+  position:fixed;top:52px;left:0;right:0;z-index:999;
+  display:flex;justify-content:center;gap:6px;padding:6px;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+}
+.theme-btn{
+  padding:4px 12px;border-radius:99px;border:1px solid var(--border);
+  background:transparent;color:var(--text-dim);font-size:.68rem;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.theme-btn:hover{border-color:var(--accent);color:var(--text)}
+.theme-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ===== TAB BAR ===== */
+.tabs{
+  position:fixed;top:0;left:0;right:0;z-index:1000;height:52px;
+  display:flex;background:var(--bg2);border-bottom:1px solid var(--border);
+}
+.tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text-dim);font-size:.7rem;font-weight:600;
+  transition:all .25s;border-bottom:3px solid transparent;gap:2px;
+}
+.tab .tab-icon{font-size:1rem}
+.tab:hover{color:var(--text2);background:var(--bg4)}
+.tab.active{color:var(--text);border-bottom-color:var(--accent);background:var(--bg3)}
+
+/* ===== PANELS ===== */
+.panel{display:none;padding-top:84px;min-height:100vh}
+.panel.active{display:flex;flex-direction:column}
+
+/* ===== SHARED: HEADER ===== */
+.panel-header{
+  padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.panel-header h1{font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.panel-header .desc{font-size:.75rem;color:var(--text-dim);margin-top:2px}
+.ai-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:10px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+  font-size:.8rem;font-weight:600;font-family:inherit;
+  transition:all .2s;box-shadow:0 2px 12px var(--shadow);
+}
+.ai-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px var(--shadow)}
+.ai-btn:active{transform:scale(.97)}
+.ai-btn.processing{opacity:.7;pointer-events:none}
+.ai-btn .spinner{display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+.ai-btn.processing .spinner{display:block}
+.ai-btn.processing .btn-text{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== SHARED: TASK CARD ===== */
+.task{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:10px;
+  background:var(--bg4);border:1px solid var(--border2);
+  cursor:grab;transition:all .3s;font-size:.85rem;color:var(--text2);
+  animation:fadeIn .4s ease;
+}
+.task:hover{background:var(--card-hover);border-color:var(--border3)}
+.task:active{cursor:grabbing;transform:scale(.98)}
+.task.dragging{opacity:.3}
+.task.done .task-text{text-decoration:line-through;opacity:.35}
+.task .cb{
+  width:20px;height:20px;border-radius:50%;border:2px solid var(--text-dim3);
+  cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.task .cb:hover{border-color:var(--accent)}
+.task.done .cb{background:var(--accent);border-color:var(--accent)}
+.task.done .cb::after{content:'✓';color:#fff;font-size:.65rem;font-weight:800}
+.task .task-text{flex:1;line-height:1.4}
+.task .del{
+  opacity:0;cursor:pointer;color:var(--text-dim);font-size:.7rem;
+  width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;transition:all .2s;flex-shrink:0;
+}
+.task:hover .del{opacity:.5}
+.task .del:hover{opacity:1;background:rgba(239,68,68,.15);color:#ef4444}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-red{background:#ef4444}.dot-amber{background:#f59e0b}
+.dot-blue{background:#3b82f6}.dot-gray{background:var(--text-dim2)}
+.dot-green{background:#22c55e}
+
+/* animated move */
+.task.moving{animation:taskMove .5s ease}
+@keyframes taskMove{
+  0%{opacity:0;transform:translateY(-20px) scale(.95)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+.task.removing{animation:fadeOut .25s ease forwards}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeOut{to{opacity:0;transform:translateX(30px) scale(.9)}}
+
+/* ===== AI REASONING BUBBLE ===== */
+.ai-reason{
+  font-size:.7rem;color:var(--accent);background:var(--accent-bg);
+  padding:4px 10px;border-radius:6px;margin-top:2px;
+  border-left:2px solid var(--accent);display:none;line-height:1.4;
+}
+.ai-reason.show{display:block;animation:fadeIn .3s ease}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--bg5);color:var(--text);padding:10px 20px;border-radius:10px;
+  font-size:.8rem;font-weight:500;z-index:9999;border:1px solid var(--border3);
+  transition:transform .3s ease;box-shadow:0 4px 20px var(--shadow);
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* =========================================================
+   PANEL 1: EISENHOWER MATRIX (4象限)
+   ========================================================= */
+#p1 .matrix{
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  gap:12px;padding:16px;flex:1;
+}
+#p1 .quad{
+  border-radius:14px;padding:14px;display:flex;flex-direction:column;
+  background:var(--bg3);border:1px solid var(--border);overflow:hidden;
+}
+#p1 .quad-label{
+  font-size:.68rem;font-weight:700;letter-spacing:.06em;
+  margin-bottom:8px;display:flex;align-items:center;gap:6px;color:var(--text-dim);
+}
+#p1 .tl{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:5px}
+.quad.drag-over{outline:2px dashed #818cf8;outline-offset:-3px}
+
+/* axis labels */
+#p1 .matrix{position:relative}
+#p1 .axis-label{position:absolute;font-size:.6rem;color:var(--text-dim3);font-weight:600;letter-spacing:.1em}
+#p1 .axis-y{left:4px;top:50%;transform:rotate(-90deg) translateX(-50%);transform-origin:left center}
+#p1 .axis-x{bottom:2px;left:50%;transform:translateX(-50%)}
+
+/* =========================================================
+   PANEL 2: TODAY FOCUS (今日の3つ)
+   ========================================================= */
+#p2 .focus-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px}
+#p2 .focus-title{font-size:2rem;font-weight:800;letter-spacing:-.02em}
+#p2 .focus-sub{color:var(--text-dim);font-size:.85rem;margin-bottom:16px}
+#p2 .focus-cards{display:flex;flex-direction:column;gap:12px;width:100%;max-width:520px}
+#p2 .focus-card{
+  padding:20px 24px;border-radius:16px;
+  background:linear-gradient(135deg,var(--bg3),var(--bg4));
+  border:1px solid var(--border2);display:flex;align-items:center;gap:14px;
+  font-size:1rem;line-height:1.5;
+}
+#p2 .focus-card .num{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.9rem;flex-shrink:0;color:#fff;
+}
+#p2 .remaining{margin-top:20px;color:var(--text-dim2);font-size:.8rem;text-align:center}
+#p2 .remaining span{color:var(--accent);font-weight:600}
+
+/* =========================================================
+   PANEL 3: PRIORITY STACK (1本ランキング)
+   ========================================================= */
+#p3 .stack-area{flex:1;padding:20px 24px;overflow-y:auto}
+#p3 .stack-list{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:6px}
+#p3 .stack-task{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;border-radius:12px;
+  background:var(--bg3);border:1px solid var(--border);
+  transition:all .3s;cursor:grab;
+}
+#p3 .stack-task:hover{background:var(--bg4);border-color:var(--border3)}
+#p3 .rank{
+  width:28px;height:28px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.8rem;flex-shrink:0;
+}
+#p3 .rank-1{background:rgba(239,68,68,.15);color:#ef4444}
+#p3 .rank-2{background:rgba(245,158,11,.15);color:#f59e0b}
+#p3 .rank-3{background:rgba(59,130,246,.15);color:#3b82f6}
+#p3 .rank-n{background:rgba(100,100,100,.15);color:var(--text-dim)}
+#p3 .score{
+  font-size:.7rem;color:var(--text-dim2);font-weight:600;
+  min-width:50px;text-align:right;flex-shrink:0;
+}
+#p3 .stack-task .task-text{flex:1;font-size:.85rem;color:var(--text2)}
+#p3 .stack-task .cb{
+  width:20px;height:20px;border-radius:50%;border:2px solid #444;
+  cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+#p3 .stack-task.done .cb{background:var(--accent);border-color:var(--accent)}
+#p3 .stack-task.done .cb::after{content:'✓';color:#fff;font-size:.65rem;font-weight:800}
+#p3 .stack-task.done .task-text{text-decoration:line-through;opacity:.35}
+
+/* =========================================================
+   PANEL 4: TIMELINE (カレンダー風)
+   ========================================================= */
+#p4 .timeline-area{flex:1;padding:20px 24px;overflow-y:auto}
+#p4 .day-group{margin-bottom:24px;max-width:600px;margin-left:auto;margin-right:auto}
+#p4 .day-label{
+  font-size:.75rem;font-weight:700;color:var(--text-dim2);margin-bottom:8px;
+  display:flex;align-items:center;gap:8px;
+}
+#p4 .day-label .today-badge{
+  background:var(--accent);color:#fff;padding:1px 8px;border-radius:99px;font-size:.65rem;
+}
+#p4 .time-slot{
+  display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);
+  align-items:flex-start;
+}
+#p4 .time-hour{
+  width:50px;font-size:.75rem;color:var(--text-dim2);font-weight:600;
+  flex-shrink:0;padding-top:2px;
+}
+#p4 .time-task{
+  flex:1;padding:10px 14px;border-radius:10px;
+  background:var(--bg3);border:1px solid var(--border);
+  font-size:.85rem;color:var(--text2);display:flex;align-items:center;gap:10px;
+}
+#p4 .time-task .tag{
+  font-size:.6rem;padding:2px 8px;border-radius:99px;font-weight:600;flex-shrink:0;
+}
+.tag-urgent{background:rgba(239,68,68,.15);color:#ef4444}
+.tag-plan{background:rgba(59,130,246,.15);color:#3b82f6}
+.tag-delegate{background:rgba(34,197,94,.15);color:#22c55e}
+.tag-low{background:rgba(100,100,100,.15);color:var(--text-dim)}
+
+/* =========================================================
+   PANEL 5: AI TRIAGE (投げ込み→仕分け)
+   ========================================================= */
+#p5 .triage-area{flex:1;display:flex;gap:0;overflow:hidden}
+#p5 .inbox-col{
+  width:40%;border-right:1px solid var(--border);display:flex;flex-direction:column;
+}
+#p5 .result-col{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;
+}
+#p5 .col-header{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  font-size:.78rem;font-weight:700;color:var(--text-dim);
+  display:flex;align-items:center;gap:6px;
+}
+#p5 .inbox-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+#p5 .inbox-task{
+  padding:10px 14px;border-radius:10px;
+  background:var(--bg3);border:1px solid var(--border);
+  font-size:.85rem;color:var(--text2);display:flex;align-items:center;gap:10px;
+}
+#p5 .inbox-task .grip{color:var(--text-dim3);font-size:.8rem;cursor:grab}
+#p5 .result-grid{
+  flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  gap:8px;padding:12px;overflow:hidden;
+}
+#p5 .result-quad{
+  border-radius:12px;padding:10px;display:flex;flex-direction:column;
+  background:var(--bg3);border:1px solid var(--border);overflow:hidden;
+}
+#p5 .result-quad .rq-label{font-size:.65rem;color:var(--text-dim2);font-weight:600;margin-bottom:6px}
+#p5 .result-quad .rq-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+#p5 .sorted-task{
+  padding:8px 10px;border-radius:8px;font-size:.8rem;color:var(--text2);
+  background:var(--bg4);border:1px solid var(--border2);
+  display:flex;align-items:center;gap:8px;
+}
+#p5 .sorted-task .ai-reason{margin-top:0;margin-left:auto;font-size:.6rem;padding:2px 6px}
+#p5 .add-task-row{
+  display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);
+}
+#p5 .add-task-row input{
+  flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border3);
+  background:var(--bg3);color:var(--text2);font-size:.82rem;font-family:inherit;
+  outline:none;
+}
+#p5 .add-task-row input:focus{border-color:var(--accent)}
+#p5 .add-task-row button{
+  padding:8px 14px;border-radius:8px;border:none;cursor:pointer;
+  background:var(--border3);color:var(--text2);font-size:.8rem;font-weight:600;font-family:inherit;
+  transition:all .2s;
+}
+#p5 .add-task-row button:hover{background:var(--bg5)}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(128,128,128,.3);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- TAB BAR -->
+<div class="tabs">
+  <div class="tab active" data-p="p1"><span class="tab-icon">🔲</span>4象限</div>
+  <div class="tab" data-p="p2"><span class="tab-icon">🎯</span>今日の3つ</div>
+  <div class="tab" data-p="p3"><span class="tab-icon">📊</span>ランキング</div>
+  <div class="tab" data-p="p4"><span class="tab-icon">📅</span>タイムライン</div>
+  <div class="tab" data-p="p5"><span class="tab-icon">📥</span>投げ込み→AI</div>
+</div>
+
+<!-- THEME BAR -->
+<div class="theme-bar">
+  <button class="theme-btn active" data-theme="">🌙 ダーク</button>
+  <button class="theme-btn" data-theme="light">☀️ ライト</button>
+  <button class="theme-btn" data-theme="colorful">🎨 カラフル</button>
+  <button class="theme-btn" data-theme="glass">✨ グラス</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ==================== PANEL 1: EISENHOWER ==================== -->
+<div class="panel active" id="p1">
+  <div class="panel-header">
+    <div>
+      <h1>🔲 アイゼンハワーマトリクス</h1>
+      <div class="desc">重要度×緊急度の4象限。ドラッグで移動、AIが仕分けを提案</div>
+    </div>
+    <button class="ai-btn" onclick="aiSortP1()"><span class="spinner"></span><span class="btn-text">🤖 AIに仕分けてもらう</span></button>
+  </div>
+  <div class="matrix" id="matrix1"></div>
+</div>
+
+<!-- ==================== PANEL 2: TODAY FOCUS ==================== -->
+<div class="panel" id="p2">
+  <div class="panel-header">
+    <div>
+      <h1>🎯 今日やる3つだけ</h1>
+      <div class="desc">AIが全タスクから「今日やるべき3つ」を選ぶ。残りは見えなくていい</div>
+    </div>
+    <button class="ai-btn" onclick="aiPickToday()"><span class="spinner"></span><span class="btn-text">🤖 今日の3つを選んでもらう</span></button>
+  </div>
+  <div class="focus-area" id="focusArea"></div>
+</div>
+
+<!-- ==================== PANEL 3: PRIORITY STACK ==================== -->
+<div class="panel" id="p3">
+  <div class="panel-header">
+    <div>
+      <h1>📊 優先順位ランキング</h1>
+      <div class="desc">AIがスコアリングして1位から順に並べる。上からやればいい</div>
+    </div>
+    <button class="ai-btn" onclick="aiRankP3()"><span class="spinner"></span><span class="btn-text">🤖 AIに順位をつけてもらう</span></button>
+  </div>
+  <div class="stack-area" id="stackArea"></div>
+</div>
+
+<!-- ==================== PANEL 4: TIMELINE ==================== -->
+<div class="panel" id="p4">
+  <div class="panel-header">
+    <div>
+      <h1>📅 タイムライン</h1>
+      <div class="desc">AIがカレンダーの空きを見てタスクを配置。いつやるかまで決めてくれる</div>
+    </div>
+    <button class="ai-btn" onclick="aiScheduleP4()"><span class="spinner"></span><span class="btn-text">🤖 AIにスケジュールしてもらう</span></button>
+  </div>
+  <div class="timeline-area" id="timelineArea"></div>
+</div>
+
+<!-- ==================== PANEL 5: AI TRIAGE ==================== -->
+<div class="panel" id="p5">
+  <div class="panel-header">
+    <div>
+      <h1>📥 全部投げ込み → AI仕分け</h1>
+      <div class="desc">頭の中を全部吐き出す → ボタンひとつでAIが分類してくれる</div>
+    </div>
+    <button class="ai-btn" onclick="aiTriageP5()"><span class="spinner"></span><span class="btn-text">🤖 仕分けスタート</span></button>
+  </div>
+  <div class="triage-area">
+    <div class="inbox-col">
+      <div class="col-header">📥 未整理の山（Inbox）</div>
+      <div class="inbox-list" id="inboxList"></div>
+      <div class="add-task-row">
+        <input type="text" id="newTaskInput" placeholder="タスクを追加…" onkeydown="if(event.key==='Enter')addInboxTask()">
+        <button onclick="addInboxTask()">追加</button>
+      </div>
+    </div>
+    <div class="result-col">
+      <div class="col-header">🤖 AI仕分け結果</div>
+      <div class="result-grid" id="resultGrid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== SHARED DATA ==========
+const ALL_TASKS = [
+  { id:1, text:'ChatGPT API活用講座のサンプルコード作成', deadline:'明日', imp:5, urg:5, reason:'締切が明日。講座の核となる成果物' },
+  { id:2, text:'熊本の講演パワーポイント作成', deadline:'明後日', imp:5, urg:4, reason:'締切2日後。外部講演は信頼に直結' },
+  { id:3, text:'生成AI×業務効率化セミナー資料（中島さん依頼）', deadline:'来週火曜', imp:4, urg:3, reason:'依頼案件で重要だが、まだ5日ある' },
+  { id:4, text:'AIカレッジ学園コンテスト 最終審査会準備', deadline:'来週金曜', imp:5, urg:2, reason:'重要だが10日後。計画的に進めるべき' },
+  { id:5, text:'来月の飲食ワークショップ企画書', deadline:'来月初め', imp:4, urg:1, reason:'重要だが緊急ではない。週末にまとめて' },
+  { id:6, text:'退職AI活用ガイドブック出版（ドットツール側）', deadline:'今月末', imp:4, urg:2, reason:'重要だが自分のペースで進められる' },
+  { id:7, text:'3時間セミナー資料作成（メンバー協力）', deadline:'来週', imp:2, urg:3, reason:'メンバーに任せられる。進捗確認だけ' },
+  { id:8, text:'既存カリキュラムのPythonバージョンアップ調査', deadline:'なし', imp:2, urg:1, reason:'緊急でも重要でもない。余裕がある時に' },
+  { id:9, text:'飲み会の日程調整メール返信', deadline:'今日中', imp:1, urg:4, reason:'緊急だが重要ではない。2分で終わる' },
+  { id:10, text:'自分のキャリアプラン整理', deadline:'なし', imp:5, urg:1, reason:'最重要だが緊急性ゼロ。5年放置している' },
+];
+
+// ========== UTILITY ==========
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2500);
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function startBtn(btn){btn.classList.add('processing')}
+function endBtn(btn){btn.classList.remove('processing')}
+
+// ========== THEME SWITCH ==========
+document.querySelectorAll('.theme-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.body.className=btn.dataset.theme;
+    showToast('🎨 テーマを変更しました');
+  });
+});
+
+// ========== TAB SWITCH ==========
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById(tab.dataset.p).classList.add('active');
+  });
+});
+
+// ========================================================================
+// PANEL 1: EISENHOWER MATRIX
+// ========================================================================
+const Q_META={
+  q1:{emoji:'🔥',label:'重要×緊急',sub:'今すぐやる',dot:'dot-red'},
+  q2:{emoji:'🎯',label:'重要×緊急でない',sub:'計画的にやる',dot:'dot-amber'},
+  q3:{emoji:'📋',label:'重要でない×緊急',sub:'誰かに頼む',dot:'dot-blue'},
+  q4:{emoji:'💤',label:'重要でない×緊急でない',sub:'やめる/後回し',dot:'dot-gray'},
+};
+let p1Data={q1:[],q2:[],q3:[],q4:[]};
+// initial: all in q1 (the user's problem!)
+p1Data.q1 = ALL_TASKS.map(t=>({...t}));
+
+function renderP1(){
+  const m=document.getElementById('matrix1');
+  m.innerHTML=['q1','q2','q3','q4'].map(q=>`
+    <div class="quad" data-q="${q}">
+      <div class="quad-label"><span>${Q_META[q].emoji}</span> ${Q_META[q].label} <span style="opacity:.5;font-weight:400">— ${Q_META[q].sub}</span></div>
+      <div class="tl" data-q="${q}">
+        ${p1Data[q].map(t=>`
+          <div class="task${t.done?' done':''}" draggable="true" data-id="${t.id}">
+            <div class="dot ${Q_META[q].dot}"></div>
+            <div class="cb" onclick="toggleP1(${t.id})"></div>
+            <div>
+              <div class="task-text">${t.text}</div>
+              ${t._reason?`<div class="ai-reason show">💡 ${t._reason}</div>`:''}
+            </div>
+            <div class="del" onclick="delP1(${t.id})">✕</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  setupDragP1();
+}
+function toggleP1(id){
+  for(const q of ['q1','q2','q3','q4']){const t=p1Data[q].find(t=>t.id===id);if(t){t.done=!t.done;break;}}
+  renderP1();
+}
+function delP1(id){
+  for(const q of ['q1','q2','q3','q4'])p1Data[q]=p1Data[q].filter(t=>t.id!==id);
+  renderP1();showToast('🗑 削除しました');
+}
+let _dragId=null;
+function setupDragP1(){
+  document.querySelectorAll('#p1 .task[draggable]').forEach(el=>{
+    el.addEventListener('dragstart',e=>{_dragId=+el.dataset.id;el.classList.add('dragging');e.dataTransfer.effectAllowed='move'});
+    el.addEventListener('dragend',()=>{el.classList.remove('dragging');document.querySelectorAll('.drag-over').forEach(q=>q.classList.remove('drag-over'))});
+  });
+  document.querySelectorAll('#p1 .quad').forEach(quad=>{
+    quad.addEventListener('dragover',e=>{e.preventDefault();quad.classList.add('drag-over')});
+    quad.addEventListener('dragleave',()=>quad.classList.remove('drag-over'));
+    quad.addEventListener('drop',e=>{
+      e.preventDefault();quad.classList.remove('drag-over');
+      const tq=quad.dataset.q;let obj,sq;
+      for(const q of ['q1','q2','q3','q4']){const i=p1Data[q].findIndex(t=>t.id===_dragId);if(i!==-1){obj=p1Data[q].splice(i,1)[0];sq=q;break;}}
+      if(obj&&sq!==tq){p1Data[tq].push(obj);renderP1();showToast(`📦 →「${Q_META[tq].sub}」に移動`)}
+      else if(obj){p1Data[sq].push(obj);renderP1();}
+    });
+  });
+}
+
+async function aiSortP1(){
+  const btn=document.querySelector('#p1 .ai-btn');startBtn(btn);
+  showToast('🤖 AIが仕分け中…');
+  await sleep(1500);
+  // simulate AI sorting
+  p1Data={q1:[],q2:[],q3:[],q4:[]};
+  ALL_TASKS.forEach(t=>{
+    const copy={...t,_reason:t.reason};
+    if(t.imp>=4&&t.urg>=4) p1Data.q1.push(copy);
+    else if(t.imp>=4&&t.urg<4) p1Data.q2.push(copy);
+    else if(t.imp<4&&t.urg>=3) p1Data.q3.push(copy);
+    else p1Data.q4.push(copy);
+  });
+  renderP1();endBtn(btn);
+  showToast('✅ AIが10件のタスクを仕分けました。理由も表示しています');
+}
+
+// ========================================================================
+// PANEL 2: TODAY FOCUS
+// ========================================================================
+let todayPicked=false;
+function renderP2Initial(){
+  const area=document.getElementById('focusArea');
+  area.innerHTML=`
+    <div class="focus-title">🤔</div>
+    <div class="focus-sub">10件のタスクがあります。AIに「今日やるべき3つ」を選んでもらいましょう</div>
+    <div style="color:var(--text-dim2);font-size:.8rem;max-width:400px;text-align:center;line-height:1.6">
+      ${ALL_TASKS.map(t=>`• ${t.text}`).join('<br>')}
+    </div>
+  `;
+}
+async function aiPickToday(){
+  const btn=document.querySelector('#p2 .ai-btn');startBtn(btn);
+  showToast('🤖 AIが選定中…');
+  await sleep(1800);
+  const picks=[
+    {task:ALL_TASKS[0], why:'締切が明日。これを終わらせないと明日の講座が成立しない'},
+    {task:ALL_TASKS[1], why:'明後日の講演。今日スライドの骨子を作れば明日仕上げられる'},
+    {task:ALL_TASKS[8], why:'2分で終わる。返信しないと相手の予定が決まらない'},
+  ];
+  const area=document.getElementById('focusArea');
+  area.innerHTML=`
+    <div class="focus-title">今日やること</div>
+    <div class="focus-sub">AIが10件から3つ選びました</div>
+    <div class="focus-cards">
+      ${picks.map((p,i)=>`
+        <div class="focus-card" style="animation:fadeIn ${.3+i*.15}s ease">
+          <div class="num">${i+1}</div>
+          <div>
+            <div style="font-weight:600">${p.task.text}</div>
+            <div class="ai-reason show" style="display:block;margin-top:6px">💡 ${p.why}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="remaining">残り <span>${ALL_TASKS.length-3}件</span> は明日以降でOK</div>
+    <div style="margin-top:12px;color:var(--text-dim2);font-size:.75rem">
+      💡 「5年放置の"キャリアプラン整理"は、今週土曜に2時間ブロックすることを提案します」
+    </div>
+  `;
+  endBtn(btn);showToast('✅ 今日の3つを選びました');
+}
+
+// ========================================================================
+// PANEL 3: PRIORITY STACK
+// ========================================================================
+let p3Data=ALL_TASKS.map(t=>({...t,score:null,done:false}));
+let p3Sorted=false;
+
+function renderP3(){
+  const area=document.getElementById('stackArea');
+  area.innerHTML=`<div class="stack-list">${p3Data.map((t,i)=>`
+    <div class="stack-task${t.done?' done':''}" data-id="${t.id}" style="animation:fadeIn ${.2+i*.05}s ease">
+      <div class="rank ${i<1?'rank-1':i<2?'rank-2':i<3?'rank-3':'rank-n'}">${i+1}</div>
+      <div class="cb" onclick="toggleP3(${t.id})"></div>
+      <div class="task-text">${t.text}</div>
+      ${t.score!==null?`<div class="score">${t.score}pt</div>`:''}
+    </div>
+  `).join('')}</div>`;
+}
+function toggleP3(id){const t=p3Data.find(t=>t.id===id);if(t)t.done=!t.done;renderP3();}
+async function aiRankP3(){
+  const btn=document.querySelector('#p3 .ai-btn');startBtn(btn);
+  showToast('🤖 AIがスコアリング中…');
+  await sleep(1500);
+  // score = imp*12 + urg*8 + deadline_factor
+  const deadlineBonus={明日:20,今日中:18,明後日:12,来週火曜:6,来週金曜:4,来週:5,今月末:3,来月初め:2,なし:0};
+  p3Data=ALL_TASKS.map(t=>({
+    ...t,done:false,
+    score: t.imp*12 + t.urg*8 + (deadlineBonus[t.deadline]||0)
+  }));
+  p3Data.sort((a,b)=>b.score-a.score);
+  renderP3();endBtn(btn);
+  showToast('✅ スコアリング完了。上からやれば最適です');
+}
+
+// ========================================================================
+// PANEL 4: TIMELINE
+// ========================================================================
+function renderP4Initial(){
+  const area=document.getElementById('timelineArea');
+  area.innerHTML=`
+    <div style="text-align:center;padding:60px 0;color:var(--text-dim2)">
+      <div style="font-size:2rem;margin-bottom:12px">📅</div>
+      <div>AIにスケジュールしてもらうと、カレンダーの空き時間にタスクが配置されます</div>
+    </div>
+  `;
+}
+async function aiScheduleP4(){
+  const btn=document.querySelector('#p4 .ai-btn');startBtn(btn);
+  showToast('🤖 カレンダーの空きを分析中…');
+  await sleep(2000);
+  const schedule=[
+    {day:'今日（3/19 水）',today:true,slots:[
+      {time:'09:00',text:'ChatGPT API講座サンプルコード作成',tag:'urgent',tagText:'緊急',dur:'3h'},
+      {time:'12:00',text:'昼休み',tag:'low',tagText:'休憩',dur:'1h'},
+      {time:'13:00',text:'飲み会の日程調整メール返信',tag:'delegate',tagText:'2分',dur:'5m'},
+      {time:'13:30',text:'熊本講演パワーポイント骨子作成',tag:'urgent',tagText:'緊急',dur:'2.5h'},
+      {time:'16:00',text:'セミナー資料の構成メモ（中島さん依頼）',tag:'plan',tagText:'計画',dur:'1h'},
+    ]},
+    {day:'明日（3/20 木）',today:false,slots:[
+      {time:'09:00',text:'熊本講演パワーポイント仕上げ',tag:'urgent',tagText:'締切',dur:'3h'},
+      {time:'13:00',text:'セミナー資料本体作成',tag:'plan',tagText:'計画',dur:'3h'},
+      {time:'16:00',text:'3時間セミナー資料の進捗確認→メンバーに連絡',tag:'delegate',tagText:'委任',dur:'30m'},
+    ]},
+    {day:'今週土曜（3/22）',today:false,slots:[
+      {time:'10:00',text:'⭐ キャリアプラン整理（5年越しの宿題）',tag:'plan',tagText:'重要',dur:'2h'},
+      {time:'13:00',text:'飲食ワークショップ企画書ドラフト',tag:'plan',tagText:'計画',dur:'2h'},
+    ]},
+  ];
+  const area=document.getElementById('timelineArea');
+  area.innerHTML=schedule.map(day=>`
+    <div class="day-group">
+      <div class="day-label">${day.day} ${day.today?'<span class="today-badge">TODAY</span>':''}</div>
+      ${day.slots.map(s=>`
+        <div class="time-slot">
+          <div class="time-hour">${s.time}</div>
+          <div class="time-task">
+            <span class="tag tag-${s.tag}">${s.tagText}</span>
+            <span>${s.text}</span>
+            <span style="margin-left:auto;font-size:.7rem;color:var(--text-dim2)">${s.dur}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+  endBtn(btn);
+  showToast('✅ 3日分のスケジュールを組みました');
+}
+
+// ========================================================================
+// PANEL 5: AI TRIAGE
+// ========================================================================
+let inboxTasks=ALL_TASKS.map(t=>({...t}));
+let triageResult=null;
+
+function renderP5Inbox(){
+  const list=document.getElementById('inboxList');
+  list.innerHTML=inboxTasks.map(t=>`
+    <div class="inbox-task" data-id="${t.id}">
+      <span class="grip">⠿</span>
+      <span style="flex:1">${t.text}</span>
+      <span class="del" style="opacity:.4;cursor:pointer" onclick="delInbox(${t.id})">✕</span>
+    </div>
+  `).join('');
+}
+function renderP5Result(){
+  const grid=document.getElementById('resultGrid');
+  if(!triageResult){
+    grid.innerHTML=['🔥 今すぐ','🎯 計画的に','📋 誰かに頼む','💤 後回し'].map(l=>
+      `<div class="result-quad"><div class="rq-label">${l}</div><div class="rq-list"><div style="color:var(--text-dim3);font-size:.75rem;padding:8px">AIボタンを押すと仕分けされます</div></div></div>`
+    ).join('');
+    return;
+  }
+  const labels=['🔥 今すぐやる','🎯 計画的にやる','📋 誰かに頼む','💤 やめる/後回し'];
+  const keys=['q1','q2','q3','q4'];
+  grid.innerHTML=keys.map((k,i)=>`
+    <div class="result-quad">
+      <div class="rq-label">${labels[i]}（${triageResult[k].length}件）</div>
+      <div class="rq-list">
+        ${triageResult[k].map(t=>`
+          <div class="sorted-task" style="animation:taskMove .5s ease">
+            <div class="dot ${['dot-red','dot-amber','dot-blue','dot-gray'][i]}"></div>
+            <span>${t.text}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+function delInbox(id){
+  inboxTasks=inboxTasks.filter(t=>t.id!==id);renderP5Inbox();
+}
+function addInboxTask(){
+  const input=document.getElementById('newTaskInput');
+  const text=input.value.trim();
+  if(!text)return;
+  inboxTasks.push({id:Date.now(),text,imp:3,urg:3,reason:'新規追加（AIが判定）'});
+  input.value='';renderP5Inbox();showToast('📥 追加しました');
+}
+async function aiTriageP5(){
+  const btn=document.querySelector('#p5 .ai-btn');startBtn(btn);
+  showToast('🤖 AIが仕分け中…');
+  await sleep(2000);
+  triageResult={q1:[],q2:[],q3:[],q4:[]};
+  inboxTasks.forEach(t=>{
+    if(t.imp>=4&&t.urg>=4) triageResult.q1.push(t);
+    else if(t.imp>=4) triageResult.q2.push(t);
+    else if(t.urg>=3) triageResult.q3.push(t);
+    else triageResult.q4.push(t);
+  });
+  inboxTasks=[];renderP5Inbox();renderP5Result();
+  endBtn(btn);showToast(`✅ ${ALL_TASKS.length}件を仕分けました`);
+}
+
+// ========== INIT ==========
+renderP1();
+renderP2Initial();
+renderP3();
+renderP4Initial();
+renderP5Inbox();
+renderP5Result();
+</script>
+</body>
+</html>
