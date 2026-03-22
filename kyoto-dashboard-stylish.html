@@ -402,12 +402,12 @@ body.dark .header{background:rgba(17,17,16,0.85)}
 .week-due{font-size:.6rem;margin-left:auto;white-space:nowrap}
 
 /* ===== PANEL 4: KANBAN ===== */
-.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;min-height:400px}
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;min-height:400px;max-width:100%;overflow:hidden}
 @media(max-width:800px){.kanban{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:500px){.kanban{grid-template-columns:1fr}}
 .kanban-col{
-  background:var(--surface-dim);border:1px solid var(--border);border-radius:20px;
-  padding:20px;min-height:200px;
+  background:var(--surface-dim);border:1px solid var(--border);border-radius:16px;
+  padding:12px;min-height:200px;min-width:0;overflow:hidden;
 }
 .kanban-col-header{
   font-size:.78rem;font-weight:700;margin-bottom:12px;padding-bottom:8px;padding-left:8px;
@@ -420,17 +420,17 @@ body.dark .header{background:rgba(17,17,16,0.85)}
 }
 .kanban-col.drag-over{background:var(--accent-bg);border-color:var(--accent)}
 .kanban-card{
-  padding:14px 16px;background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;margin-bottom:8px;cursor:grab;
-  transition:all .35s var(--ease);font-size:.78rem;box-shadow:var(--shadow-sm);
+  padding:10px 12px;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;margin-bottom:6px;cursor:grab;
+  transition:all .35s var(--ease);font-size:.73rem;box-shadow:var(--shadow-sm);
 }
 .kanban-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
 .kanban-card:active{cursor:grabbing;opacity:.7}
 .kanban-card.dragging{opacity:.3}
 .kanban-card.done-card{opacity:.45}
 .kanban-card.done-card .kc-title{text-decoration:line-through}
-.kc-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
-.kc-title{font-weight:600;flex:1;word-break:break-all;line-height:1.4}
+.kc-top{display:flex;align-items:flex-start;gap:5px;margin-bottom:3px;min-width:0}
+.kc-title{font-weight:600;flex:1;overflow-wrap:break-word;word-wrap:break-word;line-height:1.4;min-width:0}
 .kc-domain{font-size:.65rem;color:var(--text-dim)}
 .kc-meta{font-size:.68rem;color:var(--text-dim);display:flex;gap:8px}
 
