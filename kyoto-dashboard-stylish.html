@@ -699,7 +699,7 @@ function loadState(){
   try{S=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){S={}}
   if(!S.status)S.status={};if(!S.cl)S.cl={};if(!S.theme)S.theme='';
   if(!S.tab)S.tab='today';if(!S.hideDone)S.hideDone=false;
-  if(!S.sort)S.sort={col:'m',dir:1};if(!S.boardScope)S.boardScope='soon';if(!S.calView)S.calView='month';if(!S.calWeekStart)S.calWeekStart=null;
+  if(!S.sort)S.sort={col:'m',dir:1};if(!S.boardScope)S.boardScope='soon';if(!S.calView)S.calView='month';if(!S.calWeekStart)S.calWeekStart=null;if(!S.weekDays)S.weekDays=5;
   TASKS.forEach(tk=>{if(!S.status[tk.id])S.status[tk.id]=(tk.cy==='daily'||tk.cy==='weekly'||tk.cy==='monthly')?'進行中':'未着手'});
 }
 function saveState(){localStorage.setItem(LS_KEY,JSON.stringify(S))}
@@ -1047,6 +1047,7 @@ function renderCal(){
       <div class="cal-view-btns">
         <button class="cal-view-btn${S.calView==='month'?' active':''}" onclick="S.calView='month';saveState();renderCal()">月間</button>
         <button class="cal-view-btn${S.calView==='week'?' active':''}" onclick="S.calView='week';saveState();renderCal()">週間</button>
+        ${S.calView==='week'?`<button class="cal-view-btn${S.weekDays===7?' active':''}" onclick="S.weekDays=S.weekDays===7?5:7;saveState();renderCal()" style="margin-left:4px">${S.weekDays===7?'7日':'5日'}</button>`:''}
       </div>
     </div>
     <div id="calContent"></div>
@@ -1115,9 +1116,12 @@ function getTaskTimeBlock(tk){
 }
 function renderCalWeek(today,weekStart){
   const cc=document.getElementById('calContent');
+  const numDays=S.weekDays||5;
   const days=[];
-  for(let i=0;i<5;i++){const d=new Date(weekStart);d.setDate(d.getDate()+i);days.push(d)}
-  const dow=['月','火','水','木','金'];
+  const startDay=numDays===7?new Date(weekStart.getTime()-86400000):weekStart;// 7日なら日曜始まり
+  for(let i=0;i<numDays;i++){const d=new Date(startDay);d.setDate(d.getDate()+i);days.push(d)}
+  const dowAll=['日','月','火','水','木','金','土'];
+  const dow=days.map(d=>dowAll[d.getDay()]);
 
   // Header row: empty corner + day headers
   let html='<div></div>';
@@ -1164,7 +1168,7 @@ function renderCalWeek(today,weekStart){
     </div>`;
   }).join('');
 
-  cc.innerHTML=`<div class="week-grid" style="grid-template-columns:48px repeat(5,1fr)">${html}</div>`;
+  cc.innerHTML=`<div class="week-grid" style="grid-template-columns:48px repeat(${numDays},1fr)">${html}</div>`;
 }
 function calDropBlock(e,dateStr,blockId){
   e.preventDefault();
