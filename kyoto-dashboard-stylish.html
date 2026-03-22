@@ -1044,6 +1044,7 @@ function renderCal(){
   else renderCalWeek(today,weekStart);
 }
 
+let calDragId=null;
 function renderCalMonth(today){
   const cc=document.getElementById('calContent');
   let html=['日','月','火','水','木','金','土'].map(d=>`<div class="cal-hdr">${d}</div>`).join('');
@@ -1055,12 +1056,37 @@ function renderCalMonth(today){
     const dt=new Date(calY,calM-1,d);
     const isToday=dt.toDateString()===today.toDateString();
     const dayTasks=getTasksForDay(dt,mTasks);
-    html+=`<div class="cal-cell${isToday?' today':''}"><div class="cal-day">${d}</div>${dayTasks.slice(0,3).map(tk=>`<div class="cal-item${isDone(tk.id)?' done-item':''}" title="${esc(tk.t)}">${domDot(tk.d)} ${esc(tk.t)}</div>`).join('')}${dayTasks.length>3?`<div class="cal-more">+${dayTasks.length-3}</div>`:''}</div>`;
+    const dateStr=`${calY}-${String(calM).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    html+=`<div class="cal-cell${isToday?' today':''}" data-date="${dateStr}" ondragover="event.preventDefault();this.style.background='var(--accent-bg)';this.style.borderColor='var(--accent)'" ondragleave="this.style.background='';this.style.borderColor=''" ondrop="calDrop(event,'${dateStr}');this.style.background='';this.style.borderColor=''"><div class="cal-day">${d}</div>${dayTasks.slice(0,3).map(tk=>`<div class="cal-item${isDone(tk.id)?' done-item':''}" draggable="true" ondragstart="calDragId='${tk.id}';this.style.opacity='0.4'" ondragend="this.style.opacity=''" title="${esc(tk.t)}" style="cursor:grab">${domDot(tk.d)} ${esc(tk.t)}</div>`).join('')}${dayTasks.length>3?`<div class="cal-more">+${dayTasks.length-3}</div>`:''}</div>`;
   }
   const rem=(7-(fd+dim)%7)%7;
   for(let i=0;i<rem;i++)html+='<div class="cal-cell empty"></div>';
   cc.innerHTML=`<div class="cal-grid">${html}</div>`;
 }
+function calDrop(e,dateStr){
+  e.preventDefault();
+  if(!calDragId)return;
+  const tk=TASKS.find(t=>t.id===calDragId);
+  if(!tk)return;
+  // Update due date (or set it)
+  const o=loadOverrides();
+  if(!o[calDragId])o[calDragId]={};
+  o[calDragId].due=dateStr;
+  saveOverrides(o);
+  // Also update the in-memory task for immediate rendering
+  tk.due=dateStr;
+  // Update month if needed
+  const newM=parseInt(dateStr.split('-')[1]);
+  if(tk.m && tk.m!==newM){
+    o[calDragId].m=newM;
+    tk.m=newM;
+  }
+  calDragId=null;
+  showToast('タスクを '+dateStr.replace(/^\d+-/,'').replace('-','/')+' に移動しました');
+  renderAll();
+}
+function loadOverrides(){try{return JSON.parse(localStorage.getItem('kyoto_cal_overrides'))||{}}catch{return {}}}
+function saveOverrides(o){localStorage.setItem('kyoto_cal_overrides',JSON.stringify(o))}
 
 function renderCalWeek(today,weekStart){
   const cc=document.getElementById('calContent');
@@ -1540,7 +1566,8 @@ function renderResources(){
   el.innerHTML=html;
 }
 
-// INIT
+// INIT — apply calendar overrides to TASKS
+(function(){const o=loadOverrides();Object.keys(o).forEach(id=>{const tk=TASKS.find(t=>t.id===id);if(tk){if(o[id].due)tk.due=o[id].due;if(o[id].m)tk.m=o[id].m}})})();
 loadState();applyTheme();renderAll();
 </script>
 </body>
