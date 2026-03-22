@@ -991,8 +991,15 @@ function getTasksForDay(dt,mTasks){
   const d=dt.getDate(),dow=dt.getDay(),m=dt.getMonth()+1;
   const fd=new Date(dt.getFullYear(),dt.getMonth(),1).getDay();
   const wom=Math.ceil((d+fd)/7);
+  const overrides=loadOverrides();
   let dayTasks=[];
   mTasks.forEach(tk=>{
+    // If this task has a due override from drag, only show on that date
+    if(overrides[tk.id]&&overrides[tk.id].due){
+      const dd=new Date(overrides[tk.id].due);
+      if(dd.getDate()===d&&dd.getMonth()===dt.getMonth()&&dd.getFullYear()===dt.getFullYear())dayTasks.push(tk);
+      return; // skip cycle rules
+    }
     if(tk.cy==='monthly'&&d<=7&&dow===1)dayTasks.push(tk);
     else if(tk.cy==='termly'&&d===1)dayTasks.push(tk);
     else if(tk.cy==='yearly'&&tk.m===m){
@@ -1000,7 +1007,8 @@ function getTasksForDay(dt,mTasks){
       if((wom===tw&&dow===1)||(d===1&&tw===1))dayTasks.push(tk);
     }
   });
-  mTasks.filter(tk=>tk.due).forEach(tk=>{
+  // Non-overridden tasks with original due dates
+  mTasks.filter(tk=>tk.due&&!(overrides[tk.id]&&overrides[tk.id].due)).forEach(tk=>{
     const dd=new Date(tk.due);
     if(dd.getDate()===d&&dd.getMonth()===dt.getMonth()&&!dayTasks.includes(tk))dayTasks.push(tk);
   });
