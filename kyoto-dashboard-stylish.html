@@ -1345,27 +1345,191 @@ const RESOURCES = [
   {name:'FW アプリカタログ',tag:'アプリ',desc:'教育アプリ15本のカタログページ。ダウンロード・お試し付き。',icon:'fa-solid fa-rocket',link:'../文章_作業スペース/FriendlyWorkshop/catalog.html'},
 ];
 
+// Apps data (from dev_dashboard)
+const APPS_DATA = [
+  {name:'掛け算ビンゴ',grade:'2-4年',subject:'算数',status:'published',file:'bingo.html'},
+  {name:'がいすうメーカー',grade:'4年',subject:'算数',status:'published',file:'gaisu_maker.html'},
+  {name:'気候グラフメーカー',grade:'5年',subject:'社会',status:'published',file:'japan_climate_graph_maker.html'},
+  {name:'角度スナイパー v3',grade:'4年',subject:'算数',status:'published',file:'kakudo_sniper_v3.html'},
+  {name:'けいさんバトル！デラックス',grade:'1-6年',subject:'算数',status:'published',file:'keisan_battle_deluxe.html'},
+  {name:'こそあど探偵',grade:'3-4年',subject:'国語',status:'published',file:'kosoado_tantei.html'},
+  {name:'公倍数メーカー v2',grade:'5年',subject:'算数',status:'published',file:'koubaisuu_maker_v2.html'},
+  {name:'ながさバトル',grade:'2-3年',subject:'算数',status:'published',file:'nagasa_battle.html'},
+  {name:'だれにする？ルーレット',grade:'\u2014',subject:'学級',status:'published',file:'roulette.html'},
+  {name:'せきがえ相談室',grade:'\u2014',subject:'学級',status:'published',file:'sekigae_soudanshitsu.html'},
+  {name:'主語・述語・修飾語タッチ',grade:'2-4年',subject:'国語',status:'published',file:'syugo_jutsugo_touch.html'},
+  {name:'おしらせタイマー',grade:'\u2014',subject:'学級',status:'published',file:'timer_notice.html'},
+  {name:'約数フォーカスメーカー v7',grade:'5年',subject:'算数',status:'published',file:'yakusuu_focus_maker_v7.html'},
+  {name:'とけいパズル',grade:'2-3年',subject:'算数',status:'ready',file:'clock_puzzle.html'},
+  {name:'データたんてい',grade:'4-6年',subject:'算数',status:'ready',file:'data_tantei.html'},
+  {name:'分数バーガーショップ',grade:'3-5年',subject:'算数',status:'ready',file:'fraction_burger.html'},
+  {name:'漢字プリントメーカー',grade:'1-6年',subject:'国語',status:'ready',file:'kanji_print_maker.html'},
+  {name:'慣用句クリニック',grade:'4年',subject:'国語',status:'ready',file:'kanyouku_clinic.html'},
+  {name:'ことわざ法てい',grade:'5-6年',subject:'国語',status:'ready',file:'kotowaza_houtei.html'},
+  {name:'お話スロット',grade:'3-4年',subject:'国語',status:'ready',file:'sandai_banashi.html'},
+  {name:'わりあいレストラン',grade:'5年',subject:'算数',status:'ready',file:'wariai_restaurant.html'},
+  {name:'ようやくトランク',grade:'4-6年',subject:'国語',status:'ready',file:'youyaku_trunk.html'},
+  {name:'面積単位どうじょう v5',grade:'4年',subject:'算数',status:'ready',file:'menseki_tani_dojo_v5.html'},
+  {name:'かさ単位どうじょう',grade:'2年',subject:'算数',status:'ready',file:'kasa_tani_dojo.html'},
+  {name:'じゅんびタイマー',grade:'\u2014',subject:'学級',status:'ready',file:'junbi_timer/index.html'},
+  {name:'時こくえきちょう',grade:'3年',subject:'算数',status:'dev',file:'jikoku_ekichou_v2.html'},
+  {name:'鼻歌スコアメーカー',grade:'\u2014',subject:'その他',status:'dev',file:'hanauta_score.html'},
+  {name:'いろまぜラボ',grade:'1-2年',subject:'その他',status:'dev',file:'iromaze_lab.html'},
+  {name:'まるてん',grade:'1-6年',subject:'全教科',status:'dev',file:'maruten.html'},
+  {name:'ふせんボード',grade:'\u2014',subject:'学級',status:'dev',file:'fusen_board.html'},
+  {name:'漢字の部品工場',grade:'3年',subject:'国語',status:'dev',file:'kanji_buhin_koujou.html'},
+  {name:'漢字鉱山',grade:'6年',subject:'国語',status:'external',url:'https://aru-tano.github.io/kanji-mine/'},
+  {name:'インフルエンザ復帰計算',grade:'\u2014',subject:'学級',status:'external',url:'https://aru-tano.github.io/flu-return-app/'},
+  {name:'VoicePad',grade:'\u2014',subject:'その他',status:'external',url:'https://aru-tano.github.io/voice-memo/'},
+];
+const APP_STATUS={published:{l:'公開済',c:'var(--green)'},ready:{l:'完成未掲載',c:'var(--amber)'},dev:{l:'開発中',c:'var(--blue)'},external:{l:'外部',c:'var(--pink)'}};
+
+// DB data (from context_manifest)
+const DB_DATA = [
+  {key:'attention-design-db',records:378,desc:'注意設計統合DB（11ドメイン+岡田斗司夫）',cat:'design'},
+  {key:'teaching-microskills',records:373,desc:'授業微細技術DB（26カテゴリ）',cat:'education'},
+  {key:'comedy-elements',records:116,desc:'お笑い構造DB',cat:'content'},
+  {key:'game-design-elements',records:112,desc:'ゲームデザイン要素DB',cat:'design'},
+  {key:'photo-elements',records:113,desc:'写真理論DB（6カテゴリ）',cat:'design'},
+  {key:'trial-log',records:454,desc:'失敗・発見事例DB',cat:'core'},
+  {key:'developmental-psychology',records:45,desc:'発達心理学DB',cat:'education'},
+  {key:'learning-science',records:50,desc:'学習科学DB',cat:'education'},
+  {key:'edu-law',records:48,desc:'教育法規DB（14法令）',cat:'work'},
+  {key:'crisis-management',records:45,desc:'学校危機管理DB',cat:'work'},
+  {key:'parent-relations',records:67,desc:'保護者対応DB',cat:'work'},
+  {key:'student-guidance',records:64,desc:'生徒指導DB',cat:'education'},
+  {key:'leadership',records:46,desc:'リーダーシップDB',cat:'work'},
+  {key:'coaching',records:42,desc:'コーチング・メンタリングDB',cat:'work'},
+  {key:'facilitation',records:40,desc:'ファシリテーションDB',cat:'work'},
+  {key:'nudge',records:40,desc:'行動経済学・ナッジDB',cat:'education'},
+  {key:'presentation',records:42,desc:'プレゼン・話し方DB',cat:'work'},
+  {key:'pedagogy-tagged',records:27024,desc:'教授法タグ付き実践事例DB',cat:'education'},
+  {key:'tokubetsu-shien',records:70,desc:'特別支援教育DB',cat:'education'},
+  {key:'shochu-setsuzoku',records:147,desc:'小中接続DB',cat:'education'},
+  {key:'mitsumura-kanji-by-unit',records:1026,desc:'光村図書 漢字初出マップ',cat:'education'},
+  {key:'animcjk-stroke-svg',records:5930,desc:'AnimCJK 筆順アニメーションSVG',cat:'education'},
+  {key:'lesson-plans-hiroshima',records:665,desc:'広島県教育センター 指導案DB',cat:'education'},
+  {key:'lesson-plans-iwate',records:534,desc:'岩手県教育センター 指導案DB',cat:'education'},
+  {key:'lesson-plans-fukuoka',records:378,desc:'福岡県教育センター 指導案DB',cat:'education'},
+  {key:'kyoto-cases',records:18,desc:'教頭ケースDB',cat:'work'},
+  {key:'kyoto-rules',records:47,desc:'教頭ルールDB',cat:'work'},
+  {key:'kyoto-tasks',records:98,desc:'教頭タスクDB',cat:'work'},
+  {key:'stumbling-points',records:107,desc:'全国学力テスト つまずきポイントDB',cat:'education'},
+  {key:'pref-questions',records:4244,desc:'都道府県学力テスト問題DB',cat:'education'},
+  {key:'okada-ichigeki',records:3317,desc:'岡田斗司夫一撃DB',cat:'content'},
+  {key:'chatgpt-ichigeki',records:4305,desc:'ChatGPTログ一撃DB',cat:'content'},
+  {key:'kindle-db',records:289,desc:'Kindle書籍DB',cat:'content'},
+  {key:'discord-fullserver',records:14871,desc:'Discordサーバー全投稿DB',cat:'content'},
+  {key:'voice-bank',records:270,desc:'声Aボイスバンク',cat:'content'},
+  {key:'notebooklm-guide',records:115,desc:'NotebookLM完全活用ガイドDB',cat:'reference'},
+  {key:'gws_edu_db',records:50,desc:'Google Workspace教育活用DB',cat:'education'},
+  {key:'ai_tools_guide_db',records:40,desc:'AIツール使い分けガイドDB',cat:'education'},
+  {key:'edu_dx_db',records:50,desc:'教育DX・GIGAスクール事例DB',cat:'education'},
+  {key:'storytelling-db',records:40,desc:'ストーリーテリングDB',cat:'content'},
+  {key:'time_management_db',records:40,desc:'時間管理・仕事術DB',cat:'work'},
+  {key:'kenshu-patterns-db',records:40,desc:'校内研修設計パターンDB',cat:'education'},
+  {key:'info-design-db',records:40,desc:'情報デザイン・図解DB',cat:'design'},
+  {key:'meta-knowledge-db',records:55,desc:'DB構築メタ知識DB',cat:'core'},
+  {key:'school_admin_db',records:51,desc:'校務効率化DB',cat:'education'},
+  {key:'sns-operations-db',records:48,desc:'SNS運用ノウハウDB',cat:'content'},
+  {key:'philosophy-db',records:55,desc:'哲学DB（プラトン中心）',cat:'reference'},
+  {key:'owase-local-db',records:66,desc:'三重県尾鷲市郷土DB',cat:'education'},
+  {key:'stylish-ui-principles',records:25,desc:'おしゃれUIの科学的原理+CSS値',cat:'design'},
+  {key:'home-building-db',records:56,desc:'家づくり・注文住宅DB',cat:'personal'},
+  {key:'solo-guitar-db',records:50,desc:'ソロギター・アコギDB',cat:'personal'},
+];
+const DB_CAT_LABELS={education:'教育',work:'業務',design:'デザイン',content:'コンテンツ',core:'コア',personal:'パーソナル',reference:'リファレンス'};
+const DB_CAT_ICONS={education:'fa-solid fa-graduation-cap',work:'fa-solid fa-briefcase',design:'fa-solid fa-palette',content:'fa-solid fa-pen-fancy',core:'fa-solid fa-gear',personal:'fa-solid fa-user',reference:'fa-solid fa-bookmark'};
+
+let resSubTab='resources';
+let resSearch='';
+let resDbCatFilter='all';
+let resAppStatusFilter='all';
+
 function renderResources(){
   const el=document.getElementById('p-resources');
-  el.innerHTML=`
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
-      ${RESOURCES.map((r,i)=>{
-        const actionHTML = r.links
-          ? r.links.map(l=>`<a href="${l.url}" target="_blank" style="font-size:.75rem;font-weight:600;padding:5px 12px;border-radius:8px;background:var(--accent);color:#fff;text-decoration:none;transition:all .2s">${l.label}</a>`).join('')
-          : r.link ? `<a href="${r.link}" target="_blank" style="font-size:.75rem;font-weight:600;padding:5px 12px;border-radius:8px;background:var(--accent);color:#fff;text-decoration:none;transition:all .2s">開く</a>` : '';
-        return `
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-direction:column;transition:all .35s cubic-bezier(.16,1,.3,1);box-shadow:0 2px 8px rgba(0,0,0,0.04);animation:fadeIn .4s ease ${Math.min(i*0.04,0.5)}s both" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
-          <div style="width:100%;aspect-ratio:16/9;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;background:var(--surface-dim);overflow:hidden">
-            <i class="${r.icon}" style="font-size:2em;color:var(--accent);opacity:0.5"></i>
-          </div>
-          <span style="font-size:.65em;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--accent-bg);color:var(--accent);display:inline-block;margin-bottom:8px;align-self:flex-start">${r.tag}</span>
-          <div style="font-size:.95rem;font-weight:700;margin-bottom:5px">${r.name}</div>
-          <div style="font-size:.78rem;color:var(--text-secondary);line-height:1.6;flex:1;margin-bottom:12px">${r.desc}</div>
-          <div style="display:flex;gap:6px">${actionHTML}</div>
-        </div>`;
-      }).join('')}
+  const totalRecords=DB_DATA.reduce((s,d)=>s+d.records,0);
+
+  // Sub-tab bar
+  const subTabs=[
+    {id:'resources',icon:'fa-solid fa-folder-open',label:'資料集',count:RESOURCES.length},
+    {id:'apps',icon:'fa-solid fa-rocket',label:'アプリ',count:APPS_DATA.length},
+    {id:'dbs',icon:'fa-solid fa-database',label:'DB一覧',count:DB_DATA.length},
+  ];
+
+  let html=`
+    <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--border)">
+      ${subTabs.map(t=>`<button onclick="resSubTab='${t.id}';renderResources()" style="padding:10px 20px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:600;color:${resSubTab===t.id?'var(--accent)':'var(--text-dim)'};border-bottom:2px solid ${resSubTab===t.id?'var(--accent)':'transparent'};transition:all .2s;display:flex;align-items:center;gap:6px"><i class="${t.icon}" style="font-size:.75rem"></i>${t.label}<span style="font-size:.7rem;background:${resSubTab===t.id?'var(--accent)':'var(--surface-dim)'};color:${resSubTab===t.id?'#fff':'var(--text-dim)'};padding:1px 7px;border-radius:10px;font-weight:700">${t.count}</span></button>`).join('')}
+    </div>
+    <div style="margin-bottom:16px">
+      <input type="text" placeholder="検索..." value="${resSearch}" oninput="resSearch=this.value;renderResources()" style="width:100%;max-width:320px;padding:7px 12px 7px 32px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:.8rem;outline:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2214%22 height=%2214%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23a8a29e%22 stroke-width=%222%22><circle cx=%2211%22 cy=%2211%22 r=%228%22/><path d=%22m21 21-4.3-4.3%22/></svg>');background-repeat:no-repeat;background-position:10px center">
     </div>
   `;
+
+  const q=resSearch.toLowerCase();
+
+  if(resSubTab==='resources'){
+    const filtered=RESOURCES.filter(r=>!q||r.name.toLowerCase().includes(q)||r.tag.toLowerCase().includes(q)||r.desc.toLowerCase().includes(q));
+    html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">${filtered.map((r,i)=>{
+      const actionHTML=r.links?r.links.map(l=>`<a href="${l.url}" target="_blank" style="font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;transition:all .2s">${l.label}</a>`).join(''):r.link?`<a href="${r.link}" target="_blank" style="font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;transition:all .2s">開く</a>`:'';
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 2px 8px rgba(0,0,0,0.04)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.07)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="width:36px;height:36px;border-radius:9px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center"><i class="${r.icon}" style="font-size:.85rem;color:var(--accent)"></i></div><span style="font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--accent-bg);color:var(--accent)">${r.tag}</span></div>
+        <div style="font-size:.88rem;font-weight:700;margin-bottom:4px">${r.name}</div>
+        <div style="font-size:.75rem;color:var(--text-secondary);line-height:1.55;flex:1;margin-bottom:10px">${r.desc}</div>
+        <div style="display:flex;gap:5px">${actionHTML}</div>
+      </div>`;
+    }).join('')}</div>`;
+    if(!filtered.length) html+=`<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">該当する資料がありません</div>`;
+
+  } else if(resSubTab==='apps'){
+    // Status filter
+    const statuses=['all','published','ready','dev','external'];
+    const statusLabels={all:'全て',published:'公開済',ready:'完成未掲載',dev:'開発中',external:'外部'};
+    html+=`<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">${statuses.map(s=>`<button onclick="resAppStatusFilter='${s}';renderResources()" style="padding:4px 12px;border-radius:7px;border:1px solid ${resAppStatusFilter===s?'var(--accent)':'var(--border)'};background:${resAppStatusFilter===s?'var(--accent)':'var(--surface)'};color:${resAppStatusFilter===s?'#fff':'var(--text-dim)'};font-family:inherit;font-size:.73rem;font-weight:600;cursor:pointer;transition:all .2s">${statusLabels[s]}</button>`).join('')}</div>`;
+    const filtered=APPS_DATA.filter(a=>{
+      if(resAppStatusFilter!=='all'&&a.status!==resAppStatusFilter)return false;
+      if(q&&!a.name.toLowerCase().includes(q)&&!a.subject.toLowerCase().includes(q))return false;
+      return true;
+    });
+    html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">${filtered.map(a=>{
+      const sm=APP_STATUS[a.status];
+      const href=a.file?'../文章_作業スペース/FriendlyWorkshop/apps/'+a.file:(a.url||'#');
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 1px 4px rgba(0,0,0,0.03)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)'" onmouseout="this.style.transform='';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.03)'">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="width:8px;height:8px;border-radius:50%;background:${sm.c};flex-shrink:0"></span><span style="font-size:.65rem;font-weight:600;color:var(--text-dim)">${sm.l}</span>${a.grade!=='\u2014'?`<span style="font-size:.62rem;padding:1px 6px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.grade}</span>`:''}<span style="font-size:.62rem;padding:1px 6px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.subject}</span></div>
+        <div style="font-size:.85rem;font-weight:700;margin-bottom:8px">${a.name}</div>
+        <a href="${href}" target="_blank" style="font-size:.7rem;font-weight:600;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:4px">${a.status==='external'?'外部サイト':'開く'} <i class="fa-solid fa-arrow-right" style="font-size:.6rem"></i></a>
+      </div>`;
+    }).join('')}</div>`;
+    if(!filtered.length) html+=`<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">該当するアプリがありません</div>`;
+
+  } else if(resSubTab==='dbs'){
+    // Category filter
+    const cats=['all',...Object.keys(DB_CAT_LABELS)];
+    html+=`<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">${cats.map(c=>{
+      const label=c==='all'?'全て':DB_CAT_LABELS[c];
+      const count=c==='all'?DB_DATA.length:DB_DATA.filter(d=>d.cat===c).length;
+      if(c!=='all'&&!count)return'';
+      return `<button onclick="resDbCatFilter='${c}';renderResources()" style="padding:4px 12px;border-radius:7px;border:1px solid ${resDbCatFilter===c?'var(--accent)':'var(--border)'};background:${resDbCatFilter===c?'var(--accent)':'var(--surface)'};color:${resDbCatFilter===c?'#fff':'var(--text-dim)'};font-family:inherit;font-size:.73rem;font-weight:600;cursor:pointer;transition:all .2s">${label} ${count}</button>`;
+    }).join('')}</div>`;
+    html+=`<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:10px">${totalRecords.toLocaleString()} records</div>`;
+    const filtered=DB_DATA.filter(d=>{
+      if(resDbCatFilter!=='all'&&d.cat!==resDbCatFilter)return false;
+      if(q&&!d.key.toLowerCase().includes(q)&&!d.desc.toLowerCase().includes(q))return false;
+      return true;
+    });
+    html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">${filtered.map(d=>{
+      const icon=DB_CAT_ICONS[d.cat]||'fa-solid fa-database';
+      const label=DB_CAT_LABELS[d.cat]||d.cat;
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .25s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.05)'" onmouseout="this.style.transform='';this.style.boxShadow='none'">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:.6rem;font-weight:600;padding:2px 7px;border-radius:5px;background:var(--accent-bg);color:var(--accent)">${label}</span><i class="${icon}" style="font-size:.75rem;color:var(--text-dim);opacity:0.5"></i></div>
+        <div style="font-size:.82rem;font-weight:600;margin-bottom:4px;line-height:1.4">${d.desc}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><span style="font-size:.68rem;color:var(--text-dim);display:flex;align-items:center;gap:3px"><i class="fa-solid fa-database" style="font-size:.6rem"></i>${d.records.toLocaleString()}</span><span style="font-size:.58rem;font-family:monospace;color:var(--text-dim);opacity:0.5">${d.key}</span></div>
+      </div>`;
+    }).join('')}</div>`;
+    if(!filtered.length) html+=`<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">該当するDBがありません</div>`;
+  }
+
+  el.innerHTML=html;
 }
 
 // INIT
