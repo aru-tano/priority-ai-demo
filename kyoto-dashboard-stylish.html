@@ -1322,27 +1322,28 @@ function renderAll(){
 // ═══════════════════════════════════════════════════════════════
 // RESOURCES (Ultra Dashboard 資料集)
 // ═══════════════════════════════════════════════════════════════
+const SS='../文章_作業スペース/FriendlyWorkshop/dev_screenshots/';
 const RESOURCES = [
-  {name:'NotebookLM 30分で火をつける研修',tag:'研修スライド',desc:'生徒指導提要デモ → Audio Overview → ハンズオン演習。VoicePad連携あり。',icon:'fa-solid fa-book-open-reader',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/notebooklm_kenshu_slide.html'},
-  {name:'VoicePad 導入スライド',tag:'ツール紹介',desc:'VoicePadの概要・セットアップ・活用法を説明するスライド資料。',icon:'fa-solid fa-microphone',link:'../文章_作業スペース/FriendlyWorkshop/tools/voice-to-doc/guide_slides.html'},
-  {name:'尾鷲マイクロ水力 調査レポート',tag:'レポート',desc:'尾鷲市における小水力発電の可能性調査。地域資源を活かしたエネルギー施策の検討資料。',icon:'fa-solid fa-water',links:[{label:'HTML版',url:'../文章_作業スペース/05_仕事_Work/owase_microhydro_report.html'},{label:'PDF版',url:'../文章_作業スペース/05_仕事_Work/owase_microhydro_report.pdf'}]},
-  {name:'4月着任チェックリスト',tag:'教頭業務',desc:'教頭1年目の4月着任時やることリスト。印刷して使える。',icon:'fa-solid fa-clipboard-check',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/print_april_checklist.html'},
-  {name:'テンプレートショーケース',tag:'デザイン',desc:'HTMLスライド3テンプレート（SVGアニメ・テーマ切替・ステップ開示）の比較。',icon:'fa-solid fa-swatchbook',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/template_showcase.html'},
-  {name:'4月ダッシュボード',tag:'教頭業務',desc:'4月の教頭タスク・行事・チェックリストを集約したダッシュボード。',icon:'fa-solid fa-calendar-days',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/kyoto_april_dashboard.html'},
-  {name:'教頭の資料棚 (Resource Shelf)',tag:'教頭業務',desc:'研修スライド・ツール紹介・教頭業務・ICT推進の資料カード集。',icon:'fa-solid fa-folder-open',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/resource_dashboard.html'},
-  {name:'紀北教育研究所 知のDB全体図',tag:'教育',desc:'教育研究所のDB構造を俯瞰する全体図。',icon:'fa-solid fa-diagram-project',link:'../文章_作業スペース/05_仕事_Work/紀北教育研究所_知のDB全体図.html'},
-  {name:'割合ガイド',tag:'教材サンプル',desc:'割合の考え方を図解したサンプル教材。',icon:'fa-solid fa-percent',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/sample_wariai_guide.html'},
-  {name:'割合図解',tag:'教材サンプル',desc:'割合のビジュアル図解資料。',icon:'fa-solid fa-chart-pie',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/sample_wariai_zukai.html'},
-  {name:'ステップ開示テンプレート',tag:'テンプレート',desc:'HTMLスライドのステップ開示テンプレート。',icon:'fa-solid fa-layer-group',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/template_step_reveal.html'},
-  {name:'社中泊フロー',tag:'教頭業務',desc:'宿泊行事の流れを整理したフローチャート。',icon:'fa-solid fa-route',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/test_shachuuhaku_flow.html'},
-  {name:'写真家DNAダッシュボード',tag:'写真分析',desc:'写真撮影スタイルの分析ダッシュボード。',icon:'fa-solid fa-camera',link:'../文章_作業スペース/05_仕事_Work/photo_analysis/photographer_dna_dashboard.html'},
-  {name:'写真家DNA研究',tag:'写真分析',desc:'写真撮影の傾向・強みを深掘りした分析資料。',icon:'fa-solid fa-flask',link:'../文章_作業スペース/05_仕事_Work/photo_analysis/photographer_dna_study.html'},
-  {name:'業務改革ポータル',tag:'業務改革',desc:'業務改革の各種ツール・情報への入口ページ。',icon:'fa-solid fa-gauge-high',link:'../文章_作業スペース/05_仕事_Work/06_業務改革_WorkReform/portal/index.html'},
-  {name:'2年算数「長さのたんい」第3時',tag:'教材セット',desc:'授業スライド・練習プリント・ふりかえりシート・mm読み取りゲームの4点セット。',icon:'fa-solid fa-ruler-combined',links:[{label:'スライド',url:'../文章_作業スペース/05_仕事_Work/教科書PDF/教材セット_2年算数_長さのたんい_第3時/01_授業スライド.html'},{label:'プリント',url:'../文章_作業スペース/05_仕事_Work/教科書PDF/教材セット_2年算数_長さのたんい_第3時/02_練習プリント.html'},{label:'ゲーム',url:'../文章_作業スペース/05_仕事_Work/教科書PDF/教材セット_2年算数_長さのたんい_第3時/04_mm読み取りゲーム.html'}]},
-  {name:'写真クイズ',tag:'写真',desc:'YouTube写真講座から生成したクイズ。',icon:'fa-solid fa-question-circle',link:'../文章_作業スペース/05_仕事_Work/youtube_context_collector/output/quizzes/photo_quiz.html'},
-  {name:'教頭ダッシュボード',tag:'教頭業務',desc:'カレンダー連携・Googleスプレッドシート連携の教頭業務ダッシュボード。',icon:'fa-solid fa-table-columns',link:'kyoto-dashboard.html'},
-  {name:'教科書PDF・テキストデータ',tag:'教科書データ',desc:'算数・国語 1〜6年の教科書PDF+OCRテキスト化データ。指導書抜粋含む。',icon:'fa-solid fa-book',link:'../文章_作業スペース/05_仕事_Work/教科書PDF/'},
-  {name:'FW アプリカタログ',tag:'アプリ',desc:'教育アプリ15本のカタログページ。ダウンロード・お試し付き。',icon:'fa-solid fa-rocket',link:'../文章_作業スペース/FriendlyWorkshop/catalog.html'},
+  {name:'NotebookLM 30分で火をつける研修',tag:'研修スライド',desc:'生徒指導提要デモ → Audio Overview → ハンズオン演習。VoicePad連携あり。',icon:'fa-solid fa-book-open-reader',thumb:SS+'res_notebooklm_kenshu.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/notebooklm_kenshu_slide.html'},
+  {name:'VoicePad 導入スライド',tag:'ツール紹介',desc:'VoicePadの概要・セットアップ・活用法を説明するスライド資料。',icon:'fa-solid fa-microphone',thumb:SS+'res_voicepad_slides.png',link:'../文章_作業スペース/FriendlyWorkshop/tools/voice-to-doc/guide_slides.html'},
+  {name:'尾鷲マイクロ水力 調査レポート',tag:'レポート',desc:'尾鷲市における小水力発電の可能性調査。',icon:'fa-solid fa-water',thumb:SS+'res_microhydro.png',links:[{label:'HTML版',url:'../文章_作業スペース/05_仕事_Work/owase_microhydro_report.html'},{label:'PDF版',url:'../文章_作業スペース/05_仕事_Work/owase_microhydro_report.pdf'}]},
+  {name:'4月着任チェックリスト',tag:'教頭業務',desc:'教頭1年目の4月着任時やることリスト。',icon:'fa-solid fa-clipboard-check',thumb:SS+'res_april_checklist.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/print_april_checklist.html'},
+  {name:'テンプレートショーケース',tag:'デザイン',desc:'HTMLスライド3テンプレートの比較。',icon:'fa-solid fa-swatchbook',thumb:SS+'res_template_showcase.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/template_showcase.html'},
+  {name:'4月ダッシュボード',tag:'教頭業務',desc:'4月の教頭タスク・行事・チェックリストを集約。',icon:'fa-solid fa-calendar-days',thumb:SS+'res_april_dashboard.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/kyoto_april_dashboard.html'},
+  {name:'教頭の資料棚',tag:'教頭業務',desc:'研修スライド・ツール紹介・教頭業務の資料カード集。',icon:'fa-solid fa-folder-open',thumb:SS+'res_resource_shelf.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/resource_dashboard.html'},
+  {name:'紀北教育研究所 知のDB全体図',tag:'教育',desc:'教育研究所のDB構造を俯瞰する全体図。',icon:'fa-solid fa-diagram-project',thumb:SS+'res_kihoku_db_map.png',link:'../文章_作業スペース/05_仕事_Work/紀北教育研究所_知のDB全体図.html'},
+  {name:'割合ガイド',tag:'教材サンプル',desc:'割合の考え方を図解したサンプル教材。',icon:'fa-solid fa-percent',thumb:SS+'res_wariai_guide.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/sample_wariai_guide.html'},
+  {name:'割合図解',tag:'教材サンプル',desc:'割合のビジュアル図解資料。',icon:'fa-solid fa-chart-pie',thumb:SS+'res_wariai_zukai.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/sample_wariai_zukai.html'},
+  {name:'ステップ開示テンプレート',tag:'テンプレート',desc:'HTMLスライドのステップ開示テンプレート。',icon:'fa-solid fa-layer-group',thumb:SS+'res_step_reveal.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/template_step_reveal.html'},
+  {name:'社中泊フロー',tag:'教頭業務',desc:'宿泊行事の流れを整理したフローチャート。',icon:'fa-solid fa-route',thumb:SS+'res_shachuuhaku.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/test_shachuuhaku_flow.html'},
+  {name:'写真家DNAダッシュボード',tag:'写真分析',desc:'写真撮影スタイルの分析ダッシュボード。',icon:'fa-solid fa-camera',thumb:SS+'res_photo_dna_dash.png',link:'../文章_作業スペース/05_仕事_Work/photo_analysis/photographer_dna_dashboard.html'},
+  {name:'写真家DNA研究',tag:'写真分析',desc:'写真撮影の傾向・強みの分析資料。',icon:'fa-solid fa-flask',thumb:SS+'res_photo_dna_study.png',link:'../文章_作業スペース/05_仕事_Work/photo_analysis/photographer_dna_study.html'},
+  {name:'業務改革ポータル',tag:'業務改革',desc:'業務改革の各種ツール・情報への入口。',icon:'fa-solid fa-gauge-high',thumb:SS+'res_reform_portal.png',link:'../文章_作業スペース/05_仕事_Work/06_業務改革_WorkReform/portal/index.html'},
+  {name:'2年算数「長さのたんい」第3時',tag:'教材セット',desc:'授業スライド・練習プリント・ゲームの4点セット。',icon:'fa-solid fa-ruler-combined',thumb:SS+'res_lesson_slide.png',links:[{label:'スライド',url:'../文章_作業スペース/05_仕事_Work/教科書PDF/教材セット_2年算数_長さのたんい_第3時/01_授業スライド.html'},{label:'プリント',url:'../文章_作業スペース/05_仕事_Work/教科書PDF/教材セット_2年算数_長さのたんい_第3時/02_練習プリント.html'},{label:'ゲーム',url:'../文章_作業スペース/05_仕事_Work/教科書PDF/教材セット_2年算数_長さのたんい_第3時/04_mm読み取りゲーム.html'}]},
+  {name:'写真クイズ',tag:'写真',desc:'YouTube写真講座から生成したクイズ。',icon:'fa-solid fa-question-circle',thumb:SS+'res_photo_quiz.png',link:'../文章_作業スペース/05_仕事_Work/youtube_context_collector/output/quizzes/photo_quiz.html'},
+  {name:'教頭ダッシュボード',tag:'教頭業務',desc:'カレンダー連携・スプレッドシート連携。',icon:'fa-solid fa-table-columns',thumb:SS+'res_kyoto_dashboard.png',link:'kyoto-dashboard.html'},
+  {name:'教科書PDF・テキストデータ',tag:'教科書データ',desc:'算数・国語 1〜6年の教科書PDF+OCRテキスト化データ。',icon:'fa-solid fa-book',link:'../文章_作業スペース/05_仕事_Work/教科書PDF/'},
+  {name:'FW アプリカタログ',tag:'アプリ',desc:'教育アプリ15本のカタログページ。',icon:'fa-solid fa-rocket',link:'../文章_作業スペース/FriendlyWorkshop/catalog.html'},
 ];
 
 // Apps data (from dev_dashboard)
@@ -1472,10 +1473,13 @@ function renderResources(){
     const filtered=RESOURCES.filter(r=>!q||r.name.toLowerCase().includes(q)||r.tag.toLowerCase().includes(q)||r.desc.toLowerCase().includes(q));
     html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">${filtered.map((r,i)=>{
       const actionHTML=r.links?r.links.map(l=>`<a href="${l.url}" target="_blank" style="font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;transition:all .2s">${l.label}</a>`).join(''):r.link?`<a href="${r.link}" target="_blank" style="font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;transition:all .2s">開く</a>`:'';
-      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 2px 8px rgba(0,0,0,0.04)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.07)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="width:36px;height:36px;border-radius:9px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center"><i class="${r.icon}" style="font-size:.85rem;color:var(--accent)"></i></div><span style="font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--accent-bg);color:var(--accent)">${r.tag}</span></div>
-        <div style="font-size:.88rem;font-weight:700;margin-bottom:4px">${r.name}</div>
-        <div style="font-size:.75rem;color:var(--text-secondary);line-height:1.55;flex:1;margin-bottom:10px">${r.desc}</div>
+      const thumbHTML=r.thumb?`<img src="${r.thumb}" alt="${r.name}" style="width:100%;height:100%;object-fit:cover;transition:transform .5s ease" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:'';
+      const fallbackIcon=`<div style="display:${r.thumb?'none':'flex'};align-items:center;justify-content:center;width:100%;height:100%"><i class="${r.icon}" style="font-size:1.8em;color:var(--accent);opacity:0.4"></i></div>`;
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 2px 8px rgba(0,0,0,0.04)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.07)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
+        <div style="width:100%;aspect-ratio:16/10;border-radius:10px;overflow:hidden;margin-bottom:10px;background:var(--surface-dim)">${thumbHTML}${fallbackIcon}</div>
+        <span style="font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--accent-bg);color:var(--accent);display:inline-block;margin-bottom:6px;align-self:flex-start">${r.tag}</span>
+        <div style="font-size:.85rem;font-weight:700;margin-bottom:3px">${r.name}</div>
+        <div style="font-size:.72rem;color:var(--text-secondary);line-height:1.5;flex:1;margin-bottom:8px">${r.desc}</div>
         <div style="display:flex;gap:5px">${actionHTML}</div>
       </div>`;
     }).join('')}</div>`;
