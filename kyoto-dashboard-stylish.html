@@ -1047,7 +1047,7 @@ function renderCal(){
       <div class="cal-view-btns">
         <button class="cal-view-btn${S.calView==='month'?' active':''}" onclick="S.calView='month';saveState();renderCal()">月間</button>
         <button class="cal-view-btn${S.calView==='week'?' active':''}" onclick="S.calView='week';saveState();renderCal()">週間</button>
-        ${S.calView==='week'?`<button class="cal-view-btn${S.weekDays===7?' active':''}" onclick="S.weekDays=S.weekDays===7?5:7;saveState();renderCal()" style="margin-left:4px">${S.weekDays===7?'7日':'5日'}</button>`:''}
+        ${S.calView==='week'?`<button class="cal-view-btn${S.weekDays===7?' active':''}" onclick="S.weekDays=S.weekDays===7?5:7;saveState();renderCal()" style="margin-left:4px">${S.weekDays===7?'5日に戻す':'7日表示'}</button>`:''}
       </div>
     </div>
     <div id="calContent"></div>
