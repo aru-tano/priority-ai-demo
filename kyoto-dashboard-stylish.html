@@ -1495,13 +1495,17 @@ function renderResources(){
       if(q&&!a.name.toLowerCase().includes(q)&&!a.subject.toLowerCase().includes(q))return false;
       return true;
     });
+    const ASS='../文章_作業スペース/FriendlyWorkshop/dev_screenshots/';
     html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">${filtered.map(a=>{
       const sm=APP_STATUS[a.status];
       const href=a.file?'../文章_作業スペース/FriendlyWorkshop/apps/'+a.file:(a.url||'#');
-      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 1px 4px rgba(0,0,0,0.03)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)'" onmouseout="this.style.transform='';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.03)'">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="width:8px;height:8px;border-radius:50%;background:${sm.c};flex-shrink:0"></span><span style="font-size:.65rem;font-weight:600;color:var(--text-dim)">${sm.l}</span>${a.grade!=='\u2014'?`<span style="font-size:.62rem;padding:1px 6px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.grade}</span>`:''}<span style="font-size:.62rem;padding:1px 6px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.subject}</span></div>
-        <div style="font-size:.85rem;font-weight:700;margin-bottom:8px">${a.name}</div>
-        <a href="${href}" target="_blank" style="font-size:.7rem;font-weight:600;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:4px">${a.status==='external'?'外部サイト':'開く'} <i class="fa-solid fa-arrow-right" style="font-size:.6rem"></i></a>
+      const thumbFile=a.file?a.file.replace(/\/index\.html$/,'').replace('.html',''):a.name;
+      const thumbSrc=ASS+thumbFile+'.png';
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 1px 4px rgba(0,0,0,0.03)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)'" onmouseout="this.style.transform='';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.03)'">
+        <div style="width:100%;aspect-ratio:16/10;border-radius:8px;overflow:hidden;margin-bottom:8px;background:var(--surface-dim)"><img src="${thumbSrc}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="width:7px;height:7px;border-radius:50%;background:${sm.c};flex-shrink:0"></span><span style="font-size:.62rem;font-weight:600;color:var(--text-dim)">${sm.l}</span>${a.grade!=='\u2014'?`<span style="font-size:.58rem;padding:1px 5px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.grade}</span>`:''}<span style="font-size:.58rem;padding:1px 5px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.subject}</span></div>
+        <div style="font-size:.82rem;font-weight:700;margin-bottom:6px">${a.name}</div>
+        <a href="${href}" target="_blank" style="font-size:.68rem;font-weight:600;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:4px">${a.status==='external'?'外部サイト':'開く'} <i class="fa-solid fa-arrow-right" style="font-size:.55rem"></i></a>
       </div>`;
     }).join('')}</div>`;
     if(!filtered.length) html+=`<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">該当するアプリがありません</div>`;
