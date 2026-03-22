@@ -379,15 +379,17 @@ body.dark .header{background:rgba(17,17,16,0.85)}
 }
 .cal-view-btn:hover{border-color:var(--accent);color:var(--text)}
 .cal-view-btn.active{background:var(--accent-bg);color:var(--accent);border-color:rgba(74,124,89,0.2)}
-.week-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.week-hdr{text-align:center;font-size:.75rem;font-weight:700;color:var(--text-dim);padding:8px 0}
+.week-grid{display:grid;grid-template-columns:48px repeat(5,1fr);gap:0}
+.week-hdr{text-align:center;font-size:.78rem;font-weight:700;color:var(--text-dim);padding:10px 0;border-bottom:1px solid var(--border)}
+.week-time-label{font-size:.62rem;font-weight:600;color:var(--text-dim);padding:8px 4px 8px 0;text-align:right;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:flex-end;min-height:80px}
+.week-block-label{font-size:.55rem;color:var(--text-dim);opacity:.6;text-align:right;padding-right:4px}
 .week-cell{
-  min-height:120px;padding:12px;background:var(--surface);
-  border:1px solid var(--border);border-radius:12px;
+  min-height:80px;padding:8px;background:var(--surface);
+  border:1px solid var(--border);border-bottom:1px solid var(--border);
   transition:all .2s var(--ease);
 }
-.week-cell:hover{box-shadow:var(--shadow-sm)}
-.week-cell.today{border-color:var(--accent);background:var(--accent-bg)}
+.week-cell:hover{background:rgba(74,124,89,0.02)}
+.week-cell.today{background:var(--accent-bg)}
 .week-day{font-size:.82rem;font-weight:700;margin-bottom:8px;color:var(--text-secondary)}
 .week-item{
   font-size:.72rem;padding:6px 8px;border-radius:8px;margin-bottom:4px;
@@ -1098,30 +1100,86 @@ function calDrop(e,dateStr){
 function loadOverrides(){try{return JSON.parse(localStorage.getItem('kyoto_cal_overrides'))||{}}catch{return {}}}
 function saveOverrides(o){localStorage.setItem('kyoto_cal_overrides',JSON.stringify(o))}
 
+const TIME_BLOCKS=[
+  {id:'morning',label:'朝',sub:'〜8:30',color:'rgba(74,124,89,0.06)'},
+  {id:'am',label:'午前',sub:'〜12:00',color:'rgba(91,125,177,0.06)'},
+  {id:'pm',label:'午後',sub:'〜16:00',color:'rgba(200,147,74,0.06)'},
+  {id:'after',label:'放課後',sub:'16:00〜',color:'rgba(184,90,122,0.06)'},
+];
+function getTaskTimeBlock(tk){
+  // Check override first
+  const o=loadOverrides();
+  if(o[tk.id]&&o[tk.id].timeBlock)return o[tk.id].timeBlock;
+  // Default: all tasks go to 'unset' (shown at bottom)
+  return tk.timeBlock||'unset';
+}
 function renderCalWeek(today,weekStart){
   const cc=document.getElementById('calContent');
   const days=[];
   for(let i=0;i<5;i++){const d=new Date(weekStart);d.setDate(d.getDate()+i);days.push(d)}
   const dow=['月','火','水','木','金'];
 
-  let html=days.map((d,i)=>`<div class="week-hdr">${dow[i]}</div>`).join('');
+  // Header row: empty corner + day headers
+  let html='<div></div>';
+  html+=days.map((d,i)=>{
+    const isToday=d.toDateString()===today.toDateString();
+    const dateLabel=`${d.getMonth()+1}/${d.getDate()} ${dow[i]}`;
+    return `<div class="week-hdr" style="${isToday?'color:var(--accent);font-weight:800':''}">${dateLabel}${isToday?' <span style="font-size:.6rem">(今日)</span>':''}</div>`;
+  }).join('');
+
+  // Time block rows
+  TIME_BLOCKS.forEach(block=>{
+    // Time label
+    html+=`<div class="week-time-label"><div><div style="font-size:.7rem;font-weight:700">${block.label}</div><div class="week-block-label">${block.sub}</div></div></div>`;
+    // Day cells for this block
+    html+=days.map(d=>{
+      const isToday=d.toDateString()===today.toDateString();
+      const mTasks=getMonthTasks(d.getFullYear(),d.getMonth()+1);
+      const dayTasks=getTasksForDay(d,mTasks).filter(tk=>getTaskTimeBlock(tk)===block.id);
+      const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const dropData=`${dateStr}|${block.id}`;
+      return `<div class="week-cell${isToday?' today':''}" style="background:${block.color}" data-date="${dateStr}" data-block="${block.id}" ondragover="event.preventDefault();this.style.outline='2px solid var(--accent)'" ondragleave="this.style.outline=''" ondrop="calDropBlock(event,'${dateStr}','${block.id}');this.style.outline=''">
+        ${dayTasks.map(tk=>{
+          const info=getDueInfo(tk);
+          const dueLabel=info&&!isDone(tk.id)?`<span class="week-due" style="color:${{overdue:'var(--red)',urgent:'var(--red)',soon:'var(--amber)',ok:'var(--text-dim)'}[info.urgency]}">${info.type==='提出'?'〆':''} ${info.label}</span>`:'';
+          return `<div class="week-item${isDone(tk.id)?' done-item':''}" draggable="true" ondragstart="calDragId='${tk.id}';this.style.opacity='0.4'" ondragend="this.style.opacity=''" style="cursor:grab">${domDot(tk.d)} <span style="flex:1">${esc(tk.t)}</span>${dueLabel}</div>`;
+        }).join('')}
+      </div>`;
+    }).join('');
+  });
+
+  // Unassigned row (tasks without time block)
+  html+=`<div class="week-time-label"><div><div style="font-size:.7rem;font-weight:700;color:var(--text-dim2)">終日</div></div></div>`;
   html+=days.map(d=>{
     const isToday=d.toDateString()===today.toDateString();
     const mTasks=getMonthTasks(d.getFullYear(),d.getMonth()+1);
-    const dayTasks=getTasksForDay(d,mTasks);
-    const dateLabel=`${d.getMonth()+1}/${d.getDate()}`;
+    const dayTasks=getTasksForDay(d,mTasks).filter(tk=>getTaskTimeBlock(tk)==='unset');
     const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    return `<div class="week-cell${isToday?' today':''}" data-date="${dateStr}" ondragover="event.preventDefault();this.style.background='var(--accent-bg)';this.style.borderColor='var(--accent)'" ondragleave="this.style.background='';this.style.borderColor=''" ondrop="calDrop(event,'${dateStr}');this.style.background='';this.style.borderColor=''">
-      <div class="week-day">${dateLabel}${isToday?' <span style="font-size:.65rem;color:var(--accent)">(今日)</span>':''}</div>
+    return `<div class="week-cell${isToday?' today':''}" data-date="${dateStr}" data-block="unset" ondragover="event.preventDefault();this.style.outline='2px solid var(--accent)'" ondragleave="this.style.outline=''" ondrop="calDropBlock(event,'${dateStr}','unset');this.style.outline=''">
       ${dayTasks.map(tk=>{
         const info=getDueInfo(tk);
         const dueLabel=info&&!isDone(tk.id)?`<span class="week-due" style="color:${{overdue:'var(--red)',urgent:'var(--red)',soon:'var(--amber)',ok:'var(--text-dim)'}[info.urgency]}">${info.type==='提出'?'〆':''} ${info.label}</span>`:'';
         return `<div class="week-item${isDone(tk.id)?' done-item':''}" draggable="true" ondragstart="calDragId='${tk.id}';this.style.opacity='0.4'" ondragend="this.style.opacity=''" style="cursor:grab">${domDot(tk.d)} <span style="flex:1">${esc(tk.t)}</span>${dueLabel}</div>`;
       }).join('')}
-      ${dayTasks.length===0?'<div style="font-size:.68rem;color:var(--text-dim2);padding:4px">予定なし</div>':''}
     </div>`;
   }).join('');
-  cc.innerHTML=`<div class="week-grid">${html}</div>`;
+
+  cc.innerHTML=`<div class="week-grid" style="grid-template-columns:48px repeat(5,1fr)">${html}</div>`;
+}
+function calDropBlock(e,dateStr,blockId){
+  e.preventDefault();
+  if(!calDragId)return;
+  const o=loadOverrides();
+  if(!o[calDragId])o[calDragId]={};
+  o[calDragId].due=dateStr;
+  o[calDragId].timeBlock=blockId;
+  saveOverrides(o);
+  const tk=TASKS.find(t=>t.id===calDragId);
+  if(tk){tk.due=dateStr;tk.timeBlock=blockId;if(tk.m){const nm=parseInt(dateStr.split('-')[1]);if(tk.m!==nm){o[calDragId].m=nm;tk.m=nm;saveOverrides(o)}}}
+  const blockLabel=TIME_BLOCKS.find(b=>b.id===blockId)?.label||'終日';
+  showToast(`${blockLabel} ${dateStr.replace(/^\d+-/,'').replace('-','/')} に移動`);
+  calDragId=null;
+  renderAll();
 }
 
 function calNavPrev(){
