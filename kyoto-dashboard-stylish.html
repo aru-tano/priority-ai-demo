@@ -1100,12 +1100,13 @@ function renderCalWeek(today,weekStart){
     const mTasks=getMonthTasks(d.getFullYear(),d.getMonth()+1);
     const dayTasks=getTasksForDay(d,mTasks);
     const dateLabel=`${d.getMonth()+1}/${d.getDate()}`;
-    return `<div class="week-cell${isToday?' today':''}">
+    const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    return `<div class="week-cell${isToday?' today':''}" data-date="${dateStr}" ondragover="event.preventDefault();this.style.background='var(--accent-bg)';this.style.borderColor='var(--accent)'" ondragleave="this.style.background='';this.style.borderColor=''" ondrop="calDrop(event,'${dateStr}');this.style.background='';this.style.borderColor=''">
       <div class="week-day">${dateLabel}${isToday?' <span style="font-size:.65rem;color:var(--accent)">(今日)</span>':''}</div>
       ${dayTasks.map(tk=>{
         const info=getDueInfo(tk);
         const dueLabel=info&&!isDone(tk.id)?`<span class="week-due" style="color:${{overdue:'var(--red)',urgent:'var(--red)',soon:'var(--amber)',ok:'var(--text-dim)'}[info.urgency]}">${info.type==='提出'?'〆':''} ${info.label}</span>`:'';
-        return `<div class="week-item${isDone(tk.id)?' done-item':''}">${domDot(tk.d)} <span style="flex:1">${esc(tk.t)}</span>${dueLabel}</div>`;
+        return `<div class="week-item${isDone(tk.id)?' done-item':''}" draggable="true" ondragstart="calDragId='${tk.id}';this.style.opacity='0.4'" ondragend="this.style.opacity=''" style="cursor:grab">${domDot(tk.d)} <span style="flex:1">${esc(tk.t)}</span>${dueLabel}</div>`;
       }).join('')}
       ${dayTasks.length===0?'<div style="font-size:.68rem;color:var(--text-dim2);padding:4px">予定なし</div>':''}
     </div>`;
