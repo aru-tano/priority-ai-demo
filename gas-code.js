@@ -39,6 +39,8 @@ function doPost(e) {
     result = addTask(body.task);
   } else if (action === 'add_diary') {
     result = addDiary(body.entry);
+  } else if (action === 'update_assignee') {
+    result = updateAssignee(body.id, body.assignee, body.dueDate);
   } else if (action === 'add_staff') {
     result = addStaff(body.record);
   } else {
@@ -248,6 +250,26 @@ function addStaff(record) {
   ]);
 
   return { ok: true };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// WRITE: 担当者（委任先）+ 回収予定日 書き戻し
+// ═══════════════════════════════════════════════════════════════
+function updateAssignee(id, assignee, dueDate) {
+  const row = findRowById(id);
+  if (!row) return { error: 'ID not found: ' + id };
+
+  const ss = SpreadsheetApp.openById(SS_ID);
+  const sheet = ss.getSheetByName('タスク一覧 ');
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+  const assigneeCol = headers.indexOf('担当者') + 1;
+  const dueCol = headers.indexOf('回収予定日') + 1;
+
+  if (assigneeCol > 0) sheet.getRange(row, assigneeCol).setValue(assignee || '');
+  if (dueCol > 0 && dueDate) sheet.getRange(row, dueCol).setValue(dueDate);
+
+  return { ok: true, id: id, assignee: assignee, dueDate: dueDate || '' };
 }
 
 // ═══════════════════════════════════════════════════════════════

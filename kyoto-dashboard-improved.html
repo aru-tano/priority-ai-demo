@@ -1186,14 +1186,22 @@ function delegateTask(id){
   if(cur==='委任'){
     setStatus(id,'進行中');
     tk.who='';
+    tk.dueDate='';
+    gasUpdateAssignee(id,'','');
     showToast('委任を解除しました');
     renderToday();
   }else{
     const who=prompt('誰に委任しますか？',tk.who||'');
-    if(who===null)return; // キャンセル
+    if(who===null)return;
     tk.who=who.trim();
+    // 回収予定日: デフォルト3日後
+    const defDue=new Date();defDue.setDate(defDue.getDate()+3);
+    const defStr=defDue.toISOString().slice(0,10);
+    const due=prompt('回収予定日（YYYY-MM-DD）',tk.dueDate||defStr);
+    if(due!==null)tk.dueDate=due.trim();
     setStatus(id,'委任');
-    showToast(tk.who?`${tk.who} に委任しました`:'委任に移動しました');
+    gasUpdateAssignee(id,tk.who,tk.dueDate||'');
+    showToast(tk.who?`${tk.who} に委任（回収: ${tk.dueDate||'未定'}）`:'委任に移動しました');
     renderToday();
   }
 }
@@ -2311,6 +2319,14 @@ function gasUpdateStatus(id,status){
     headers:{'Content-Type':'text/plain'},
     body:JSON.stringify({action:'update_status',id:id,status:status})
   }).catch(err=>console.error('GAS update failed:',err));
+}
+function gasUpdateAssignee(id,assignee,dueDate){
+  if(!LIVE_MODE)return;
+  fetch(GAS_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'update_assignee',id:id,assignee:assignee,dueDate:dueDate})
+  }).catch(err=>console.error('GAS assignee update failed:',err));
 }
 
 // ═══════════════════════════════════════════════════════════════
