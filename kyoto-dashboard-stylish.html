@@ -1134,12 +1134,16 @@ function calDrop(e,dateStr){
   saveOverrides(o);
   // Also update the in-memory task for immediate rendering
   tk.due=dateStr;
+  if(tk.date)tk.date=dateStr;
   // Update month if needed
   const newM=parseInt(dateStr.split('-')[1]);
-  if(tk.m && tk.m!==newM){
+  if(tk.m!==newM){
     o[calDragId].m=newM;
     tk.m=newM;
+    saveOverrides(o);
   }
+  // GASにも書き戻し
+  if(LIVE_MODE)fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'update_date',id:tk.id,date:dateStr})}).catch(err=>console.error('GAS date update failed:',err));
   calDragId=null;
   showToast('タスクを '+dateStr.replace(/^\d+-/,'').replace('-','/')+' に移動しました');
   renderAll();
@@ -1153,11 +1157,31 @@ const TIME_BLOCKS=[
   {id:'pm',label:'午後',sub:'〜16:00',color:'rgba(200,147,74,0.06)'},
   {id:'after',label:'放課後',sub:'16:00〜',color:'rgba(184,90,122,0.06)'},
 ];
+function parseStartHour(slot){
+  if(!slot)return -1;
+  // "08:30-11:30" or "08:30-" → 8.5
+  const hm=slot.match(/^(\d{1,2}):(\d{2})/);
+  if(hm)return parseInt(hm[1])+parseInt(hm[2])/60;
+  // "13:00/16:00" → 13
+  const sl=slot.match(/^(\d{1,2}):(\d{2})\//);
+  if(sl)return parseInt(sl[1])+parseInt(sl[2])/60;
+  // "1899-12-...T05:30:00.000Z" → UTC時刻+9=JST
+  const iso=slot.match(/T(\d{2}):(\d{2}):/);
+  if(iso)return (parseInt(iso[1])+parseInt(iso[2])/60+9)%24;
+  return -1;
+}
 function getTaskTimeBlock(tk){
   // Check override first
   const o=loadOverrides();
   if(o[tk.id]&&o[tk.id].timeBlock)return o[tk.id].timeBlock;
-  // Default: all tasks go to 'unset' (shown at bottom)
+  // timeSlotから自動判定
+  const h=parseStartHour(tk.timeSlot);
+  if(h>=0){
+    if(h<8.5)return 'morning';
+    if(h<12)return 'am';
+    if(h<16)return 'pm';
+    return 'after';
+  }
   return tk.timeBlock||'unset';
 }
 function renderCalWeek(today,weekStart){
@@ -1230,7 +1254,9 @@ function calDropBlock(e,dateStr,blockId){
   o[calDragId].timeBlock=blockId;
   saveOverrides(o);
   const tk=TASKS.find(t=>t.id===calDragId);
-  if(tk){tk.due=dateStr;tk.timeBlock=blockId;if(tk.m){const nm=parseInt(dateStr.split('-')[1]);if(tk.m!==nm){o[calDragId].m=nm;tk.m=nm;saveOverrides(o)}}}
+  if(tk){tk.due=dateStr;if(tk.date)tk.date=dateStr;tk.timeBlock=blockId;const nm=parseInt(dateStr.split('-')[1]);if(tk.m!==nm){o[calDragId].m=nm;tk.m=nm;saveOverrides(o)}}
+  // GASにも書き戻し
+  if(LIVE_MODE&&tk)fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'update_date',id:tk.id,date:dateStr})}).catch(err=>console.error('GAS date update failed:',err));
   const blockLabel=TIME_BLOCKS.find(b=>b.id===blockId)?.label||'終日';
   showToast(`${blockLabel} ${dateStr.replace(/^\d+-/,'').replace('-','/')} に移動`);
   calDragId=null;
