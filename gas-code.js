@@ -67,7 +67,7 @@ function getTasks() {
     if (!row[col['タスク']]) continue; // タスク名が空なら飛ばす
 
     tasks.push({
-      id: row[col['案件ID']] || 'KD-R7-' + String(i).padStart(3, '0'),
+      id: row[col['案件ID']] || 'KD-R8-' + String(i).padStart(3, '0'),
       date: formatDate(row[col['日付']]),
       task: row[col['タスク']],
       status: row[col['状態']] || '未着手',
@@ -186,7 +186,7 @@ function addTask(task) {
   const sheet = ss.getSheetByName('シート1');
   const lastRow = sheet.getLastRow();
   const nextNum = lastRow; // ヘッダー除いた行数
-  const newId = 'KD-R7-' + String(nextNum).padStart(3, '0');
+  const newId = 'KD-R8-' + String(nextNum).padStart(3, '0');
 
   sheet.appendRow([
     task.date || '',
