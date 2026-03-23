@@ -105,6 +105,13 @@ body.dark .sidebar{background:rgba(17,17,16,0.85)}
   transition:all .2s var(--ease);
 }
 .nav-btn:hover{background:var(--accent-bg);color:var(--text-secondary)}
+/* [DU-042] Keyboard shortcut badge on hover */
+.nav-btn[data-key]:hover::after{
+  content:attr(data-key);position:absolute;right:-6px;top:50%;transform:translateY(-50%);
+  font-size:10px;font-weight:600;color:var(--text-dim);background:var(--surface-dim);
+  border:1px solid var(--border);border-radius:4px;padding:1px 4px;
+  box-shadow:0 1px 0 rgba(0,0,0,0.06);font-family:monospace;pointer-events:none;
+}
 .nav-btn.active{background:var(--accent-bg);color:var(--accent)}
 .nav-btn.active::before{
   content:"";position:absolute;left:-8px;top:50%;transform:translateY(-50%);
@@ -380,7 +387,7 @@ body.dark .header{background:rgba(17,17,16,0.85)}
 }
 .cal-view-btn:hover{border-color:var(--accent);color:var(--text)}
 .cal-view-btn.active{background:var(--accent-bg);color:var(--accent);border-color:rgba(74,124,89,0.2)}
-.week-grid{display:grid;grid-template-columns:48px repeat(5,1fr);gap:0}
+.week-grid{display:grid;grid-template-columns:48px repeat(5,1fr);gap:0;position:relative}
 .week-hdr{text-align:center;font-size:.78rem;font-weight:700;color:var(--text-dim);padding:10px 0;border-bottom:1px solid var(--border)}
 .week-time-label{font-size:.62rem;font-weight:600;color:var(--text-dim);padding:8px 4px 8px 0;text-align:right;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:flex-end;min-height:80px}
 .week-block-label{font-size:.55rem;color:var(--text-dim);opacity:.6;text-align:right;padding-right:4px}
@@ -854,7 +861,7 @@ function renderNav(){
     const badge=t.id==='list'&&todo>0?`<span class="badge">${todo}</span>`:'';
     /* [DU-042] Keyboard shortcut hint in title */
     const shortcut=i<6?` (${i+1})`:'';
-    return `<button class="nav-btn${S.tab===t.id?' active':''}" data-tab="${t.id}" title="${t.label}${shortcut}"><i class="${t.icon}"></i>${badge}</button>`;
+    return `<button class="nav-btn${S.tab===t.id?' active':''}" data-tab="${t.id}" ${i<6?`data-key="${i+1}"`:''}title="${t.label}${shortcut}"><i class="${t.icon}"></i>${badge}</button>`;
   }).join('');
   document.querySelectorAll('.nav-btn').forEach(el=>el.addEventListener('click',()=>{
     S.tab=el.dataset.tab;saveState();renderAll();
@@ -959,7 +966,7 @@ function renderToday(){
         const tk=TASKS.find(x=>x.id===p.id);if(!tk)return '';
         const done=isDone(tk.id);
         const domColor=DC[tk.d]||'var(--accent)';
-        return `<div class="today-card${done?' done':''}" style="animation:fadeIn ${.15+i*.08}s ease;border-left-color:${domColor}">
+        return `<div class="today-card${done?' done':''}" style="animation:fadeIn ${.15+i*.08}s ease both;border-left-color:${domColor}">
           ${cb(tk.id)}
           <div class="today-rank">${i+1}</div>
           <div class="today-card-body">
@@ -1175,7 +1182,7 @@ function renderCal(){
       <div class="cal-view-btns">
         <button class="cal-view-btn${S.calView==='month'?' active':''}" onclick="S.calView='month';saveState();renderCal()">月間</button>
         <button class="cal-view-btn${S.calView==='week'?' active':''}" onclick="S.calView='week';saveState();renderCal()">週間</button>
-        ${S.calView==='week'?`<button class="cal-view-btn${S.weekDays===7?' active':''}" onclick="S.weekDays=S.weekDays===7?5:7;saveState();renderCal()" style="margin-left:4px">${S.weekDays===7?'5日に戻す':'7日表示'}</button>`:''}
+        <button class="cal-view-btn${S.weekDays===7?' active':''}" onclick="S.weekDays=S.weekDays===7?5:7;saveState();renderCal()" style="margin-left:4px">${S.weekDays===7?'7日':'5日'}</button>
       </div>
     </div>
     <div id="calContent"></div>
@@ -1188,21 +1195,34 @@ function renderCal(){
 let calDragId=null;
 function renderCalMonth(today){
   const cc=document.getElementById('calContent');
-  let html=['日','月','火','水','木','金','土'].map(d=>`<div class="cal-hdr">${d}</div>`).join('');
+  const show7=S.weekDays===7;
+  const days=show7?['日','月','火','水','木','金','土']:['月','火','水','木','金'];
+  const cols=show7?7:5;
+  let html=days.map(d=>`<div class="cal-hdr">${d}</div>`).join('');
   const fd=new Date(calY,calM-1,1).getDay();
   const dim=new Date(calY,calM,0).getDate();
-  for(let i=0;i<fd;i++)html+='<div class="cal-cell empty"></div>';
+  if(show7){
+    for(let i=0;i<fd;i++)html+='<div class="cal-cell empty"></div>';
+  } else {
+    // 5日表示: 月曜始まりの空セル（0=日→なし, 1=月→0空, 2=火→1空...）
+    const fdMon=fd===0?0:(fd-1); // 日曜は含めないのでスキップ
+    for(let i=0;i<fdMon;i++)html+='<div class="cal-cell empty"></div>';
+  }
   const mTasks=getMonthTasks(calY,calM);
   for(let d=1;d<=dim;d++){
     const dt=new Date(calY,calM-1,d);
+    const dow=dt.getDay();
+    if(!show7&&(dow===0||dow===6))continue; // 5日表示: 土日スキップ
     const isToday=dt.toDateString()===today.toDateString();
     const dayTasks=getTasksForDay(dt,mTasks);
     const dateStr=`${calY}-${String(calM).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     html+=`<div class="cal-cell${isToday?' today':''}" data-date="${dateStr}" ondragover="event.preventDefault();this.style.background='var(--accent-bg)';this.style.borderColor='var(--accent)'" ondragleave="this.style.background='';this.style.borderColor=''" ondrop="calDrop(event,'${dateStr}');this.style.background='';this.style.borderColor=''"><div class="cal-day">${d}</div>${dayTasks.slice(0,3).map(tk=>`<div class="cal-item${isDone(tk.id)?' done-item':''}" draggable="true" ondragstart="calDragId='${tk.id}';this.style.opacity='0.4'" ondragend="this.style.opacity=''" title="${esc(tk.t)}" style="cursor:grab">${domDot(tk.d)} ${esc(tk.t)}</div>`).join('')}${dayTasks.length>3?`<div class="cal-more">+${dayTasks.length-3}</div>`:''}</div>`;
   }
-  const rem=(7-(fd+dim)%7)%7;
-  for(let i=0;i<rem;i++)html+='<div class="cal-cell empty"></div>';
-  cc.innerHTML=`<div class="cal-grid">${html}</div>`;
+  if(show7){
+    const rem=(7-(fd+dim)%7)%7;
+    for(let i=0;i<rem;i++)html+='<div class="cal-cell empty"></div>';
+  }
+  cc.innerHTML=`<div class="cal-grid" style="grid-template-columns:repeat(${cols},1fr)">${html}</div>`;
 }
 function calDrop(e,dateStr){
   e.preventDefault();
@@ -1917,7 +1937,6 @@ function placeNowIndicator(){
   const gridRect=grid.getBoundingClientRect();
   const cellRect=cell.getBoundingClientRect();
   const top=cellRect.top-gridRect.top+cellRect.height*pct;
-  grid.style.position='relative';
   const line=document.createElement('div');
   line.className='now-indicator';
   line.style.top=top+'px';
