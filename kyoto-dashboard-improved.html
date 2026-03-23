@@ -630,7 +630,7 @@ body.dark .header{background:rgba(17,17,16,0.85)}
       <div class="panel" id="p-board"></div>
       <div class="panel" id="p-overview"></div>
       <div class="panel" id="p-resources"></div>
-      <div class="panel" id="p-input" style="display:none">
+      <div class="panel" id="p-input">
         <div style="text-align:center;padding:80px 40px;color:var(--text-dim)">
           <i class="fa-solid fa-pen-to-square" style="font-size:48px;opacity:0.2;margin-bottom:16px;display:block"></i>
           <div style="font-size:16px;font-weight:600;margin-bottom:8px;color:var(--text-secondary)">タスク入力</div>
@@ -985,9 +985,13 @@ async function aiPickToday(){
   if(btn)btn.classList.add('processing');
   showToast('AIが選定中...');
   await new Promise(r=>setTimeout(r,1500));
+  if(btn)btn.classList.remove('processing');
+  // 未完了タスクから次の5件を選定
+  rebuildTodayPicks();
   todayRevealed=true;
   renderToday();
-  showToast('今日のおすすめ5件を選びました');
+  const doneCount=TODAY_PICKS.filter(p=>isDone(p.id)).length;
+  showToast(TODAY_PICKS.length>0?`${TODAY_PICKS.length}件を選定しました`:'未完了のタスクがありません');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -999,11 +1003,12 @@ function renderList(){
   const doms=[...new Set(TASKS.map(t=>t.d))].sort();
   const months=[...new Set(TASKS.map(t=>t.m).filter(Boolean))].sort((a,b)=>a-b);
 
-  if(!document.getElementById('fDom')){
+  const needsInit=!document.getElementById('fDom');
+  if(needsInit){
     el.innerHTML=`
       <div class="list-toolbar">
-        <select id="fDom"><option value="">全領域</option>${doms.map(d=>`<option value="${d}">${d}</option>`).join('')}</select>
-        <select id="fMon"><option value="">全月</option>${months.map(m=>`<option value="${m}">${m}月</option>`).join('')}<option value="null">通年</option></select>
+        <select id="fDom"></select>
+        <select id="fMon"></select>
         <select id="fSt"><option value="">全状態</option>${STATUSES.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
         <input type="text" id="fSearch" placeholder="検索...">
         <button class="hide-done-toggle${S.hideDone?' active':''}" id="listHideDone">${S.hideDone?'完了表示':'完了隠す'}</button>
@@ -1016,6 +1021,11 @@ function renderList(){
     document.getElementById('fSearch').addEventListener('input',debounce(renderListRows,200));
     document.getElementById('listHideDone').addEventListener('click',()=>{S.hideDone=!S.hideDone;saveState();renderAll()});
   }
+  // GASデータ取得後もフィルタoptionを最新に更新
+  const curDom=document.getElementById('fDom').value;
+  const curMon=document.getElementById('fMon').value;
+  document.getElementById('fDom').innerHTML=`<option value="">全領域</option>${doms.map(d=>`<option value="${d}"${d===curDom?' selected':''}>${d}</option>`).join('')}`;
+  document.getElementById('fMon').innerHTML=`<option value="">全月</option>${months.map(m=>`<option value="${m}"${String(m)===curMon?' selected':''}>${m}月</option>`).join('')}<option value="null"${curMon==='null'?' selected':''}>通年</option>`;
   document.getElementById('listHideDone').textContent=S.hideDone?'完了表示':'完了隠す';
   document.getElementById('listHideDone').className='hide-done-toggle'+(S.hideDone?' active':'');
   renderListHeader();
@@ -1430,7 +1440,8 @@ function renderOverview(){
   const maxD=domS[0]?.[1]||1;
   const monC={};for(let m=1;m<=12;m++)monC[m]=0;TASKS.forEach(tk=>{if(tk.m)monC[tk.m]++});
   const maxM=Math.max(...Object.values(monC),1);
-  const pits=TASKS.filter(tk=>(tk.m===3||tk.m===4)&&tk.pit);
+  const pitMonth=new Date().getMonth()+1;
+  const pits=TASKS.filter(tk=>(tk.m===pitMonth||tk.m===pitMonth+1||(pitMonth===12&&tk.m===1))&&tk.pit);
   const cyC={};TASKS.forEach(tk=>cyC[tk.cy]=(cyC[tk.cy]||0)+1);
   const statusColors={'未着手':'var(--red)','進行中':'var(--blue)','委任':'var(--amber)','完了':'var(--green)'};
 
@@ -1912,6 +1923,8 @@ function placeNowIndicator(){
   line.style.top=top+'px';
   grid.appendChild(line);
 }
+// [DU-011] 1分ごとに現在時刻インジケータを更新
+setInterval(placeNowIndicator,60000);
 
 // ═══════════════════════════════════════════════════════════════
 // [DU-043] COMMAND PALETTE (Cmd+K)
@@ -2019,10 +2032,18 @@ function rebuildTodayPicks(){
   const now=new Date();
   const cm=now.getMonth()+1;
   const candidates=TASKS.filter(tk=>!isDone(tk.id)&&(tk.m===cm||tk.m===cm+1));
-  const reasons=['今月の重要タスク','期限が近い','早めに着手すべき','今週中に対応','確認が必要'];
+  // 締切の近い順 → 優先度高い順 → overdue優先でソート
+  candidates.sort((a,b)=>{
+    const da=getDueInfo(a),db=getDueInfo(b);
+    const diffA=da?da.diff:999,diffB=db?db.diff:999;
+    if(diffA!==diffB)return diffA-diffB; // 締切近い順
+    return (a.wb||0)-(b.wb||0); // 同じなら優先度高い順（wbが小さい=早めに着手）
+  });
   TODAY_PICKS.length=0;
-  candidates.slice(0,5).forEach((tk,i)=>{
-    TODAY_PICKS.push({id:tk.id,why:tk.pit||reasons[i]||'今月のタスク'});
+  candidates.slice(0,5).forEach((tk)=>{
+    const due=getDueInfo(tk);
+    const why=due&&due.diff<=0?'期限超過！至急対応':due&&due.diff<=3?`あと${due.diff}日（${due.label}）`:tk.pit||'今月のタスク';
+    TODAY_PICKS.push({id:tk.id,why:why});
   });
   if(TODAY_PICKS.length>0)todayRevealed=true;
 }
