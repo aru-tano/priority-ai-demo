@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教頭ダッシュボード — R7年度 [Improved]</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ===== RESET ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{font-family:'Inter','Noto Sans JP',sans-serif;min-height:100vh;letter-spacing:-0.01em;transition:background .4s cubic-bezier(.16,1,.3,1),color .3s}
+
+/* ===== STYLISH UI REDESIGN v2 =====
+   [SU-001] 60-30-10: 60%=#FAF9F6 / 30%=#FFFFFF / 10%=#4A7C59
+   [SU-002] Elevated Neutrals
+   [SU-004] 8px Grid
+   [SU-008] Semantic Border Radius: 8/16/24
+   [SU-011] Soft Shadow (Josh Comeau)
+   [SU-012] Glassmorphism (sidebar + header)
+   [SU-014] Animation timing: enter 0.35s, hover 0.2s, exit 0.15s
+   [SU-015] Easing: cubic-bezier(.16,1,.3,1)
+   [SU-016] Visual Hierarchy: Cormorant Garamond for big numbers
+   [SU-020] Grainy texture, elevated neutrals, micro-animations
+   [SU-023] Card Golden Pattern: padding 20-24px, radius 16px
+   [SU-025] 5 Principles: Consistency, Restraint, Breathing, Order, Feedback
+===== */
+
+:root{
+  --bg:#FAF9F6;
+  --surface:#FFFFFF;
+  --surface-dim:#F5F3F0;
+  --surface-container:#EDE9E3;
+  --border:rgba(45,38,33,0.07);
+  --border-mid:rgba(45,38,33,0.12);
+  --border-strong:rgba(45,38,33,0.2);
+  --text:#2d2621;
+  --text-secondary:#6b6560;
+  --text-dim:#a8a29e;
+  --text-dim2:#d6d3d1;
+  --accent:#4A7C59;
+  --accent-hover:#3d6b4a;
+  --accent-bg:rgba(74,124,89,0.07);
+  --card-hover:rgba(74,124,89,0.03);
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg:0 16px 40px rgba(0,0,0,0.1);
+  --green:#4A7C59;
+  --red:#C45D5D;
+  --amber:#C8934A;
+  --blue:#5B7DB1;
+  --pink:#B85A7A;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --sidebar-w:56px;
+}
+body{background:var(--bg);color:var(--text)}
+
+/* [SU-020] Grainy texture overlay */
+body::before{
+  content:"";position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:0.03;pointer-events:none;z-index:9999;
+}
+
+/* Dark mode */
+body.dark{
+  --bg:#111110;--surface:#1a1917;--surface-dim:#1e1d1b;--surface-container:#252320;
+  --border:rgba(255,255,255,0.06);--border-mid:rgba(255,255,255,0.1);--border-strong:rgba(255,255,255,0.16);
+  --text:#e8e4df;--text-secondary:#b5afa8;--text-dim:#6b6560;--text-dim2:#3d3a36;
+  --accent:#7aad8a;--accent-hover:#5d946e;--accent-bg:rgba(122,173,138,.1);
+  --card-hover:rgba(122,173,138,.05);
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.15);--shadow-md:0 4px 16px rgba(0,0,0,0.2);--shadow-lg:0 16px 40px rgba(0,0,0,0.3);
+  --green:#7aad8a;--red:#e88888;--amber:#e8b86a;--blue:#8aabe8;--pink:#e88ab0;
+}
+
+/* ===== LAYOUT: Sidebar + Main ===== */
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* [SU-012] Glassmorphism sidebar */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;
+  padding:16px 0;gap:4px;
+  background:rgba(250,249,246,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-right:1px solid var(--border);z-index:100;
+}
+body.dark .sidebar{background:rgba(17,17,16,0.85)}
+
+.sidebar-logo{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1rem;font-style:italic;
+  margin-bottom:16px;
+}
+
+.sidebar-nav{display:flex;flex-direction:column;gap:4px;flex:1}
+
+.nav-btn{
+  width:40px;height:40px;border-radius:12px;border:none;
+  background:transparent;color:var(--text-dim);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;cursor:pointer;position:relative;
+  transition:all .2s var(--ease);
+}
+.nav-btn:hover{background:var(--accent-bg);color:var(--text-secondary)}
+.nav-btn.active{background:var(--accent-bg);color:var(--accent)}
+.nav-btn.active::before{
+  content:"";position:absolute;left:-8px;top:50%;transform:translateY(-50%);
+  width:3px;height:20px;border-radius:0 3px 3px 0;background:var(--accent);
+}
+.nav-btn .badge{
+  position:absolute;top:4px;right:4px;
+  background:var(--red);color:#fff;font-size:.55rem;
+  min-width:14px;height:14px;border-radius:99px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;line-height:1;
+}
+
+.sidebar-bottom{margin-top:auto;display:flex;flex-direction:column;gap:4px}
+
+.theme-toggle{
+  width:40px;height:40px;border-radius:12px;border:none;
+  background:transparent;color:var(--text-dim);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;cursor:pointer;transition:all .2s var(--ease);
+}
+.theme-toggle:hover{background:var(--accent-bg);color:var(--text)}
+.theme-toggle.active{background:var(--accent);color:#fff}
+
+/* Main content area */
+.main-wrapper{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* [SU-012] Glassmorphism header */
+.header{
+  padding:20px 32px 16px;flex-shrink:0;
+  background:rgba(250,249,246,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+body.dark .header{background:rgba(17,17,16,0.85)}
+
+.header-left{}
+.header-date{
+  font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;
+  letter-spacing:-0.02em;line-height:1.2;
+}
+.header-sub{font-size:14px;color:var(--text-dim);margin-top:2px}
+
+.header-right{display:flex;align-items:center;gap:8px}
+.stat-chip{
+  padding:4px 12px;border-radius:99px;font-size:13px;font-weight:600;
+  background:var(--surface-dim);border:1px solid var(--border);color:var(--text-secondary);
+}
+.stat-chip.highlight{background:var(--accent-bg);color:var(--accent);border-color:rgba(74,124,89,0.15)}
+
+/* Content area */
+.content{flex:1;overflow-y:auto;padding:24px 32px 40px;max-width:100%;width:100%}
+.panel{display:none}
+.panel.active{display:block}
+
+/* ===== COMMON COMPONENTS ===== */
+.domain-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+.status-btn{
+  padding:3px 10px;border-radius:99px;font-size:11.5px;font-weight:600;
+  border:none;cursor:pointer;transition:all .15s var(--ease);font-family:inherit;
+  letter-spacing:.02em;
+}
+.status-btn:hover{filter:brightness(1.1);transform:scale(1.04)}
+.s-未着手{background:rgba(196,93,93,.12);color:var(--red)}
+.s-進行中{background:rgba(91,125,177,.12);color:var(--blue)}
+.s-委任{background:rgba(200,147,74,.12);color:var(--amber)}
+.s-完了{background:rgba(74,124,89,.12);color:var(--green)}
+
+.checkbox{
+  width:18px;height:18px;border-radius:6px;border:2px solid var(--border-strong);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s var(--ease);flex-shrink:0;
+}
+.checkbox:hover{border-color:var(--accent);background:var(--accent-bg)}
+.checkbox.checked{background:var(--green);border-color:var(--green)}
+.checkbox.checked::after{content:'\f00c';font-family:'Font Awesome 6 Free';font-weight:900;color:#fff;font-size:.55rem}
+
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);
+  padding:10px 24px;border-radius:12px;
+  background:var(--surface);border:1px solid var(--border-mid);
+  color:var(--text);font-size:14px;font-weight:600;z-index:9999;
+  box-shadow:var(--shadow-md);transition:transform .25s var(--ease);pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes slideOut{to{opacity:0;transform:translateX(40px);height:0;padding:0;margin:0;overflow:hidden}}
+
+/* ===== AI BUTTON ===== */
+.ai-btn{
+  padding:10px 20px;border-radius:12px;border:none;
+  background:var(--accent);color:#fff;font-weight:700;font-size:14px;
+  cursor:pointer;font-family:inherit;
+  transition:all .25s var(--ease);white-space:nowrap;
+  box-shadow:0 2px 8px rgba(74,124,89,0.2);
+}
+.ai-btn:hover{background:var(--accent-hover);transform:translateY(-1px);box-shadow:0 6px 16px rgba(74,124,89,0.25)}
+.ai-btn:active{transform:translateY(0);box-shadow:0 2px 6px rgba(74,124,89,0.15)}
+.ai-btn.processing .btn-label{opacity:.3}
+.ai-btn.processing .spinner{display:inline-block}
+.spinner{display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.today-initial{text-align:center;padding:56px 0;color:var(--text-dim)}
+.today-initial-icon{font-size:2.5rem;margin-bottom:12px;opacity:.5}
+.today-initial-text{font-size:16px;margin-bottom:4px}
+.today-initial-sub{font-size:13.5px;color:var(--text-dim2)}
+
+/* ===== FLOW DIAGRAM ===== */
+.flow-toggle{
+  display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px 0;
+  font-size:16px;font-weight:700;color:var(--text);user-select:none;
+}
+.flow-toggle:hover{color:var(--accent)}
+.flow-toggle .arrow{transition:transform .2s var(--ease);font-size:.7rem}
+.flow-toggle.open .arrow{transform:rotate(90deg)}
+.flow-content{display:none;margin-top:8px;padding:16px;background:var(--surface-dim);border:1px solid var(--border);border-radius:16px}
+.flow-content.open{display:block}
+.flow-content svg{width:100%;height:auto;display:block}
+.flow-decisions{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.flow-dec{padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;border-left:3px solid var(--green);font-size:14px;line-height:1.6}
+.flow-dec.pending{border-left-color:var(--text-dim2);opacity:.7}
+.flow-dec strong{font-weight:700}
+.flow-dec-title{font-weight:700;margin-bottom:4px}
+
+/* ===== DOMAIN COLORS ===== */
+.dc-行事{background:#ef4444}.dc-教職員管理{background:#f59e0b}.dc-文書管理{background:#3b82f6}
+.dc-施設管理{background:#10b981}.dc-教育委員会{background:#8b5cf6}.dc-危機管理{background:#dc2626}
+.dc-校内調整{background:#06b6d4}.dc-会議運営{background:#f97316}.dc-地域連携{background:#84cc16}
+.dc-保護者対応{background:#ec4899}.dc-校長補佐{background:#6366f1}
+
+/* ===== PANEL 1: TODAY ===== */
+.today-cards{display:flex;flex-direction:column;gap:16px}
+/* [SU-023] Card Golden Pattern + [SU-011] Soft Shadow */
+.today-card{
+  padding:20px 24px;background:var(--surface);
+  border:1px solid var(--border);border-left:3px solid var(--accent);
+  border-radius:16px;display:flex;gap:16px;align-items:flex-start;
+  transition:all .35s var(--ease);box-shadow:var(--shadow-sm);
+}
+.today-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.today-card.done{opacity:.4}
+.today-card.done .today-card-title{text-decoration:line-through}
+.today-card.removing{animation:slideOut .35s ease forwards}
+.today-rank{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0;
+  background:var(--accent);font-family:'Cormorant Garamond',serif;
+}
+.today-card-body{flex:1;min-width:0}
+.today-card-title{font-weight:700;font-size:16px;margin-bottom:2px}
+.today-card-why{
+  font-size:13.5px;color:var(--text-secondary);line-height:1.6;margin-top:8px;
+  padding:8px 12px;border-radius:8px;background:var(--accent-bg);
+}
+.today-checklist{margin-top:12px;display:flex;flex-direction:column;gap:4px}
+.today-cl-item{
+  font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;
+  cursor:pointer;padding:4px 0;transition:color .15s;
+}
+.today-cl-item:hover{color:var(--text)}
+.today-cl-item.cl-done{text-decoration:line-through;opacity:.5}
+.today-cl-check{
+  width:14px;height:14px;border-radius:4px;border:1.5px solid var(--border-strong);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:all .15s var(--ease);
+}
+.today-cl-item.cl-done .today-cl-check{background:var(--green);border-color:var(--green)}
+.today-cl-item.cl-done .today-cl-check::after{content:'\f00c';font-family:'Font Awesome 6 Free';font-weight:900;color:#fff;font-size:.45rem}
+.today-pitfall{
+  margin-top:12px;padding:8px 12px;border-radius:8px;font-size:13.5px;
+  background:rgba(196,93,93,.06);border-left:3px solid var(--red);
+  color:var(--text-secondary);line-height:1.6;
+}
+.today-remaining{margin-top:24px;text-align:center;color:var(--text-dim);font-size:14px;padding:16px;border:1px dashed var(--border-mid);border-radius:12px}
+.hide-done-toggle{
+  font-size:12.5px;color:var(--text-dim);cursor:pointer;padding:6px 12px;
+  border-radius:8px;border:1px solid var(--border-mid);background:transparent;
+  font-family:inherit;transition:all .2s var(--ease);font-weight:500;
+}
+.hide-done-toggle:hover{border-color:var(--accent);color:var(--text)}
+.hide-done-toggle.active{background:var(--accent-bg);color:var(--accent);border-color:rgba(74,124,89,0.2)}
+
+/* ===== PANEL 2: LIST ===== */
+.list-toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.list-toolbar select,.list-toolbar input{
+  padding:8px 12px;border-radius:8px;border:1px solid var(--border-mid);
+  background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;
+  transition:border-color .2s;
+}
+.list-toolbar select:focus,.list-toolbar input:focus{outline:none;border-color:var(--accent)}
+.list-toolbar input{flex:1;min-width:140px}
+.list-count{font-size:12.5px;color:var(--text-dim);margin-bottom:8px;font-weight:500}
+.list-header{
+  display:grid;grid-template-columns:30px 1fr 90px 50px 100px 56px;gap:8px;
+  padding:8px 16px;font-size:12px;font-weight:700;color:var(--text-dim);
+  border-bottom:1px solid var(--border-mid);text-transform:uppercase;letter-spacing:.5px;
+  align-items:center;
+}
+.list-header span{cursor:pointer;display:flex;align-items:center;gap:3px;user-select:none;transition:color .15s}
+.list-header span:hover{color:var(--text)}
+.sort-arrow{font-size:.6rem;opacity:.5}
+.list-header span.sorted{color:var(--accent)}
+.list-header span.sorted .sort-arrow{opacity:1}
+.list-rows{display:flex;flex-direction:column}
+.list-row{
+  display:grid;grid-template-columns:30px 1fr 90px 50px 100px 56px;gap:8px;
+  padding:10px 16px;border-bottom:1px solid var(--border);
+  align-items:center;font-size:15px;
+  transition:all .2s var(--ease);cursor:pointer;border-radius:0;
+}
+.list-row:hover{background:var(--card-hover);transform:translateY(-1px)}
+.list-row.done{opacity:.4}
+.list-row.done .list-task{text-decoration:line-through}
+.list-row.removing{animation:slideOut .3s ease forwards}
+.list-task{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-domain{font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:4px}
+.list-month{font-size:13px;color:var(--text-secondary)}
+.list-cycle{font-size:12px;color:var(--text-dim)}
+.list-detail{
+  grid-column:2/7;padding:12px 0 8px;font-size:13.5px;color:var(--text-secondary);line-height:1.6;
+  display:none;
+}
+.list-row.open .list-detail{display:block}
+.list-checklist{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.list-cl{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:3px 0;transition:color .15s}
+.list-cl:hover{color:var(--text)}
+.list-cl.cl-done{text-decoration:line-through;opacity:.5}
+
+/* ===== PANEL 3: CALENDAR ===== */
+.cal-nav{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.cal-nav-btn{
+  padding:6px 12px;border-radius:8px;border:1px solid var(--border-mid);
+  background:var(--surface);color:var(--text);cursor:pointer;
+  font-family:inherit;font-size:.85rem;transition:all .2s var(--ease);
+}
+.cal-nav-btn:hover{background:var(--surface-dim);border-color:var(--accent)}
+.cal-month-label{font-weight:700;font-size:1rem;font-family:'Cormorant Garamond',serif;font-size:1.2rem}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-hdr{text-align:center;font-size:13px;font-weight:600;color:var(--text-dim);padding:8px 0}
+.cal-hdr:first-child{color:var(--red)}
+.cal-hdr:last-child{color:var(--blue)}
+.cal-cell{
+  min-height:88px;padding:8px;background:var(--surface);
+  border:1px solid var(--border);border-radius:12px;
+  transition:all .2s var(--ease);
+}
+.cal-cell:hover{box-shadow:var(--shadow-sm)}
+.cal-cell.empty{background:transparent;border-color:transparent}
+.cal-cell.empty:hover{box-shadow:none}
+.cal-cell.today{border-color:var(--accent);background:var(--accent-bg)}
+.cal-day{font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text-secondary)}
+.cal-cell:nth-child(7n+1) .cal-day{color:var(--red)}
+.cal-cell:nth-child(7n) .cal-day{color:var(--blue)}
+.cal-item{
+  font-size:11px;padding:3px 6px;border-radius:6px;margin-bottom:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  background:var(--surface-dim);color:var(--text-secondary);cursor:default;
+  display:flex;align-items:center;gap:3px;transition:background .15s;
+}
+.cal-item:hover{background:var(--card-hover)}
+.cal-item .domain-dot{width:5px;height:5px}
+.cal-item.done-item{opacity:.35;text-decoration:line-through}
+.cal-more{font-size:.58rem;color:var(--text-dim);padding:0 4px}
+
+/* Weekly view */
+.cal-view-btns{display:flex;gap:4px;margin-left:auto}
+.cal-view-btn{
+  padding:4px 12px;border-radius:8px;border:1px solid var(--border-mid);
+  background:transparent;color:var(--text-dim);font-size:.72rem;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .2s var(--ease);
+}
+.cal-view-btn:hover{border-color:var(--accent);color:var(--text)}
+.cal-view-btn.active{background:var(--accent-bg);color:var(--accent);border-color:rgba(74,124,89,0.2)}
+.week-grid{display:grid;grid-template-columns:48px repeat(5,1fr);gap:0}
+.week-hdr{text-align:center;font-size:.78rem;font-weight:700;color:var(--text-dim);padding:10px 0;border-bottom:1px solid var(--border)}
+.week-time-label{font-size:.62rem;font-weight:600;color:var(--text-dim);padding:8px 4px 8px 0;text-align:right;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:flex-end;min-height:80px}
+.week-block-label{font-size:.55rem;color:var(--text-dim);opacity:.6;text-align:right;padding-right:4px}
+.week-cell{
+  min-height:80px;padding:8px;background:var(--surface);
+  border:1px solid var(--border);border-bottom:1px solid var(--border);
+  transition:all .2s var(--ease);
+}
+.week-cell:hover{background:rgba(74,124,89,0.02)}
+.week-cell.today{background:var(--accent-bg)}
+.week-day{font-size:.82rem;font-weight:700;margin-bottom:8px;color:var(--text-secondary)}
+.week-item{
+  font-size:.72rem;padding:6px 8px;border-radius:8px;margin-bottom:4px;
+  background:var(--surface-dim);color:var(--text-secondary);
+  display:flex;align-items:center;gap:4px;line-height:1.4;transition:background .15s;
+}
+.week-item:hover{background:var(--card-hover)}
+.week-item .domain-dot{width:6px;height:6px}
+.week-item.done-item{opacity:.35;text-decoration:line-through}
+.week-due{font-size:.6rem;margin-left:auto;white-space:nowrap}
+
+/* ===== PANEL 4: KANBAN ===== */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;min-height:400px}
+@media(max-width:800px){.kanban{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.kanban{grid-template-columns:1fr}}
+.kanban-col{
+  background:var(--surface-dim);border:1px solid var(--border);border-radius:20px;
+  padding:20px;min-height:200px;
+}
+.kanban-col-header{
+  font-size:14.5px;font-weight:700;margin-bottom:12px;padding-bottom:8px;padding-left:8px;
+  border-bottom:none;border-left:3px solid var(--border-mid);
+  display:flex;align-items:center;gap:8px;
+}
+.kanban-col-header .count{
+  font-size:11.5px;background:var(--surface-container);padding:2px 8px;border-radius:99px;
+  color:var(--text-dim);font-weight:600;
+}
+.kanban-col.drag-over{background:var(--accent-bg);border-color:var(--accent)}
+.kanban-card{
+  padding:14px 16px;background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:8px;cursor:grab;
+  transition:all .35s var(--ease);font-size:14px;box-shadow:var(--shadow-sm);
+}
+.kanban-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.kanban-card:active{cursor:grabbing;opacity:.7}
+.kanban-card.dragging{opacity:.3}
+.kanban-card.done-card{opacity:.45}
+.kanban-card.done-card .kc-title{text-decoration:line-through}
+.kc-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.kc-title{font-weight:600;flex:1;overflow-wrap:break-word;word-wrap:break-word;line-height:1.4}
+.kc-domain{font-size:12px;color:var(--text-dim)}
+.kc-meta{font-size:12px;color:var(--text-dim);display:flex;gap:8px}
+
+/* ===== PANEL 5: OVERVIEW ===== */
+.ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+@media(max-width:640px){.ov-grid{grid-template-columns:1fr}}
+/* [SU-023] Card Golden Pattern */
+.ov-card{
+  padding:24px;background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;box-shadow:var(--shadow-sm);
+  transition:all .35s var(--ease);
+}
+.ov-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+/* [SU-016] Visual Hierarchy */
+.ov-card-title{
+  font-size:12px;color:var(--text-dim);font-weight:700;margin-bottom:12px;
+  text-transform:uppercase;letter-spacing:.8px;
+}
+.ov-big{
+  font-size:2.8rem;font-weight:700;color:var(--accent);
+  font-family:'Cormorant Garamond',serif;line-height:1;
+}
+.ov-sub{font-size:13px;color:var(--text-dim);margin-top:4px}
+.bar-chart{display:flex;flex-direction:column;gap:6px}
+.bar-row{display:flex;align-items:center;gap:8px}
+.bar-label{width:85px;font-size:13px;color:var(--text-secondary);text-align:right;flex-shrink:0}
+.bar-track{flex:1;height:20px;background:var(--surface-dim);border-radius:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:8px;transition:width .5s var(--ease)}
+.bar-count{font-size:12px;color:var(--text-dim);width:24px;text-align:right;font-weight:600}
+.month-heat{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-top:8px}
+.month-cell{text-align:center;padding:8px 2px;border-radius:8px;font-size:12px;font-weight:600}
+.pitfall-card{
+  padding:14px 18px;background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:8px;border-left:3px solid var(--red);
+  box-shadow:var(--shadow-sm);transition:all .2s var(--ease);
+}
+.pitfall-card:hover{box-shadow:var(--shadow-md)}
+.pitfall-task{font-weight:600;font-size:14px;margin-bottom:4px}
+.pitfall-text{font-size:13px;color:var(--text-secondary);line-height:1.6}
+.rule-card{
+  padding:14px 18px;background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:8px;border-left:3px solid var(--accent);
+  box-shadow:var(--shadow-sm);transition:all .2s var(--ease);
+}
+.rule-card:hover{box-shadow:var(--shadow-md)}
+.rule-trigger{font-size:12.5px;color:var(--accent);font-weight:600;margin-bottom:4px}
+.rule-text{font-size:14px;font-weight:600;margin-bottom:4px}
+.rule-reason{font-size:13px;color:var(--text-dim);line-height:1.6}
+.section-title{
+  font-size:16px;font-weight:700;margin:24px 0 12px;
+  display:flex;align-items:center;gap:8px;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media(max-width:640px){
+  .sidebar{
+    position:fixed;bottom:0;left:0;right:0;
+    width:100%;height:56px;flex-direction:row;
+    padding:0 8px;gap:0;
+    border-right:none;border-top:1px solid var(--border);
+    z-index:200;
+  }
+  .sidebar-logo{display:none}
+  .sidebar-nav{flex-direction:row;gap:0;justify-content:center;flex:1}
+  .sidebar-bottom{margin-top:0;flex-direction:row}
+  .nav-btn{width:48px;height:48px}
+  .nav-btn.active::before{
+    left:50%;top:auto;bottom:-4px;transform:translateX(-50%);
+    width:20px;height:3px;border-radius:3px 3px 0 0;
+  }
+  .main-wrapper{padding-bottom:56px}
+  .header{padding:16px}
+  .header-date{font-size:1.2rem}
+  .content{padding:16px}
+  .list-header{display:none}
+  .list-row{grid-template-columns:24px 1fr auto;font-size:.78rem;gap:6px}
+  .list-row .list-domain,.list-row .list-month,.list-row .list-cycle{display:none}
+  .list-row .list-task{white-space:normal}
+  .list-detail{grid-column:1/4}
+  .cal-grid,.week-grid{grid-template-columns:1fr!important}
+  .cal-hdr,.week-hdr{display:none}
+  .cal-cell.empty{display:none}
+  .cal-cell{min-height:auto;display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:8px}
+  .cal-day{margin:0;margin-right:8px;font-size:.78rem}
+  .cal-item{font-size:.68rem}
+  .week-cell{min-height:auto}
+  .kanban{grid-template-columns:1fr!important}
+  .today-card{flex-direction:column;gap:8px}
+  .today-rank{align-self:flex-start}
+  .ov-grid{grid-template-columns:1fr}
+  .month-heat{grid-template-columns:repeat(6,1fr)}
+  .bar-label{width:65px;font-size:.65rem}
+  .list-toolbar{flex-direction:column;align-items:stretch}
+  .list-toolbar select,.list-toolbar input{width:100%}
+  .sub-row{grid-template-columns:1fr!important}
+}
+
+/* ===== PRINT ===== */
+@media print{
+  .sidebar,.header,.toast,.hide-done-toggle,.status-btn,.theme-toggle,.nav-btn{display:none!important}
+  body,body.light{background:#fff!important;color:#000!important;--bg:#fff;--surface:#fff;--surface-dim:#f5f5f5;--surface-container:#eee;--border:#ddd;--text:#000;--text-secondary:#333;--text-dim:#888}
+  .main-wrapper{padding:0}
+  .content{padding:10px;max-width:100%}
+  .panel{display:block!important;page-break-inside:avoid}
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(128,128,128,.2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(128,128,128,.35)}
+
+/* ===== [DU-011] Now Indicator (Apple Calendar style) ===== */
+.now-indicator{
+  position:absolute;left:48px;right:0;height:2px;
+  background:var(--red);z-index:50;pointer-events:none;
+  transition:top .5s ease;
+}
+.now-indicator::before{
+  content:"";position:absolute;left:-5px;top:-4px;
+  width:10px;height:10px;border-radius:50%;background:var(--red);
+}
+
+/* ===== [DU-043] Command Palette ===== */
+.cmd-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  z-index:10000;display:none;align-items:flex-start;justify-content:center;padding-top:20vh;
+}
+.cmd-overlay.open{display:flex}
+.command-palette{
+  width:480px;max-width:90vw;background:var(--surface);border:1px solid var(--border-mid);
+  border-radius:16px;box-shadow:var(--shadow-lg);overflow:hidden;
+}
+.cmd-input{
+  width:100%;padding:16px 20px;border:none;border-bottom:1px solid var(--border);
+  background:transparent;color:var(--text);font-size:16px;font-family:inherit;outline:none;
+}
+.cmd-input::placeholder{color:var(--text-dim)}
+.cmd-results{max-height:320px;overflow-y:auto;padding:8px}
+.cmd-item{
+  padding:10px 16px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  font-size:14px;color:var(--text-secondary);transition:background .1s;
+}
+.cmd-item:hover,.cmd-item.active{background:var(--accent-bg);color:var(--text)}
+.cmd-item .cmd-icon{width:24px;text-align:center;color:var(--text-dim);font-size:13px}
+.cmd-item .cmd-key{margin-left:auto;font-size:11px;color:var(--text-dim);font-family:monospace;padding:2px 6px;border-radius:4px;background:var(--surface-dim);border:1px solid var(--border)}
+
+/* ===== [DU-021] Sparkline (CSS-only bar chart) ===== */
+.sparkline{display:inline-flex;align-items:flex-end;gap:2px;height:32px;vertical-align:middle;margin-left:12px}
+.sparkline-bar{width:6px;border-radius:2px 2px 0 0;background:var(--accent);opacity:.5;transition:height .4s var(--ease)}
+.sparkline-bar.current{opacity:1;background:var(--accent)}
+
+/* ===== [DU-022] Ring Chart (SVG completion ring) ===== */
+.ring-chart{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.ring-chart svg{transform:rotate(-90deg)}
+.ring-label{position:absolute;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:18px;color:var(--accent)}
+@keyframes ringFill{from{stroke-dashoffset:157}to{stroke-dashoffset:var(--ring-offset)}}
+
+/* ===== [DU-001] Squircle corner-shape ===== */
+.today-card,.kanban-card,.ov-card,.pitfall-card,.rule-card{
+  corner-shape:squircle;
+}
+
+/* ===== [DU-036] Confetti ===== */
+@keyframes confetti-fall{
+  0%{transform:translateY(-10px) rotate(0deg);opacity:1}
+  100%{transform:translateY(120vh) rotate(720deg);opacity:0}
+}
+.confetti-piece{
+  position:fixed;top:-10px;width:8px;height:8px;z-index:99999;pointer-events:none;
+  animation:confetti-fall 2.5s ease-in forwards;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">R8</div>
+    <div class="sidebar-nav" id="sidebarNav"></div>
+    <div class="sidebar-bottom">
+      <button class="theme-toggle" id="voicepadBtn" title="VoicePad" onclick="toggleVoicePad()"><i class="fa-solid fa-microphone"></i></button>
+      <a href="https://docs.google.com/spreadsheets/d/1bc8UShEyzy38uQhnI1dXCKfns3u_M4GqxaxLVxqLC70/edit" target="_blank" class="theme-toggle" title="スプレッドシートを開く" style="text-decoration:none"><i class="fa-solid fa-table" style="font-size:.8rem"></i></a>
+      <button class="theme-toggle" id="themeBtn" title="テーマ切替"><i class="fa-solid fa-moon"></i></button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-wrapper">
+    <div class="header" id="headerArea"></div>
+    <div class="content">
+      <div class="panel active" id="p-today"></div>
+      <div class="panel" id="p-list"></div>
+      <div class="panel" id="p-cal"></div>
+      <div class="panel" id="p-board"></div>
+      <div class="panel" id="p-overview"></div>
+      <div class="panel" id="p-resources"></div>
+      <div class="panel" id="p-input" style="display:none">
+        <div style="text-align:center;padding:80px 40px;color:var(--text-dim)">
+          <i class="fa-solid fa-pen-to-square" style="font-size:48px;opacity:0.2;margin-bottom:16px;display:block"></i>
+          <div style="font-size:16px;font-weight:600;margin-bottom:8px;color:var(--text-secondary)">タスク入力</div>
+          <div style="font-size:13px;line-height:1.6">音声入力 or フォームからタスクを登録<br>GAS連携後に有効化</div>
+        </div>
+      </div>
+      <div class="panel" id="p-voicepad" style="height:calc(100vh - 100px)">
+        <iframe id="voicepad-frame" src="about:blank" allow="microphone" style="width:100%;height:100%;border:none;border-radius:16px;background:var(--surface)"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- [DU-043] Command Palette -->
+<div class="cmd-overlay" id="cmdOverlay" onclick="if(event.target===this)closeCmdPalette()">
+  <div class="command-palette">
+    <input class="cmd-input" id="cmdInput" placeholder="タスク検索 / パネル切り替え...（Cmd+K）" autocomplete="off">
+    <div class="cmd-results" id="cmdResults"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+const GAS_URL='https://script.google.com/macros/s/AKfycbyOnVVdHdtX3Px1HPFrw_qRa7J1jeoBWErV43hNZOQdxTX7rESKfAzfIN0Us0keo7x3rQ/exec';
+let LIVE_MODE=false; // GASからデータ取得成功したらtrue
+const LOCAL_TASKS_BACKUP=[]; // GASマージ用にローカルTASKSを保持
+const TASKS=[
+{id:"T001",d:"行事",t:"入学式の準備",cy:"yearly",m:3,wb:3,cl:["式次第の原案作成","校長確認","来賓案内状の発送","座席配置図の作成","教職員の役割分担表","新入生名簿の最終確認","受付の段取り確認"],pit:"来賓の人数変更が直前に来る。席を2〜3席余分に用意",tg:["入学式","4月"]},
+{id:"T002",d:"教職員管理",t:"教職員との個別面談（年度始め）",cy:"yearly",m:4,wb:0,cl:["面談スケジュール調整","前年度の自己評価シート確認","今年度の校務分掌と照合","面談記録シートの準備","コンプライアンス自己申告の聴取（「私これやっちゃうかも」を聞く）"],pit:"4月は行事が多く後回しになりがち。最初の2週間で全員終わらせる",tg:["面談","人事","不祥事防止"]},
+{id:"T003",d:"文書管理",t:"通知表の点検",cy:"termly",m:null,wb:2,cl:["所見の誤字脱字チェック","評定の整合性確認","記載漏れがないか","個人情報の取り扱い確認","ネガティブ表現の保護者トラブルリスクチェック"],pit:"所見の表現で保護者トラブルになりやすい。ネガティブ表現は要チェック",tg:["通知表","学期末"]},
+{id:"T004",d:"施設管理",t:"プール使用前の安全点検",cy:"yearly",m:5,wb:2,cl:["水質検査の手配","排水口の固定確認（ボルトは手で確認）","監視体制の確認","緊急時対応フローの掲示","AED動作確認"],pit:"排水口の吸い込み事故は死亡事例がある。ボルト固定は目視だけでなく手で確認",tg:["プール","安全"]},
+{id:"T005",d:"教育委員会",t:"全国学力・学習状況調査の準備",cy:"yearly",m:3,wb:4,cl:["対象学年・実施日の確認","実施要領の教職員への周知","当日の時間割調整","問題用紙の受領・保管（鍵付き）","特別な配慮が必要な児童の対応確認"],pit:"問題用紙の管理は厳重に。鍵付きの保管場所を確保",tg:["学力調査","4月"]},
+{id:"T006",d:"危機管理",t:"避難訓練の計画・実施",cy:"termly",m:null,wb:3,cl:["訓練の種類決定（地震/火災/不審者）","消防署との連携確認","避難経路の安全確認","教職員の役割分担","反省会の実施"],pit:"マンネリ化すると児童も教職員も緊張感がなくなる。年1回は予告なし訓練を入れる",tg:["避難訓練","防災"]},
+{id:"T007",d:"校内調整",t:"週予定の確認・配布",cy:"weekly",m:null,wb:0,cl:["各学年の行事・出張を集約","教室・体育館の使用重複チェック","来客予定の確認","校長スケジュールとの整合"],pit:"体育館の二重予約がよくある。予約表は一元管理する",tg:["週予定","調整"]},
+{id:"T008",d:"教職員管理",t:"4月立ち上げ（担任としての受け入れ準備）",cy:"yearly",m:4,wb:1,cl:["新クラスの子ども情報インプット・引き継ぎ","学級経営計画の作成","受け入れ準備（下駄箱シール、教室整備）","学校経営冊子の担当分の下書き","ICT年度更新（出席簿・通知表・時間割）"],pit:"4月にギュッと締めて仕組みを作る→軌道に乗れば3学期は楽。乗らなければ運動会後に崩れる。中村健一『策略』参考",tg:["4月","立ち上げ","学級経営"]},
+{id:"T009",d:"教育委員会",t:"教育委員会の調査もの対応",cy:"yearly",m:null,wb:0,cl:["5月: 加配実績報告","9月: 来年の見込み報告","回答期限の確認","校内データの集約"],pit:"調査の意義を理解する: 県→文科省、市町への配当資料になる。面倒でも数字は正確に",tg:["教育委員会","調査","報告"]},
+{id:"T010",d:"会議運営",t:"会議資料の削減",cy:"yearly",m:null,wb:0,cl:["前年度の資料一覧を確認","「毎回去年より一個ずつ減らせ」を実行","報告事項と協議事項を分離","事前配布で読み上げ時間を短縮"],pit:"読み上げは若手のインプット時間でもある。全廃すると情報格差が出る",tg:["会議","効率化","資料削減"]},
+{id:"T011",d:"危機管理",t:"いじめ認知件数の把握・報告",cy:"monthly",m:null,wb:0,cl:["月次の認知件数確認","認知から3日以内の報告義務遵守","対策委員会の開催","経過記録の確認"],pit:"教頭選考面談で「あなたの学校のいじめ認知件数は？」と聞かれた実例あり。数値を把握していないのは管理職失格",tg:["いじめ","認知件数","報告"]},
+{id:"T012",d:"地域連携",t:"役員互選員会",cy:"yearly",m:2,wb:2,cl:[],pit:"",tg:["2月","地域連携"]},
+{id:"T013",d:"地域連携",t:"平成３１年度　尾鷲市ＰＴＡ連合会総会のご案内",cy:"yearly",m:4,wb:2,cl:[],pit:"",tg:["4月","地域連携"]},
+{id:"T014",d:"保護者対応",t:"校務日誌　元",cy:"yearly",m:4,wb:2,cl:[],pit:"",tg:["4月","保護者対応"]},
+{id:"T015",d:"地域連携",t:"第１回　役員会　総会",cy:"yearly",m:4,wb:2,cl:[],pit:"",tg:["4月","地域連携"]},
+{id:"T016",d:"教育委員会",t:"講師研修会",cy:"yearly",m:4,wb:2,cl:[],pit:"",tg:["4月","教育委員会"]},
+{id:"T017",d:"地域連携",t:"PTA会費の集金について",cy:"yearly",m:5,wb:2,cl:[],pit:"",tg:["5月","地域連携"]},
+{id:"T018",d:"地域連携",t:"ＰＴＡ便り　再発行",cy:"yearly",m:5,wb:2,cl:[],pit:"",tg:["5月","地域連携"]},
+{id:"T019",d:"行事",t:"体育大会",cy:"yearly",m:6,wb:2,cl:[],pit:"",tg:["6月","行事"]},
+{id:"T020",d:"地域連携",t:"第２回　役員会　プール関係",cy:"yearly",m:6,wb:2,cl:[],pit:"",tg:["6月","地域連携"]},
+{id:"T021",d:"保護者対応",t:"夏休み前　保護者配布用　誓約書など",cy:"yearly",m:7,wb:2,cl:[],pit:"",tg:["7月","保護者対応"]},
+{id:"T022",d:"保護者対応",t:"机と椅子の組み立て作業",cy:"yearly",m:7,wb:2,cl:[],pit:"",tg:["7月","保護者対応"]},
+{id:"T023",d:"危機管理",t:"防災　避難バッグ",cy:"yearly",m:7,wb:2,cl:[],pit:"",tg:["7月","危機管理"]},
+{id:"T024",d:"教育委員会",t:"（再送）平成31年度全国学力・学習状況調査及び第1回みえスタディチェックの課題分析シートの作成について",cy:"yearly",m:7,wb:2,cl:[],pit:"",tg:["7月","教育委員会"]},
+{id:"T025",d:"校内調整",t:"令和元年度東海北陸ブロック研究大会への参加者募集について",cy:"yearly",m:8,wb:2,cl:[],pit:"",tg:["8月","校内調整"]},
+{id:"T026",d:"地域連携",t:"PTA 運動会　観覧席",cy:"yearly",m:9,wb:2,cl:[],pit:"",tg:["9月","地域連携"]},
+{id:"T027",d:"地域連携",t:"PTA 運動会通信",cy:"yearly",m:9,wb:2,cl:[],pit:"",tg:["9月","地域連携"]},
+{id:"T028",d:"保護者対応",t:"メール確認作業について",cy:"yearly",m:9,wb:2,cl:[],pit:"",tg:["9月","保護者対応"]},
+{id:"T029",d:"地域連携",t:"第3回　役員会　運動会",cy:"yearly",m:9,wb:2,cl:[],pit:"",tg:["9月","地域連携"]},
+{id:"T030",d:"校内調整",t:"アンケート　R1",cy:"yearly",m:10,wb:2,cl:[],pit:"",tg:["10月","校内調整"]},
+{id:"T031",d:"地域連携",t:"令和２年度　役員選挙　関係",cy:"yearly",m:10,wb:2,cl:[],pit:"",tg:["10月","地域連携"]},
+{id:"T032",d:"保護者対応",t:"児童活動費の使い道",cy:"yearly",m:10,wb:2,cl:[],pit:"",tg:["10月","保護者対応"]},
+{id:"T033",d:"保護者対応",t:"新学習指導要領体育",cy:"yearly",m:10,wb:2,cl:[],pit:"",tg:["10月","保護者対応"]},
+{id:"T034",d:"保護者対応",t:"書き初め展への注文数",cy:"yearly",m:10,wb:2,cl:[],pit:"",tg:["10月","保護者対応"]},
+{id:"T035",d:"地域連携",t:"第5回　役員会　行事　会計報告",cy:"yearly",m:10,wb:2,cl:[],pit:"",tg:["10月","地域連携"]},
+{id:"T036",d:"地域連携",t:"第４回　役員会　選挙と運動会",cy:"yearly",m:10,wb:2,cl:[],pit:"",tg:["10月","地域連携"]},
+{id:"T037",d:"保護者対応",t:"通学路の凸凹",cy:"yearly",m:10,wb:2,cl:[],pit:"",tg:["10月","保護者対応"]},
+{id:"T038",d:"保護者対応",t:"修学旅行に伴う時差登校のお知らせ3（早田方面　変更）",cy:"yearly",m:11,wb:2,cl:[],pit:"",tg:["11月","保護者対応"]},
+{id:"T039",d:"保護者対応",t:"修学旅行に伴う時差登校のお知らせ２",cy:"yearly",m:11,wb:2,cl:[],pit:"",tg:["11月","保護者対応"]},
+{id:"T040",d:"保護者対応",t:"山本美樹先生の今後の授業",cy:"yearly",m:11,wb:2,cl:[],pit:"",tg:["11月","保護者対応"]},
+{id:"T041",d:"保護者対応",t:"ストーブの配置について",cy:"yearly",m:12,wb:2,cl:[],pit:"",tg:["12月","保護者対応"]},
+{id:"T042",d:"教職員管理",t:"尾鷲小　授業改善研修に参加　日課の変更",cy:"yearly",m:12,wb:2,cl:[],pit:"",tg:["12月","教職員管理"]},
+{id:"T043",d:"保護者対応",t:"青少年育成市民会議　風と遊ぼう「凧作りと凧揚げ交流」行事への参加の紹介",cy:"yearly",m:12,wb:2,cl:[],pit:"",tg:["12月","保護者対応"]},
+{id:"T044",d:"教育委員会",t:"校内研修にかかる指導主事の要請訪問希望",cy:"yearly",m:4,wb:1,cl:[],pit:"",tg:["4月","提出書類"],sub:true,who:"研修主任",due:"2026-04-11"},
+{id:"T045",d:"教育委員会",t:"外国語教育研修会の参加希望",cy:"yearly",m:4,wb:1,cl:[],pit:"",tg:["4月","提出書類"],sub:true,who:"外国語担当",due:"2026-04-11"},
+{id:"T046",d:"教育委員会",t:"ネットDE研修の受講登録",cy:"yearly",m:4,wb:1,cl:[],pit:"",tg:["4月","提出書類"],sub:true,who:"各教員",due:"2026-04-15"},
+{id:"T047",d:"教育委員会",t:"人権教育実態調査",cy:"yearly",m:4,wb:1,cl:[],pit:"",tg:["4月","提出書類"],sub:true,who:"人権担当",due:"2026-04-18"},
+{id:"T048",d:"教育委員会",t:"児童生徒の問題行動等調査",cy:"yearly",m:4,wb:1,cl:[],pit:"",tg:["4月","提出書類"],sub:true,who:"生徒指導",due:"2026-04-18"},
+{id:"T049",d:"教育委員会",t:"教員ICT活用指導力向上講習会",cy:"yearly",m:4,wb:1,cl:[],pit:"",tg:["4月","提出書類"],sub:true,who:"ICT担当",due:"2026-04-22"},
+{id:"T050",d:"教育委員会",t:"児童生徒数状況調査",cy:"yearly",m:5,wb:1,cl:[],pit:"",tg:["5月","提出書類"],sub:true,who:"教務主任",due:"2026-05-15"},
+{id:"T051",d:"会議運営",t:"第1回職員会議（年度始め・校務分掌確定）",cy:"monthly",m:4,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["4月","職員会議"]},
+{id:"T052",d:"会議運営",t:"第2回職員会議（入学式後・学級経営方針共有）",cy:"monthly",m:4,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["4月","職員会議"]},
+{id:"T053",d:"会議運営",t:"第3回職員会議（4月総括・5月行事確認）",cy:"monthly",m:4,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["4月","職員会議"]},
+{id:"T054",d:"会議運営",t:"第4回職員会議",cy:"monthly",m:5,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["5月","職員会議"]},
+{id:"T055",d:"会議運営",t:"第5回職員会議",cy:"monthly",m:5,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["5月","職員会議"]},
+{id:"T056",d:"会議運営",t:"第6回職員会議（プール開き確認）",cy:"monthly",m:6,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["6月","職員会議"]},
+{id:"T057",d:"会議運営",t:"第7回職員会議（1学期総括・夏季計画）",cy:"monthly",m:7,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["7月","職員会議"]},
+{id:"T058",d:"会議運営",t:"第8回職員会議（2学期準備）",cy:"monthly",m:8,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["8月","職員会議"]},
+{id:"T059",d:"会議運営",t:"第9回職員会議（運動会準備）",cy:"monthly",m:9,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["9月","職員会議"]},
+{id:"T060",d:"会議運営",t:"第10回職員会議",cy:"monthly",m:10,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["10月","職員会議"]},
+{id:"T061",d:"会議運営",t:"第11回職員会議",cy:"monthly",m:10,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["10月","職員会議"]},
+{id:"T062",d:"会議運営",t:"第12回職員会議（学校評価準備）",cy:"monthly",m:11,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["11月","職員会議"]},
+{id:"T063",d:"会議運営",t:"第13回職員会議",cy:"monthly",m:11,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["11月","職員会議"]},
+{id:"T064",d:"会議運営",t:"第14回職員会議（2学期総括）",cy:"monthly",m:12,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["12月","職員会議"]},
+{id:"T065",d:"会議運営",t:"第15回職員会議（3学期始め）",cy:"monthly",m:1,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["1月","職員会議"]},
+{id:"T066",d:"会議運営",t:"第16回職員会議",cy:"monthly",m:1,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["1月","職員会議"]},
+{id:"T067",d:"会議運営",t:"第17回職員会議（卒業式準備・来年度計画）",cy:"monthly",m:2,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["2月","職員会議"]},
+{id:"T068",d:"会議運営",t:"第18回職員会議",cy:"monthly",m:2,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["2月","職員会議"]},
+{id:"T069",d:"会議運営",t:"第19回職員会議（年度末総括・引き継ぎ）",cy:"monthly",m:3,wb:1,cl:["事項書の作成","資料の印刷・配布","議事録の作成"],pit:"",tg:["3月","職員会議"]},
+{id:"T070",d:"文書管理",t:"学校経営冊子の年度更新（表紙・目次）",cy:"yearly",m:3,wb:4,cl:["表紙の年度書き換え","目次のページ番号確認","校長の学校経営方針（P1-5）の確認依頼"],pit:"",tg:["3月","学校経営冊子"]},
+{id:"T071",d:"文書管理",t:"各学年の学級経営案の収集・製本",cy:"yearly",m:3,wb:4,cl:["全学年分の学級経営案を収集","フォーマット統一確認","中表紙の作成"],pit:"",tg:["3月","学校経営冊子"]},
+{id:"T072",d:"文書管理",t:"道徳年間指導計画の更新（1-6年全学年）",cy:"yearly",m:3,wb:4,cl:["各学年の道徳年間指導計画を収集","教科書改訂への対応確認"],pit:"",tg:["3月","学校経営冊子"]},
+{id:"T073",d:"文書管理",t:"人権教育カリキュラムの更新",cy:"yearly",m:3,wb:4,cl:["各学年の人権教育カリキュラム確認","推進計画との整合性チェック"],pit:"",tg:["3月","学校経営冊子"]},
+{id:"T074",d:"危機管理",t:"防災計画・安全計画の更新",cy:"yearly",m:3,wb:4,cl:["避難経路図の更新","緊急連絡網の更新","津波二次避難計画の確認"],pit:"",tg:["3月","学校経営冊子"]},
+{id:"T075",d:"文書管理",t:"年間指導計画の収集・製本（全学年）",cy:"yearly",m:3,wb:4,cl:["全学年・全教科の年間指導計画を収集","時数計算の確認"],pit:"",tg:["3月","学校経営冊子"]},
+{id:"T076",d:"施設管理",t:"赴任初日の建物確認（鍵・AED・放送設備・防災バッグ）",cy:"yearly",m:4,wb:2,cl:["校舎一周","鍵の所在確認","放送設備の使い方","AEDの場所","防災バッグの数"],pit:"",tg:["4月"]},
+{id:"T077",d:"教職員管理",t:"新転任者の受け入れ準備",cy:"yearly",m:4,wb:2,cl:["机・椅子・ロッカーの割り当て","駐車場の割り当て","名簿確認"],pit:"",tg:["4月"]},
+{id:"T078",d:"校内調整",t:"校務分掌の確定・周知",cy:"yearly",m:4,wb:2,cl:["前年度の校務分掌確認","新年度の担当割り振り","職員への周知"],pit:"",tg:["4月"]},
+{id:"T079",d:"校内調整",t:"時間割の素案作成",cy:"yearly",m:4,wb:2,cl:["専科教員の持ち時間確認","体育館・特別教室の使用割り振り","時数オーバーチェック"],pit:"",tg:["4月"]},
+{id:"T080",d:"教育委員会",t:"4月提出書類の一括処理",cy:"yearly",m:4,wb:2,cl:["校内研修指導主事要請","外国語研修参加希望","ネットDE研修登録","人権教育実態調査","問題行動等調査","ICT講習会"],pit:"赴任初年度は前任の提出書類カレンダーが命綱。教委から今年度の一覧をもらう",tg:["4月"]},
+{id:"T081",d:"行事",t:"入学式の礼状発送",cy:"yearly",m:4,wb:2,cl:["出席者用","教育委員用","教育長用","個人祝詞用","幼保祝詞用"],pit:"前任校では5パターンのテンプレートがあった",tg:["4月"]},
+{id:"T082",d:"地域連携",t:"PTA総会の準備・運営",cy:"yearly",m:5,wb:2,cl:["事項書作成","要項作成","司会準備","決算報告確認","予算案確認"],pit:"",tg:["5月"]},
+{id:"T083",d:"施設管理",t:"プール開き準備（心肺蘇生講習含む）",cy:"yearly",m:6,wb:2,cl:["心肺蘇生法講習会の手配","監視当番の決定","プール日誌の準備","使用のきまり配布","誓約書の収集"],pit:"",tg:["6月"]},
+{id:"T084",d:"教職員管理",t:"夏季動向表の作成・管理",cy:"yearly",m:7,wb:2,cl:["動向表のフォーマット準備","全教職員の出勤予定収集","校長確認"],pit:"",tg:["7月"]},
+{id:"T085",d:"文書管理",t:"1学期通知表の点検",cy:"termly",m:7,wb:2,cl:[],pit:"",tg:["7月"]},
+{id:"T086",d:"行事",t:"運動会の準備",cy:"yearly",m:9,wb:2,cl:["プログラム作成","演技明細書","観覧席の配置","PTA種目の調整","アンケート準備"],pit:"",tg:["9月"]},
+{id:"T087",d:"行事",t:"就学時健診の準備",cy:"yearly",m:10,wb:2,cl:[],pit:"",tg:["10月"]},
+{id:"T088",d:"地域連携",t:"PTA役員選挙の準備",cy:"yearly",m:10,wb:2,cl:["選挙管理委員会の設置","投票用紙の準備","保護者名簿の確認"],pit:"",tg:["10月"]},
+{id:"T089",d:"校長補佐",t:"学校評価の実施",cy:"yearly",m:11,wb:2,cl:[],pit:"",tg:["11月"]},
+{id:"T090",d:"文書管理",t:"2学期通知表の点検",cy:"termly",m:12,wb:2,cl:[],pit:"",tg:["12月"]},
+{id:"T091",d:"校内調整",t:"次年度の校務分掌検討",cy:"yearly",m:1,wb:2,cl:[],pit:"",tg:["1月"]},
+{id:"T092",d:"地域連携",t:"PTA新役員互選会の準備",cy:"yearly",m:2,wb:2,cl:["互選委員会の案内","候補者リスト","決定記入用紙の準備"],pit:"",tg:["2月"]},
+{id:"T093",d:"行事",t:"卒業式の準備",cy:"yearly",m:3,wb:2,cl:["式次第作成","座席配置","シナリオ作成","BGM選定","来賓案内状","礼状テンプレ準備"],pit:"",tg:["3月"]},
+{id:"T094",d:"文書管理",t:"年度末の引き継ぎ資料作成",cy:"yearly",m:3,wb:2,cl:[],pit:"",tg:["3月"]},
+{id:"T095",d:"教育委員会",t:"教育課程の編成・提出",cy:"yearly",m:3,wb:2,cl:[],pit:"",tg:["3月"]},
+{id:"T096",d:"文書管理",t:"月末統計（出席統計）の作成・提出",cy:"monthly",m:null,wb:0,cl:[],pit:"月末最終日に慌てないよう、25日頃から集計を始める",tg:["monthly"]},
+{id:"T097",d:"施設管理",t:"安全点検の実施",cy:"monthly",m:null,wb:0,cl:["分担表に基づき全教職員で点検","点検表の回収・集約","要修繕箇所の対応依頼"],pit:"",tg:["monthly"]},
+{id:"T098",d:"文書管理",t:"校外文書の受発信管理",cy:"daily",m:null,wb:0,cl:[],pit:"件名簿を毎日つける。溜めると追えなくなる",tg:["daily"]}
+];
+
+const RULES=[
+{tr:"保護者からクレーム電話が来た",ru:"まず傾聴30分。事実確認前に判断を出さない。当日中に担任からも聞く",re:"初動で否定すると炎上する"},
+{tr:"教職員間でトラブルが起きた",ru:"両者の話を別々に聞く。職員室では絶対に触れない",re:"片方だけ聞くと偏る"},
+{tr:"校長が不在で判断を求められた",ru:"安全に関わることは即判断。それ以外は「校長に確認して折り返します」",re:"子どもの安全は待てない"},
+{tr:"提出書類の締め切りが重なった",ru:"教委への提出は絶対遅れない。校内は1日遅れても調整可能",re:"教委への遅延は学校全体の信用問題"},
+{tr:"不祥事の兆候を感じた",ru:"記録を取る。校長に即報告。本人への指導は校長と相談してから",re:"教頭単独で動くと処分手続きに影響"},
+];
+
+const DC={'行事':'#ef4444','教職員管理':'#f59e0b','文書管理':'#3b82f6','施設管理':'#10b981','教育委員会':'#8b5cf6','危機管理':'#dc2626','校内調整':'#06b6d4','会議運営':'#f97316','地域連携':'#84cc16','保護者対応':'#ec4899','校長補佐':'#6366f1'};
+const CY_LABEL={yearly:'年1回',monthly:'毎月',termly:'学期毎',weekly:'毎週',daily:'毎日'};
+const STATUSES=['未着手','進行中','委任','完了'];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE (localStorage-backed)
+// ═══════════════════════════════════════════════════════════════
+const LS_KEY='kyoto-dash-v2';
+let S;
+function loadState(){
+  try{S=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){S={}}
+  if(!S.status)S.status={};if(!S.cl)S.cl={};if(!S.theme)S.theme='';
+  if(!S.tab)S.tab='today';if(!S.hideDone)S.hideDone=false;
+  if(!S.sort)S.sort={col:'m',dir:1};if(!S.boardScope)S.boardScope='soon';if(!S.calView)S.calView='month';if(!S.calWeekStart)S.calWeekStart=null;if(!S.weekDays)S.weekDays=5;
+  TASKS.forEach(tk=>{if(!S.status[tk.id])S.status[tk.id]=(tk.cy==='daily'||tk.cy==='weekly'||tk.cy==='monthly')?'進行中':'未着手'});
+}
+function saveState(){localStorage.setItem(LS_KEY,JSON.stringify(S))}
+function getStatus(id){return S.status[id]||'未着手'}
+function setStatus(id,st){S.status[id]=st;saveState();gasUpdateStatus(id,st)}
+function isDone(id){return getStatus(id)==='完了'}
+function toggleCl(taskId,idx){const k=taskId+'_'+idx;S.cl[k]=!S.cl[k];saveState()}
+function isClDone(taskId,idx){return !!S.cl[taskId+'_'+idx]}
+
+// ═══════════════════════════════════════════════════════════════
+// UTILITY
+// ═══════════════════════════════════════════════════════════════
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
+function domDot(d){return `<span class="domain-dot dc-${d}"></span>`}
+function statusBtn(id){const st=getStatus(id);return `<button class="status-btn s-${st}" data-id="${id}" onclick="cycleStatus('${id}',event)">${st}</button>`}
+function cb(id){const done=isDone(id);return `<div class="checkbox${done?' checked':''}" onclick="toggleDone('${id}',event)"></div>`}
+function cycleStatus(id,e){e&&e.stopPropagation();const cur=getStatus(id);const i=(STATUSES.indexOf(cur)+1)%STATUSES.length;setStatus(id,STATUSES[i]);renderAll();showToast(`${STATUSES[i]}`)}
+function toggleDone(id,e){e&&e.stopPropagation();setStatus(id,isDone(id)?'未着手':'完了');renderAll();showToast(isDone(id)?'完了':'戻しました');/* [DU-036] Confetti check */if(isDone(id)&&todayRevealed&&TODAY_PICKS.length>0&&TODAY_PICKS.every(p=>isDone(p.id))){fireConfetti();showToast('全タスク完了!')}}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+// 締切・着手目安の算出
+function getDueInfo(tk){
+  if(tk.due){
+    const d=new Date(tk.due);
+    const now=new Date();now.setHours(0,0,0,0);
+    const diff=Math.ceil((d-now)/(1000*60*60*24));
+    const label=`${d.getMonth()+1}/${d.getDate()}`;
+    const urgency=diff<0?'overdue':diff<=3?'urgent':diff<=7?'soon':'ok';
+    return {label,diff,urgency,type:'提出'};
+  }
+  if(tk.m && tk.cy==='yearly'){
+    const targetDay=new Date(2026,tk.m-1,1);
+    const startDay=new Date(targetDay);
+    startDay.setDate(startDay.getDate()-(tk.wb||0)*7);
+    const now=new Date();now.setHours(0,0,0,0);
+    const diff=Math.ceil((startDay-now)/(1000*60*60*24));
+    const label=`${startDay.getMonth()+1}/${startDay.getDate()}~`;
+    const urgency=diff<0?'overdue':diff<=3?'urgent':diff<=7?'soon':'ok';
+    return {label,diff,urgency,type:'着手'};
+  }
+  return null;
+}
+function dueTag(tk){
+  if(isDone(tk.id))return '';
+  const info=getDueInfo(tk);
+  if(!info)return '';
+  const colors={overdue:'var(--red)',urgent:'var(--red)',soon:'var(--amber)',ok:'var(--text-dim)'};
+  const bgColors={overdue:'rgba(196,93,93,.1)',urgent:'rgba(196,93,93,.08)',soon:'rgba(200,147,74,.08)',ok:'transparent'};
+  const prefix=info.type==='提出'?'〆':'';
+  const diffLabel=info.diff<0?`${Math.abs(info.diff)}日超過`:info.diff===0?'今日':info.diff<=7?`あと${info.diff}日`:'';
+  return `<span style="font-size:.65rem;padding:2px 8px;border-radius:6px;background:${bgColors[info.urgency]};color:${colors[info.urgency]};font-weight:600;white-space:nowrap">${prefix}${info.label}${diffLabel?' '+diffLabel:''}</span>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SIDEBAR NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+const TAB_DEF=[
+  {id:'today',icon:'fa-solid fa-crosshairs',label:'今日'},
+  {id:'list',icon:'fa-solid fa-list-check',label:'リスト'},
+  {id:'cal',icon:'fa-regular fa-calendar',label:'カレンダー'},
+  {id:'board',icon:'fa-solid fa-columns',label:'ボード'},
+  {id:'overview',icon:'fa-solid fa-chart-bar',label:'概要'},
+  {id:'resources',icon:'fa-solid fa-folder-open',label:'資料'},
+  {id:'input',icon:'fa-solid fa-pen-to-square',label:'タスク入力'},
+];
+function renderNav(){
+  const todo=TASKS.filter(tk=>getStatus(tk.id)==='未着手').length;
+  document.getElementById('sidebarNav').innerHTML=TAB_DEF.map((t,i)=>{
+    const badge=t.id==='list'&&todo>0?`<span class="badge">${todo}</span>`:'';
+    /* [DU-042] Keyboard shortcut hint in title */
+    const shortcut=i<6?` (${i+1})`:'';
+    return `<button class="nav-btn${S.tab===t.id?' active':''}" data-tab="${t.id}" title="${t.label}${shortcut}"><i class="${t.icon}"></i>${badge}</button>`;
+  }).join('');
+  document.querySelectorAll('.nav-btn').forEach(el=>el.addEventListener('click',()=>{
+    S.tab=el.dataset.tab;saveState();renderAll();
+  }));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p-'+S.tab).classList.add('active');
+  // Hide voicepad when switching tabs
+  document.getElementById('p-voicepad').classList.remove('active');
+  document.getElementById('voicepadBtn').classList.remove('active');
+}
+function toggleVoicePad(){
+  const vp=document.getElementById('p-voicepad');
+  const btn=document.getElementById('voicepadBtn');
+  const isOpen=vp.classList.contains('active');
+  // Hide all panels first, then show either voicepad or current tab
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  if(isOpen){
+    document.getElementById('p-'+S.tab).classList.add('active');
+    btn.classList.remove('active');
+  } else {
+    vp.classList.add('active');
+    btn.classList.add('active');
+    // Lazy-load
+    const vf=document.getElementById('voicepad-frame');
+    if(!vf.dataset.loaded){vf.src='https://aru-tano.github.io/voice-memo/';vf.dataset.loaded='1'}
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HEADER
+// ═══════════════════════════════════════════════════════════════
+function renderHeader(){
+  const now=new Date(),mm=now.getMonth()+1,dd=now.getDate();
+  const dow=['日','月','火','水','木','金','土'][now.getDay()];
+  const todoCount=TASKS.filter(t=>getStatus(t.id)==='未着手').length;
+  const total=TASKS.length;
+  const panelLabel=TAB_DEF.find(t=>t.id===S.tab)?.label||'';
+
+  document.getElementById('headerArea').innerHTML=`
+    <div class="header-left">
+      <div class="header-date">${now.getFullYear()}年${mm}月${dd}日（${dow}）</div>
+      <div class="header-sub">${panelLabel}</div>
+    </div>
+    <div class="header-right">
+      <span class="stat-chip highlight"><i class="fa-solid fa-circle-exclamation" style="font-size:.6rem;margin-right:4px"></i>${todoCount}</span>
+      <span class="stat-chip"><i class="fa-solid fa-layer-group" style="font-size:.6rem;margin-right:4px"></i>${total}</span>
+      ${S.tab==='today'?`<button class="ai-btn" id="aiBtn" onclick="aiPickToday()"><span class="spinner"></span><span class="btn-label"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</span></button>`:''}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════════════
+function applyTheme(){
+  document.body.className=S.theme;
+  document.getElementById('themeBtn').innerHTML=S.theme==='dark'?'<i class="fa-solid fa-sun"></i>':'<i class="fa-solid fa-moon"></i>';
+}
+document.getElementById('themeBtn').addEventListener('click',()=>{S.theme=S.theme==='dark'?'':'dark';saveState();applyTheme()});
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL 1: TODAY
+// ═══════════════════════════════════════════════════════════════
+const TODAY_PICKS=[
+  {id:'T076',why:'建物を歩いて鍵・AED・放送設備・防災バッグの場所を体に入れる'},
+  {id:'T077',why:'新転任者は初日が不安。机・ロッカー・駐車場が決まっていれば安心'},
+  {id:'T078',why:'校務分掌は全員の仕事の割り振り。初日の職員会議までに校長と詰める'},
+  {id:'T021',why:'校長への初回挨拶＋報告フォーマットの確認'},
+  {id:'T080',why:'4月の提出書類一覧を教委からもらう。前任のカレンダーが命綱'},
+];
+let todayRevealed=false;
+
+function renderToday(){
+  const el=document.getElementById('p-today');
+
+  if(!todayRevealed){
+    el.innerHTML=`
+      <div class="today-initial">
+        <div class="today-initial-icon"><i class="fa-solid fa-crosshairs" style="font-size:2.5rem;color:var(--accent);opacity:0.3"></i></div>
+        <div class="today-initial-text">AIに「今日やるべきこと」を選んでもらいましょう</div>
+        <div class="today-initial-sub">全${TASKS.length}件のタスクから、今日着手すべきものを優先順位付きで提案します</div>
+      </div>
+    `;
+    return;
+  }
+
+  const picks=TODAY_PICKS;
+  const remaining=TASKS.length-picks.length;
+  const doneCount=picks.filter(p=>isDone(p.id)).length;
+  el.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:.82rem;color:var(--text-secondary)">${TASKS.length}件から${picks.length}件を選定 -- ${doneCount}/${picks.length} 完了</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="ai-btn" onclick="aiPickToday()" style="font-size:.72rem;padding:6px 14px"><span class="spinner"></span><span class="btn-label"><i class="fa-solid fa-rotate"></i> 再選定</span></button>
+        <button class="hide-done-toggle${S.hideDone?' active':''}" onclick="S.hideDone=!S.hideDone;saveState();renderToday()">
+          ${S.hideDone?'完了も表示':'完了を隠す'}
+        </button>
+      </div>
+    </div>
+    <div class="today-cards">
+      ${picks.filter(p=>!S.hideDone||!isDone(p.id)).map((p,i)=>{
+        const tk=TASKS.find(x=>x.id===p.id);if(!tk)return '';
+        const done=isDone(tk.id);
+        const domColor=DC[tk.d]||'var(--accent)';
+        return `<div class="today-card${done?' done':''}" style="animation:fadeIn ${.15+i*.08}s ease;border-left-color:${domColor}">
+          ${cb(tk.id)}
+          <div class="today-rank">${i+1}</div>
+          <div class="today-card-body">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span class="today-card-title">${esc(tk.t)}</span>
+              ${domDot(tk.d)} <span style="font-size:.7rem;color:var(--text-dim)">${esc(tk.d)}</span>
+              ${statusBtn(tk.id)}
+            </div>
+            <div style="margin-top:4px">${dueTag(tk)}</div>
+            <div class="today-card-why"><i class="fa-solid fa-lightbulb" style="color:var(--amber);margin-right:4px;font-size:.7rem"></i> ${esc(p.why)}</div>
+            ${tk.cl.length?`<div class="today-checklist">${tk.cl.map((c,ci)=>`<div class="today-cl-item${isClDone(tk.id,ci)?' cl-done':''}" onclick="toggleCl('${tk.id}',${ci});renderToday()"><span class="today-cl-check"></span> ${esc(c)}</div>`).join('')}</div>`:''}
+            ${tk.pit?`<div class="today-pitfall"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red);margin-right:4px;font-size:.65rem"></i> ${esc(tk.pit)}</div>`:''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="today-remaining">残り ${remaining}件は明日以降</div>
+  `;
+}
+
+async function aiPickToday(){
+  const btn=document.getElementById('aiBtn')||document.querySelector('.ai-btn');
+  if(btn)btn.classList.add('processing');
+  showToast('AIが選定中...');
+  await new Promise(r=>setTimeout(r,1500));
+  todayRevealed=true;
+  renderToday();
+  showToast('今日のおすすめ5件を選びました');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL 2: LIST
+// ═══════════════════════════════════════════════════════════════
+function renderList(){
+  const el=document.getElementById('p-list');
+  const domSel=document.getElementById('fDom');
+  const doms=[...new Set(TASKS.map(t=>t.d))].sort();
+  const months=[...new Set(TASKS.map(t=>t.m).filter(Boolean))].sort((a,b)=>a-b);
+
+  if(!document.getElementById('fDom')){
+    el.innerHTML=`
+      <div class="list-toolbar">
+        <select id="fDom"><option value="">全領域</option>${doms.map(d=>`<option value="${d}">${d}</option>`).join('')}</select>
+        <select id="fMon"><option value="">全月</option>${months.map(m=>`<option value="${m}">${m}月</option>`).join('')}<option value="null">通年</option></select>
+        <select id="fSt"><option value="">全状態</option>${STATUSES.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+        <input type="text" id="fSearch" placeholder="検索...">
+        <button class="hide-done-toggle${S.hideDone?' active':''}" id="listHideDone">${S.hideDone?'完了表示':'完了隠す'}</button>
+      </div>
+      <div class="list-count" id="listCount"></div>
+      <div class="list-header" id="listHeader"></div>
+      <div class="list-rows" id="listRows"></div>
+    `;
+    ['fDom','fMon','fSt'].forEach(id=>document.getElementById(id).addEventListener('change',renderListRows));
+    document.getElementById('fSearch').addEventListener('input',debounce(renderListRows,200));
+    document.getElementById('listHideDone').addEventListener('click',()=>{S.hideDone=!S.hideDone;saveState();renderAll()});
+  }
+  document.getElementById('listHideDone').textContent=S.hideDone?'完了表示':'完了隠す';
+  document.getElementById('listHideDone').className='hide-done-toggle'+(S.hideDone?' active':'');
+  renderListHeader();
+  renderListRows();
+}
+
+function renderListHeader(){
+  const cols=[
+    {key:'',label:'',nosort:true},
+    {key:'t',label:'タスク'},
+    {key:'d',label:'領域'},
+    {key:'m',label:'月'},
+    {key:'due',label:'締切'},
+    {key:'st',label:'状態'},
+  ];
+  document.getElementById('listHeader').innerHTML=cols.map(c=>{
+    if(c.nosort)return `<span></span>`;
+    const sorted=S.sort.col===c.key;
+    return `<span class="${sorted?'sorted':''}" onclick="sortBy('${c.key}')">${c.label} <span class="sort-arrow">${sorted?(S.sort.dir>0?'<i class="fa-solid fa-caret-up"></i>':'<i class="fa-solid fa-caret-down"></i>'):'<i class="fa-solid fa-sort" style="opacity:.4"></i>'}</span></span>`;
+  }).join('');
+}
+
+function sortBy(col){
+  if(S.sort.col===col)S.sort.dir*=-1;else{S.sort.col=col;S.sort.dir=1}
+  saveState();renderListHeader();renderListRows();
+}
+
+function getFiltered(){
+  const dom=document.getElementById('fDom')?.value||'';
+  const mon=document.getElementById('fMon')?.value||'';
+  const st=document.getElementById('fSt')?.value||'';
+  const q=(document.getElementById('fSearch')?.value||'').toLowerCase();
+  return TASKS.filter(tk=>{
+    if(dom&&tk.d!==dom)return false;
+    if(mon==='null'&&tk.m!==null)return false;
+    if(mon&&mon!=='null'&&tk.m!==+mon)return false;
+    if(st&&getStatus(tk.id)!==st)return false;
+    if(S.hideDone&&isDone(tk.id))return false;
+    if(q&&!tk.t.toLowerCase().includes(q)&&!tk.d.toLowerCase().includes(q)&&!tk.tg.join(' ').toLowerCase().includes(q))return false;
+    return true;
+  }).sort((a,b)=>{
+    const {col,dir}=S.sort;
+    let va,vb;
+    if(col==='t'){va=a.t;vb=b.t}
+    else if(col==='d'){va=a.d;vb=b.d}
+    else if(col==='m'){va=a.m||99;vb=b.m||99}
+    else if(col==='due'){const da=getDueInfo(a),db=getDueInfo(b);va=da?da.diff:999;vb=db?db.diff:999}
+    else if(col==='st'){const o={'未着手':0,'進行中':1,'委任':2,'完了':3};va=o[getStatus(a.id)];vb=o[getStatus(b.id)]}
+    else{va=a.m||99;vb=b.m||99}
+    if(va<vb)return -dir;if(va>vb)return dir;return 0;
+  });
+}
+
+function renderListRows(){
+  const filtered=getFiltered();
+  document.getElementById('listCount').textContent=`${filtered.length}件 / 全${TASKS.length}件`;
+  document.getElementById('listRows').innerHTML=filtered.map(tk=>`
+    <div class="list-row${isDone(tk.id)?' done':''}" data-id="${tk.id}" onclick="this.classList.toggle('open')">
+      ${cb(tk.id)}
+      <div class="list-task">${esc(tk.t)}</div>
+      <div class="list-domain">${domDot(tk.d)} ${esc(tk.d)}</div>
+      <div class="list-month">${tk.m?tk.m+'月':'通年'}</div>
+      <div class="list-cycle">${dueTag(tk)||`<span style="font-size:.65rem;color:var(--text-dim2)">${CY_LABEL[tk.cy]}</span>`}</div>
+      ${statusBtn(tk.id)}
+      <div class="list-detail">
+        ${tk.cl.length?`<div class="list-checklist">${tk.cl.map((c,ci)=>`<div class="list-cl${isClDone(tk.id,ci)?' cl-done':''}" onclick="event.stopPropagation();toggleCl('${tk.id}',${ci});renderListRows()"><span class="today-cl-check" style="width:12px;height:12px;border-radius:3px;border:1.5px solid var(--border-strong);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">${isClDone(tk.id,ci)?'<i class="fa-solid fa-check" style="font-size:.4rem;color:var(--green)"></i>':''}</span> ${esc(c)}</div>`).join('')}</div>`:''}
+        ${tk.pit?`<div class="today-pitfall" style="margin-top:8px"><i class="fa-solid ${tk.cl&&tk.cl.length?'fa-triangle-exclamation':'fa-sticky-note'}" style="color:${tk.cl&&tk.cl.length?'var(--red)':'var(--accent)'};margin-right:4px;font-size:.65rem"></i> ${esc(tk.pit)}</div>`:''}
+        ${tk.sub?`<div style="margin-top:8px;font-size:.73rem"><i class="fa-solid fa-paper-plane" style="font-size:.6rem;color:var(--accent);margin-right:4px"></i> 提出: ${esc(tk.who||'')} / 期限: ${tk.due||'未定'}</div>`:''}
+        <div style="margin-top:6px;color:var(--text-dim2);font-size:.68rem">${tk.tg.map(t=>'#'+t).join(' ')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL 3: CALENDAR
+// ═══════════════════════════════════════════════════════════════
+let calY=2026,calM=4;
+
+function getTasksForDay(dt,mTasks){
+  const d=dt.getDate(),dow=dt.getDay(),m=dt.getMonth()+1;
+  const fd=new Date(dt.getFullYear(),dt.getMonth(),1).getDay();
+  const wom=Math.ceil((d+fd)/7);
+  const overrides=loadOverrides();
+  let dayTasks=[];
+  mTasks.forEach(tk=>{
+    // If this task has a due override from drag, only show on that date
+    if(overrides[tk.id]&&overrides[tk.id].due){
+      const dd=new Date(overrides[tk.id].due);
+      if(dd.getDate()===d&&dd.getMonth()===dt.getMonth()&&dd.getFullYear()===dt.getFullYear())dayTasks.push(tk);
+      return; // skip cycle rules
+    }
+    // LIVE_MODE: dateフィールドで日付直接マッチ
+    if(tk.date){
+      const td=new Date(tk.date);
+      if(td.getDate()===d&&td.getMonth()===dt.getMonth()&&td.getFullYear()===dt.getFullYear())dayTasks.push(tk);
+      return;
+    }
+    if(tk.cy==='monthly'&&d<=7&&dow===1)dayTasks.push(tk);
+    else if(tk.cy==='termly'&&d===1)dayTasks.push(tk);
+    else if(tk.cy==='yearly'&&tk.m===m){
+      const tw=Math.max(1,Math.min(4,4-(tk.wb||0)));
+      if((wom===tw&&dow===1)||(d===1&&tw===1))dayTasks.push(tk);
+    }
+  });
+  // Non-overridden tasks with original due dates
+  mTasks.filter(tk=>tk.due&&!(overrides[tk.id]&&overrides[tk.id].due)).forEach(tk=>{
+    const dd=new Date(tk.due);
+    if(dd.getDate()===d&&dd.getMonth()===dt.getMonth()&&!dayTasks.includes(tk))dayTasks.push(tk);
+  });
+  return dayTasks;
+}
+
+function getMonthTasks(y,m){
+  return TASKS.filter(tk=>{
+    if(tk.cy==='daily'||tk.cy==='weekly')return false;
+    // LIVE_MODE: dateフィールドで月マッチ
+    if(tk.date){
+      const dm=gasToMonth(tk.date);
+      if(dm===m)return true;
+      return false;
+    }
+    if(tk.m===m)return true;
+    if(tk.cy==='monthly')return true;
+    return false;
+  });
+}
+
+function renderCal(){
+  const el=document.getElementById('p-cal');
+  const today=new Date();
+
+  let weekStart;
+  if(S.calWeekStart){weekStart=new Date(S.calWeekStart)}
+  else{weekStart=new Date(today);weekStart.setDate(weekStart.getDate()-((weekStart.getDay()+6)%7))}
+
+  const navLabel=S.calView==='month'?`${calY}年${calM}月`:`${weekStart.getMonth()+1}/${weekStart.getDate()}~ の週`;
+
+  el.innerHTML=`
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calNavPrev()"><i class="fa-solid fa-chevron-left" style="font-size:.7rem"></i></button>
+      <span class="cal-month-label">${navLabel}</span>
+      <button class="cal-nav-btn" onclick="calNavNext()"><i class="fa-solid fa-chevron-right" style="font-size:.7rem"></i></button>
+      <button class="cal-nav-btn" onclick="calNavToday()" style="margin-left:4px;font-size:.72rem;font-weight:600">今日</button>
+      <div class="cal-view-btns">
+        <button class="cal-view-btn${S.calView==='month'?' active':''}" onclick="S.calView='month';saveState();renderCal()">月間</button>
+        <button class="cal-view-btn${S.calView==='week'?' active':''}" onclick="S.calView='week';saveState();renderCal()">週間</button>
+        ${S.calView==='week'?`<button class="cal-view-btn${S.weekDays===7?' active':''}" onclick="S.weekDays=S.weekDays===7?5:7;saveState();renderCal()" style="margin-left:4px">${S.weekDays===7?'5日に戻す':'7日表示'}</button>`:''}
+      </div>
+    </div>
+    <div id="calContent"></div>
+  `;
+
+  if(S.calView==='month') renderCalMonth(today);
+  else { renderCalWeek(today,weekStart); placeNowIndicator(); /* [DU-011] */ }
+}
+
+let calDragId=null;
+function renderCalMonth(today){
+  const cc=document.getElementById('calContent');
+  let html=['日','月','火','水','木','金','土'].map(d=>`<div class="cal-hdr">${d}</div>`).join('');
+  const fd=new Date(calY,calM-1,1).getDay();
+  const dim=new Date(calY,calM,0).getDate();
+  for(let i=0;i<fd;i++)html+='<div class="cal-cell empty"></div>';
+  const mTasks=getMonthTasks(calY,calM);
+  for(let d=1;d<=dim;d++){
+    const dt=new Date(calY,calM-1,d);
+    const isToday=dt.toDateString()===today.toDateString();
+    const dayTasks=getTasksForDay(dt,mTasks);
+    const dateStr=`${calY}-${String(calM).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    html+=`<div class="cal-cell${isToday?' today':''}" data-date="${dateStr}" ondragover="event.preventDefault();this.style.background='var(--accent-bg)';this.style.borderColor='var(--accent)'" ondragleave="this.style.background='';this.style.borderColor=''" ondrop="calDrop(event,'${dateStr}');this.style.background='';this.style.borderColor=''"><div class="cal-day">${d}</div>${dayTasks.slice(0,3).map(tk=>`<div class="cal-item${isDone(tk.id)?' done-item':''}" draggable="true" ondragstart="calDragId='${tk.id}';this.style.opacity='0.4'" ondragend="this.style.opacity=''" title="${esc(tk.t)}" style="cursor:grab">${domDot(tk.d)} ${esc(tk.t)}</div>`).join('')}${dayTasks.length>3?`<div class="cal-more">+${dayTasks.length-3}</div>`:''}</div>`;
+  }
+  const rem=(7-(fd+dim)%7)%7;
+  for(let i=0;i<rem;i++)html+='<div class="cal-cell empty"></div>';
+  cc.innerHTML=`<div class="cal-grid">${html}</div>`;
+}
+function calDrop(e,dateStr){
+  e.preventDefault();
+  if(!calDragId)return;
+  const tk=TASKS.find(t=>t.id===calDragId);
+  if(!tk)return;
+  // Update due date (or set it)
+  const o=loadOverrides();
+  if(!o[calDragId])o[calDragId]={};
+  o[calDragId].due=dateStr;
+  saveOverrides(o);
+  // Also update the in-memory task for immediate rendering
+  tk.due=dateStr;
+  if(tk.date)tk.date=dateStr;
+  // Update month if needed
+  const newM=parseInt(dateStr.split('-')[1]);
+  if(tk.m!==newM){
+    o[calDragId].m=newM;
+    tk.m=newM;
+    saveOverrides(o);
+  }
+  // GASにも書き戻し
+  if(LIVE_MODE)fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'update_date',id:tk.id,date:dateStr})}).catch(err=>console.error('GAS date update failed:',err));
+  calDragId=null;
+  showToast('タスクを '+dateStr.replace(/^\d+-/,'').replace('-','/')+' に移動しました');
+  renderAll();
+}
+function loadOverrides(){try{return JSON.parse(localStorage.getItem('kyoto_cal_overrides'))||{}}catch{return {}}}
+function saveOverrides(o){localStorage.setItem('kyoto_cal_overrides',JSON.stringify(o))}
+
+const TIME_BLOCKS=[
+  {id:'morning',label:'朝',sub:'〜8:30',color:'rgba(74,124,89,0.06)'},
+  {id:'am',label:'午前',sub:'〜12:00',color:'rgba(91,125,177,0.06)'},
+  {id:'pm',label:'午後',sub:'〜16:00',color:'rgba(200,147,74,0.06)'},
+  {id:'after',label:'放課後',sub:'16:00〜',color:'rgba(184,90,122,0.06)'},
+];
+function parseStartHour(slot){
+  if(!slot)return -1;
+  // "08:30-11:30" or "08:30-" → 8.5
+  const hm=slot.match(/^(\d{1,2}):(\d{2})/);
+  if(hm)return parseInt(hm[1])+parseInt(hm[2])/60;
+  // "13:00/16:00" → 13
+  const sl=slot.match(/^(\d{1,2}):(\d{2})\//);
+  if(sl)return parseInt(sl[1])+parseInt(sl[2])/60;
+  // "1899-12-...T05:30:00.000Z" → UTC時刻+9=JST
+  const iso=slot.match(/T(\d{2}):(\d{2}):/);
+  if(iso)return (parseInt(iso[1])+parseInt(iso[2])/60+9)%24;
+  return -1;
+}
+function getTaskTimeBlock(tk){
+  // Check override first
+  const o=loadOverrides();
+  if(o[tk.id]&&o[tk.id].timeBlock)return o[tk.id].timeBlock;
+  // timeSlotから自動判定
+  const h=parseStartHour(tk.timeSlot);
+  if(h>=0){
+    if(h<8.5)return 'morning';
+    if(h<12)return 'am';
+    if(h<16)return 'pm';
+    return 'after';
+  }
+  return tk.timeBlock||'unset';
+}
+function renderCalWeek(today,weekStart){
+  const cc=document.getElementById('calContent');
+  const numDays=S.weekDays||5;
+  const days=[];
+  // weekStart is always Monday. For 7-day view, go back to Sunday.
+  const monday=new Date(weekStart);
+  // Ensure it's actually Monday
+  const dayOfWeek=monday.getDay();
+  if(dayOfWeek!==1){monday.setDate(monday.getDate()-((dayOfWeek+6)%7))}
+  const startDay=numDays===7?new Date(monday.getFullYear(),monday.getMonth(),monday.getDate()-1):monday;
+  for(let i=0;i<numDays;i++){const d=new Date(startDay);d.setDate(d.getDate()+i);days.push(d)}
+  const dowAll=['日','月','火','水','木','金','土'];
+  const dow=days.map(d=>dowAll[d.getDay()]);
+
+  // Header row: empty corner + day headers
+  let html='<div></div>';
+  html+=days.map((d,i)=>{
+    const isToday=d.toDateString()===today.toDateString();
+    const dateLabel=`${d.getMonth()+1}/${d.getDate()} ${dow[i]}`;
+    return `<div class="week-hdr" style="${isToday?'color:var(--accent);font-weight:800':''}">${dateLabel}${isToday?' <span style="font-size:.6rem">(今日)</span>':''}</div>`;
+  }).join('');
+
+  // Time block rows
+  TIME_BLOCKS.forEach(block=>{
+    // Time label
+    html+=`<div class="week-time-label"><div><div style="font-size:.7rem;font-weight:700">${block.label}</div><div class="week-block-label">${block.sub}</div></div></div>`;
+    // Day cells for this block
+    html+=days.map(d=>{
+      const isToday=d.toDateString()===today.toDateString();
+      const mTasks=getMonthTasks(d.getFullYear(),d.getMonth()+1);
+      const dayTasks=getTasksForDay(d,mTasks).filter(tk=>getTaskTimeBlock(tk)===block.id);
+      const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const dropData=`${dateStr}|${block.id}`;
+      return `<div class="week-cell${isToday?' today':''}" style="background:${block.color}" data-date="${dateStr}" data-block="${block.id}" ondragover="event.preventDefault();this.style.outline='2px solid var(--accent)'" ondragleave="this.style.outline=''" ondrop="calDropBlock(event,'${dateStr}','${block.id}');this.style.outline=''">
+        ${dayTasks.map(tk=>{
+          const info=getDueInfo(tk);
+          const dueLabel=info&&!isDone(tk.id)?`<span class="week-due" style="color:${{overdue:'var(--red)',urgent:'var(--red)',soon:'var(--amber)',ok:'var(--text-dim)'}[info.urgency]}">${info.type==='提出'?'〆':''} ${info.label}</span>`:'';
+          return `<div class="week-item${isDone(tk.id)?' done-item':''}" draggable="true" ondragstart="calDragId='${tk.id}';this.style.opacity='0.4'" ondragend="this.style.opacity=''" style="cursor:grab">${domDot(tk.d)} <span style="flex:1">${esc(tk.t)}</span>${dueLabel}</div>`;
+        }).join('')}
+      </div>`;
+    }).join('');
+  });
+
+  // Unassigned row (tasks without time block)
+  html+=`<div class="week-time-label"><div><div style="font-size:.7rem;font-weight:700;color:var(--text-dim2)">終日</div></div></div>`;
+  html+=days.map(d=>{
+    const isToday=d.toDateString()===today.toDateString();
+    const mTasks=getMonthTasks(d.getFullYear(),d.getMonth()+1);
+    const dayTasks=getTasksForDay(d,mTasks).filter(tk=>getTaskTimeBlock(tk)==='unset');
+    const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    return `<div class="week-cell${isToday?' today':''}" data-date="${dateStr}" data-block="unset" ondragover="event.preventDefault();this.style.outline='2px solid var(--accent)'" ondragleave="this.style.outline=''" ondrop="calDropBlock(event,'${dateStr}','unset');this.style.outline=''">
+      ${dayTasks.map(tk=>{
+        const info=getDueInfo(tk);
+        const dueLabel=info&&!isDone(tk.id)?`<span class="week-due" style="color:${{overdue:'var(--red)',urgent:'var(--red)',soon:'var(--amber)',ok:'var(--text-dim)'}[info.urgency]}">${info.type==='提出'?'〆':''} ${info.label}</span>`:'';
+        return `<div class="week-item${isDone(tk.id)?' done-item':''}" draggable="true" ondragstart="calDragId='${tk.id}';this.style.opacity='0.4'" ondragend="this.style.opacity=''" style="cursor:grab">${domDot(tk.d)} <span style="flex:1">${esc(tk.t)}</span>${dueLabel}</div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+
+  cc.innerHTML=`<div class="week-grid" style="grid-template-columns:48px repeat(${numDays},1fr)">${html}</div>`;
+}
+function calDropBlock(e,dateStr,blockId){
+  e.preventDefault();
+  if(!calDragId)return;
+  const o=loadOverrides();
+  if(!o[calDragId])o[calDragId]={};
+  o[calDragId].due=dateStr;
+  o[calDragId].timeBlock=blockId;
+  saveOverrides(o);
+  const tk=TASKS.find(t=>t.id===calDragId);
+  if(tk){tk.due=dateStr;if(tk.date)tk.date=dateStr;tk.timeBlock=blockId;const nm=parseInt(dateStr.split('-')[1]);if(tk.m!==nm){o[calDragId].m=nm;tk.m=nm;saveOverrides(o)}}
+  // GASにも書き戻し
+  if(LIVE_MODE&&tk)fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'update_date',id:tk.id,date:dateStr})}).catch(err=>console.error('GAS date update failed:',err));
+  const blockLabel=TIME_BLOCKS.find(b=>b.id===blockId)?.label||'終日';
+  showToast(`${blockLabel} ${dateStr.replace(/^\d+-/,'').replace('-','/')} に移動`);
+  calDragId=null;
+  renderAll();
+}
+
+function calNavPrev(){
+  if(S.calView==='month'){calM--;if(calM<1){calM=12;calY--}}
+  else{const ws=S.calWeekStart?new Date(S.calWeekStart):new Date();ws.setDate(ws.getDate()-7);S.calWeekStart=ws.toISOString();saveState()}
+  renderCal();
+}
+function calNavNext(){
+  if(S.calView==='month'){calM++;if(calM>12){calM=1;calY++}}
+  else{const ws=S.calWeekStart?new Date(S.calWeekStart):new Date();ws.setDate(ws.getDate()+7);S.calWeekStart=ws.toISOString();saveState()}
+  renderCal();
+}
+function calNavToday(){
+  const now=new Date();calY=now.getFullYear();calM=now.getMonth()+1;
+  const mon=new Date(now);mon.setDate(mon.getDate()-((mon.getDay()+6)%7));
+  S.calWeekStart=mon.toISOString();saveState();renderCal();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL 4: KANBAN (drag & drop)
+// ═══════════════════════════════════════════════════════════════
+let _dragId=null;
+function getBoardTasks(){
+  const now=new Date(),cm=now.getMonth()+1;
+  const nm=cm===12?1:cm+1;
+  return TASKS.filter(tk=>{
+    if(S.boardScope==='all')return true;
+    if(S.boardScope==='soon'){
+      if(tk.m===null)return true;
+      return tk.m===cm||tk.m===nm;
+    }
+    return tk.m===+S.boardScope||tk.m===null;
+  });
+}
+function renderBoard(){
+  const el=document.getElementById('p-board');
+  const now=new Date(),cm=now.getMonth()+1,nm=cm===12?1:cm+1;
+  const filtered=getBoardTasks();
+  const cols=STATUSES.map(st=>{
+    const tasks=filtered.filter(tk=>getStatus(tk.id)===st).sort((a,b)=>(a.m||99)-(b.m||99));
+    return {st,tasks};
+  });
+  const statusColors={'未着手':'var(--red)','進行中':'var(--blue)','委任':'var(--amber)','完了':'var(--green)'};
+  const scopes=[
+    {v:'soon',l:`${cm}~${nm}月+通年`},
+    {v:String(cm),l:`${cm}月のみ`},
+    {v:String(nm),l:`${nm}月のみ`},
+    {v:'all',l:`全件`},
+  ];
+  el.innerHTML=`
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+      <span style="font-size:.72rem;color:var(--text-dim);font-weight:600">表示:</span>
+      ${scopes.map(s=>`<button class="hide-done-toggle${S.boardScope===s.v?' active':''}" onclick="S.boardScope='${s.v}';saveState();renderBoard()">${s.l}</button>`).join('')}
+      <span style="font-size:.72rem;color:var(--text-dim);margin-left:auto">${filtered.length}件 / 全${TASKS.length}件</span>
+    </div>
+    <div class="kanban">${cols.map(c=>`
+    <div class="kanban-col" data-st="${c.st}">
+      <div class="kanban-col-header" style="border-left-color:${statusColors[c.st]}">
+        <span class="domain-dot" style="background:${statusColors[c.st]}"></span>
+        ${c.st} <span class="count">${c.tasks.length}</span>
+      </div>
+      ${c.tasks.map(tk=>`
+        <div class="kanban-card${isDone(tk.id)?' done-card':''}" draggable="true" data-id="${tk.id}">
+          <div class="kc-top">${domDot(tk.d)} <span class="kc-title">${esc(tk.t)}</span></div>
+          <div class="kc-meta"><span>${tk.m?tk.m+'月':'通年'}</span>${dueTag(tk)}${tk.cl.length?`<span><i class="fa-solid fa-list-check" style="font-size:.6rem"></i> ${tk.cl.length}</span>`:''}</div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('')}</div>`;
+
+  // Drag & drop
+  document.querySelectorAll('.kanban-card[draggable]').forEach(card=>{
+    card.addEventListener('dragstart',e=>{_dragId=card.dataset.id;card.classList.add('dragging');e.dataTransfer.effectAllowed='move'});
+    card.addEventListener('dragend',()=>{card.classList.remove('dragging');document.querySelectorAll('.drag-over').forEach(c=>c.classList.remove('drag-over'))});
+  });
+  document.querySelectorAll('.kanban-col').forEach(col=>{
+    col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('drag-over')});
+    col.addEventListener('dragleave',()=>col.classList.remove('drag-over'));
+    col.addEventListener('drop',e=>{
+      e.preventDefault();col.classList.remove('drag-over');
+      if(_dragId){setStatus(_dragId,col.dataset.st);renderAll();showToast(`${col.dataset.st}`)}
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL 5: OVERVIEW
+// ═══════════════════════════════════════════════════════════════
+function renderOverview(){
+  const el=document.getElementById('p-overview');
+  const total=TASKS.length;
+  const counts={};STATUSES.forEach(s=>counts[s]=0);TASKS.forEach(tk=>counts[getStatus(tk.id)]++);
+  const domC={};TASKS.forEach(tk=>domC[tk.d]=(domC[tk.d]||0)+1);
+  const domS=Object.entries(domC).sort((a,b)=>b[1]-a[1]);
+  const maxD=domS[0]?.[1]||1;
+  const monC={};for(let m=1;m<=12;m++)monC[m]=0;TASKS.forEach(tk=>{if(tk.m)monC[tk.m]++});
+  const maxM=Math.max(...Object.values(monC),1);
+  const pits=TASKS.filter(tk=>(tk.m===3||tk.m===4)&&tk.pit);
+  const cyC={};TASKS.forEach(tk=>cyC[tk.cy]=(cyC[tk.cy]||0)+1);
+  const statusColors={'未着手':'var(--red)','進行中':'var(--blue)','委任':'var(--amber)','完了':'var(--green)'};
+
+  el.innerHTML=`
+    <div class="ov-grid">
+      <div class="ov-card">
+        <div class="ov-card-title">全タスク</div>
+        <div style="display:flex;align-items:flex-end;gap:0">
+          <div class="ov-big">${total}</div>
+          <!-- [DU-021] Sparkline: monthly task distribution -->
+          <div class="sparkline">${[1,2,3,4,5,6,7,8,9,10,11,12].map(m=>{const c=monC[m];const h=maxM>0?Math.max(4,Math.round(c/maxM*32)):4;const now=new Date();const isCur=now.getMonth()+1===m;return `<div class="sparkline-bar${isCur?' current':''}" style="height:${h}px" title="${m}月: ${c}件"></div>`}).join('')}</div>
+        </div>
+        <div class="ov-sub">${Object.entries(cyC).map(([k,v])=>`${CY_LABEL[k]} ${v}件`).join(' / ')}</div>
+      </div>
+      <div class="ov-card">
+        <div class="ov-card-title">現在の状態</div>
+        <div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;align-items:center">
+          <!-- [DU-022] Ring chart: completion rate -->
+          ${(()=>{const pct=total>0?Math.round(counts['完了']/total*100):0;const circ=2*Math.PI*25;const offset=circ-(pct/100*circ);return `<div class="ring-chart"><svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="25" fill="none" stroke="var(--surface-dim)" stroke-width="6"/><circle cx="32" cy="32" r="25" fill="none" stroke="var(--green)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" style="--ring-offset:${offset};animation:ringFill .8s var(--ease) forwards"/></svg><span class="ring-label">${pct}%</span></div>`})()}
+          ${STATUSES.map(s=>`<div style="text-align:center"><div class="ov-big" style="font-size:32px;color:${statusColors[s]}">${counts[s]}</div><div class="ov-sub" style="margin-top:2px">${s}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="ov-card" style="margin-bottom:16px">
+      <div class="ov-card-title">領域別</div>
+      <div class="bar-chart">${domS.map(([d,c])=>`<div class="bar-row"><span class="bar-label">${d}</span><div class="bar-track"><div class="bar-fill" style="width:${c/maxD*100}%;background:${DC[d]||'var(--accent)'}"></div></div><span class="bar-count">${c}</span></div>`).join('')}</div>
+    </div>
+    <div class="ov-card" style="margin-bottom:16px">
+      <div class="ov-card-title">月別集中度（年1回タスクのみ）</div>
+      <div class="month-heat">${[1,2,3,4,5,6,7,8,9,10,11,12].map(m=>{const c=monC[m];const i=maxM>0?c/maxM:0;const bg=i>.7?'rgba(196,93,93,.15)':i>.3?'rgba(200,147,74,.1)':i>0?'rgba(91,125,177,.06)':'var(--surface-dim)';const col=i>.7?'var(--red)':i>.3?'var(--amber)':'var(--text-dim)';return `<div class="month-cell" style="background:${bg};color:${col}"><div style="font-size:11px;opacity:.6">${m}月</div><div style="font-weight:800">${c}</div></div>`}).join('')}</div>
+      <div style="font-size:13px;color:var(--text-dim);margin-top:8px;text-align:center">4月に${monC[4]}件集中 -- 赴任初月が最大の山場</div>
+    </div>
+    <div class="section-title"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red);font-size:14px"></i> 3~4月の落とし穴</div>
+    ${pits.map(tk=>`<div class="pitfall-card"><div class="pitfall-task">${domDot(tk.d)} ${esc(tk.t)}</div><div class="pitfall-text">${esc(tk.pit)}</div></div>`).join('')}
+    <div class="section-title"><i class="fa-solid fa-scale-balanced" style="color:var(--accent);font-size:14px"></i> 判断ルール</div>
+    ${RULES.map(r=>`<div class="rule-card"><div class="rule-trigger"><i class="fa-solid fa-diamond" style="font-size:8px;color:var(--accent);margin-right:4px"></i> ${esc(r.tr)}</div><div class="rule-text">${esc(r.ru)}</div><div class="rule-reason"><i class="fa-solid fa-lightbulb" style="color:var(--amber);font-size:11px;margin-right:4px"></i> ${esc(r.re)}</div></div>`).join('')}
+
+    <!-- フロー図 -->
+    <div class="section-title flow-toggle" id="flowToggle" onclick="document.getElementById('flowToggle').classList.toggle('open');document.getElementById('flowContent').classList.toggle('open')">
+      <span class="arrow"><i class="fa-solid fa-chevron-right" style="font-size:11px"></i></span> <i class="fa-solid fa-arrows-rotate" style="font-size:14px;margin:0 3px"></i> タスク管理フロー図（日中→夕方）
+    </div>
+    <div class="flow-content" id="flowContent">
+      <svg viewBox="0 0 900 680" xmlns="http://www.w3.org/2000/svg" font-family="'Hiragino Sans','Noto Sans JP',sans-serif">
+        <rect width="900" height="680" fill="#f8f9fa" rx="12"/>
+        <rect x="30" y="20" width="840" height="280" rx="10" fill="#e8f4fd" stroke="#90caf9" stroke-width="1.5"/>
+        <text x="50" y="48" font-size="15" font-weight="bold" fill="#1565c0">日中（投げるだけ）</text>
+        <rect x="60" y="70" width="130" height="50" rx="8" fill="#fff" stroke="#90caf9" stroke-width="1.5"/>
+        <text x="125" y="92" text-anchor="middle" font-size="12" fill="#333">音声メモ</text>
+        <text x="125" y="107" text-anchor="middle" font-size="10" fill="#666">「タスク。○○を...」</text>
+        <rect x="60" y="140" width="130" height="50" rx="8" fill="#fff" stroke="#90caf9" stroke-width="1.5"/>
+        <text x="125" y="162" text-anchor="middle" font-size="12" fill="#333">電話・来客・相談</text>
+        <text x="125" y="177" text-anchor="middle" font-size="10" fill="#666">起きたことを喋る</text>
+        <rect x="60" y="210" width="130" height="50" rx="8" fill="#fff" stroke="#90caf9" stroke-width="1.5"/>
+        <text x="125" y="232" text-anchor="middle" font-size="12" fill="#333">依頼したこと</text>
+        <text x="125" y="247" text-anchor="middle" font-size="10" fill="#666">「○○先生に頼んだ」</text>
+        <line x1="190" y1="95" x2="270" y2="155" stroke="#90caf9" stroke-width="2" marker-end="url(#ab)"/>
+        <line x1="190" y1="165" x2="270" y2="160" stroke="#90caf9" stroke-width="2" marker-end="url(#ab)"/>
+        <line x1="190" y1="235" x2="270" y2="170" stroke="#90caf9" stroke-width="2" marker-end="url(#ab)"/>
+        <rect x="270" y="120" width="140" height="80" rx="10" fill="#1565c0"/>
+        <text x="340" y="150" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">CC（/memo）</text>
+        <text x="340" y="170" text-anchor="middle" font-size="11" fill="#bbdefb">自動分類</text>
+        <text x="340" y="186" text-anchor="middle" font-size="11" fill="#bbdefb">タスク/伝言/記録/保留</text>
+        <line x1="410" y1="140" x2="500" y2="95" stroke="#1565c0" stroke-width="2" marker-end="url(#adb)"/>
+        <line x1="410" y1="160" x2="500" y2="165" stroke="#1565c0" stroke-width="2" marker-end="url(#adb)"/>
+        <line x1="410" y1="180" x2="500" y2="240" stroke="#1565c0" stroke-width="2" marker-end="url(#adb)"/>
+        <rect x="500" y="65" width="200" height="55" rx="8" fill="#fff" stroke="#4caf50" stroke-width="2"/>
+        <text x="600" y="87" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">シート1: タスク</text>
+        <text x="600" y="105" text-anchor="middle" font-size="10" fill="#666">やること（未来）210件</text>
+        <rect x="500" y="135" width="200" height="55" rx="8" fill="#fff" stroke="#ff9800" stroke-width="2"/>
+        <text x="600" y="157" text-anchor="middle" font-size="12" font-weight="bold" fill="#e65100">シート2: 日誌・メモ</text>
+        <text x="600" y="175" text-anchor="middle" font-size="10" fill="#666">起きたこと（Inbox）</text>
+        <rect x="500" y="205" width="200" height="55" rx="8" fill="#fff" stroke="#9c27b0" stroke-width="2"/>
+        <text x="600" y="227" text-anchor="middle" font-size="12" font-weight="bold" fill="#6a1b9a">シート3: 職員動態</text>
+        <text x="600" y="245" text-anchor="middle" font-size="10" fill="#666">誰がどこに（状況）</text>
+        <rect x="740" y="65" width="110" height="55" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text x="795" y="87" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">紙チェック</text>
+        <text x="795" y="105" text-anchor="middle" font-size="9" fill="#666">手帳の中で管理</text>
+        <rect x="30" y="320" width="840" height="340" rx="10" fill="#fef3e4" stroke="#ffcc80" stroke-width="1.5"/>
+        <text x="50" y="348" font-size="15" font-weight="bold" fill="#e65100">夕方フック（CCが聞いてくる）</text>
+        <rect x="60" y="370" width="250" height="80" rx="8" fill="#fff" stroke="#ff9800" stroke-width="1.5"/>
+        <text x="80" y="395" font-size="13" font-weight="bold" fill="#e65100">1. 依頼タスクの抜け検知</text>
+        <text x="80" y="415" font-size="11" fill="#333">CC:「依頼2件、詳細が空です」</text>
+        <text x="80" y="432" font-size="11" fill="#333">-> 誰に振った？ いつ？</text>
+        <text x="80" y="447" font-size="10" fill="#888">あなた: 口頭で答えるだけ</text>
+        <rect x="330" y="370" width="250" height="80" rx="8" fill="#fff" stroke="#ff9800" stroke-width="1.5"/>
+        <text x="350" y="395" font-size="13" font-weight="bold" fill="#e65100">2. 日誌のTODO仕分け</text>
+        <text x="350" y="415" font-size="11" fill="#333">CC:「今日の日誌5件、TODO化する？」</text>
+        <text x="350" y="432" font-size="11" fill="#333">-> 保護者電話 / 蛍光灯切れ / ...</text>
+        <text x="350" y="447" font-size="10" fill="#888">あなた:「電話はタスク、他は記録」</text>
+        <rect x="600" y="370" width="250" height="80" rx="8" fill="#fff" stroke="#ff9800" stroke-width="1.5"/>
+        <text x="620" y="395" font-size="13" font-weight="bold" fill="#e65100">3. 翌日の動態読み上げ</text>
+        <text x="620" y="415" font-size="11" fill="#333">CC:「明日 校長出張、田中先生年休」</text>
+        <text x="620" y="432" font-size="11" fill="#333">-> 不在者の仕事が降ってくるか確認</text>
+        <text x="620" y="447" font-size="10" fill="#888">あなた: 認識するだけ</text>
+        <path d="M185,370 L185,330 L600,330 L600,120" fill="none" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ag)"/>
+        <text x="400" y="325" text-anchor="middle" font-size="9" fill="#4caf50">詳細欄に書き込み</text>
+        <path d="M455,370 L455,330 L640,330 L640,190" fill="none" stroke="#ff9800" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ao)"/>
+        <text x="555" y="280" text-anchor="middle" font-size="9" fill="#e65100">TODO?=○ -> タスク昇格</text>
+        <text x="555" y="292" text-anchor="middle" font-size="9" fill="#e65100">TODO?=- -> 記録のまま</text>
+        <rect x="60" y="480" width="520" height="70" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="1.5"/>
+        <text x="80" y="505" font-size="12" font-weight="bold" fill="#2e7d32">CCが自動でやること</text>
+        <text x="80" y="525" font-size="11" fill="#333">・依頼タスクの詳細欄に「誰に・いつ」を記入</text>
+        <text x="80" y="542" font-size="11" fill="#333">・日誌の->TODO?列を更新 -> ○のものをタスクシートに1行追加</text>
+        <rect x="600" y="480" width="250" height="70" rx="8" fill="#fce4ec" stroke="#e91e63" stroke-width="1.5"/>
+        <text x="620" y="505" font-size="12" font-weight="bold" fill="#c62828">あなたがやること</text>
+        <text x="620" y="525" font-size="11" fill="#333">・質問に口頭で答える</text>
+        <text x="620" y="542" font-size="11" fill="#333">・判断だけ。入力はCCがやる</text>
+        <rect x="60" y="580" width="810" height="50" rx="8" fill="#fff" stroke="#bdbdbd" stroke-width="1"/>
+        <text x="465" y="605" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">設計原則: 日中は投げるだけ。覚えるのはCCの仕事。判断だけ人間。</text>
+        <text x="465" y="623" text-anchor="middle" font-size="11" fill="#888">回収チェックは紙（手帳の中、見えないように）。シートには結果だけ残す。</text>
+        <defs>
+          <marker id="ab" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#90caf9"/></marker>
+          <marker id="adb" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#1565c0"/></marker>
+          <marker id="ag" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#4caf50"/></marker>
+          <marker id="ao" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ff9800"/></marker>
+        </defs>
+      </svg>
+      <div class="flow-decisions">
+        <div class="flow-dec"><div class="flow-dec-title">盲点1: 回収の追跡</div>紙（手帳の中）で自分だけ見えるように。夕方フックでCCが空欄を検知して聞いてくる。</div>
+        <div class="flow-dec"><div class="flow-dec-title">盲点2: 日誌のTODO判断</div>日中は投げ込むだけ -> 夕方にCCがリスト提示 -> 人間が口頭で判断。</div>
+        <div class="flow-dec"><div class="flow-dec-title">盲点3: 校長不在日</div>夕方フック3で翌日の動態を読み上げるだけで十分。専用フラグ不要。</div>
+        <div class="flow-dec pending"><div class="flow-dec-title">盲点4: 繰り返しタスクの生成タイミング</div>毎日7件・毎月5件のテンプレ -> いつ・誰が生成する？</div>
+        <div class="flow-dec pending"><div class="flow-dec-title">盲点5: 6月以降のデータ</div>R1/R2データから年間分を先に入れる？ 赴任後に手で足す？</div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER ALL
+// ═══════════════════════════════════════════════════════════════
+function renderAll(){
+  renderNav();
+  renderHeader();
+  if(S.tab==='today')renderToday();
+  else if(S.tab==='list')renderList();
+  else if(S.tab==='cal')renderCal();
+  else if(S.tab==='board')renderBoard();
+  else if(S.tab==='overview')renderOverview();
+  else if(S.tab==='resources')renderResources();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESOURCES (Ultra Dashboard 資料集)
+// ═══════════════════════════════════════════════════════════════
+const SS='../文章_作業スペース/FriendlyWorkshop/dev_screenshots/';
+const RESOURCES = [
+  {name:'NotebookLM 30分で火をつける研修',tag:'研修スライド',desc:'生徒指導提要デモ → Audio Overview → ハンズオン演習。VoicePad連携あり。',icon:'fa-solid fa-book-open-reader',thumb:SS+'res_notebooklm_kenshu.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/notebooklm_kenshu_slide.html'},
+  {name:'VoicePad 導入スライド',tag:'ツール紹介',desc:'VoicePadの概要・セットアップ・活用法を説明するスライド資料。',icon:'fa-solid fa-microphone',thumb:SS+'res_voicepad_slides.png',link:'../文章_作業スペース/FriendlyWorkshop/tools/voice-to-doc/guide_slides.html'},
+  {name:'尾鷲マイクロ水力 調査レポート',tag:'レポート',desc:'尾鷲市における小水力発電の可能性調査。',icon:'fa-solid fa-water',thumb:SS+'res_microhydro.png',links:[{label:'HTML版',url:'../文章_作業スペース/05_仕事_Work/owase_microhydro_report.html'},{label:'PDF版',url:'../文章_作業スペース/05_仕事_Work/owase_microhydro_report.pdf'}]},
+  {name:'4月着任チェックリスト',tag:'教頭業務',desc:'教頭1年目の4月着任時やることリスト。',icon:'fa-solid fa-clipboard-check',thumb:SS+'res_april_checklist.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/print_april_checklist.html'},
+  {name:'テンプレートショーケース',tag:'デザイン',desc:'HTMLスライド3テンプレートの比較。',icon:'fa-solid fa-swatchbook',thumb:SS+'res_template_showcase.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/template_showcase.html'},
+  {name:'4月ダッシュボード',tag:'教頭業務',desc:'4月の教頭タスク・行事・チェックリストを集約。',icon:'fa-solid fa-calendar-days',thumb:SS+'res_april_dashboard.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/kyoto_april_dashboard.html'},
+  {name:'教頭の資料棚',tag:'教頭業務',desc:'研修スライド・ツール紹介・教頭業務の資料カード集。',icon:'fa-solid fa-folder-open',thumb:SS+'res_resource_shelf.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/resource_dashboard.html'},
+  {name:'紀北教育研究所 知のDB全体図',tag:'教育',desc:'教育研究所のDB構造を俯瞰する全体図。',icon:'fa-solid fa-diagram-project',thumb:SS+'res_kihoku_db_map.png',link:'../文章_作業スペース/05_仕事_Work/紀北教育研究所_知のDB全体図.html'},
+  {name:'割合ガイド',tag:'教材サンプル',desc:'割合の考え方を図解したサンプル教材。',icon:'fa-solid fa-percent',thumb:SS+'res_wariai_guide.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/sample_wariai_guide.html'},
+  {name:'割合図解',tag:'教材サンプル',desc:'割合のビジュアル図解資料。',icon:'fa-solid fa-chart-pie',thumb:SS+'res_wariai_zukai.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/sample_wariai_zukai.html'},
+  {name:'ステップ開示テンプレート',tag:'テンプレート',desc:'HTMLスライドのステップ開示テンプレート。',icon:'fa-solid fa-layer-group',thumb:SS+'res_step_reveal.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/template_step_reveal.html'},
+  {name:'社中泊フロー',tag:'教頭業務',desc:'宿泊行事の流れを整理したフローチャート。',icon:'fa-solid fa-route',thumb:SS+'res_shachuuhaku.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/test_shachuuhaku_flow.html'},
+  {name:'写真家DNAダッシュボード',tag:'写真分析',desc:'写真撮影スタイルの分析ダッシュボード。',icon:'fa-solid fa-camera',thumb:SS+'res_photo_dna_dash.png',link:'../文章_作業スペース/05_仕事_Work/photo_analysis/photographer_dna_dashboard.html'},
+  {name:'写真家DNA研究',tag:'写真分析',desc:'写真撮影の傾向・強みの分析資料。',icon:'fa-solid fa-flask',thumb:SS+'res_photo_dna_study.png',link:'../文章_作業スペース/05_仕事_Work/photo_analysis/photographer_dna_study.html'},
+  {name:'業務改革ポータル',tag:'業務改革',desc:'業務改革の各種ツール・情報への入口。',icon:'fa-solid fa-gauge-high',thumb:SS+'res_reform_portal.png',link:'../文章_作業スペース/05_仕事_Work/06_業務改革_WorkReform/portal/index.html'},
+  {name:'2年算数「長さのたんい」第3時',tag:'教材セット',desc:'授業スライド・練習プリント・ゲームの4点セット。',icon:'fa-solid fa-ruler-combined',thumb:SS+'res_lesson_slide.png',links:[{label:'スライド',url:'../文章_作業スペース/05_仕事_Work/教科書PDF/教材セット_2年算数_長さのたんい_第3時/01_授業スライド.html'},{label:'プリント',url:'../文章_作業スペース/05_仕事_Work/教科書PDF/教材セット_2年算数_長さのたんい_第3時/02_練習プリント.html'},{label:'ゲーム',url:'../文章_作業スペース/05_仕事_Work/教科書PDF/教材セット_2年算数_長さのたんい_第3時/04_mm読み取りゲーム.html'}]},
+  {name:'写真クイズ',tag:'写真',desc:'YouTube写真講座から生成したクイズ。',icon:'fa-solid fa-question-circle',thumb:SS+'res_photo_quiz.png',link:'../文章_作業スペース/05_仕事_Work/youtube_context_collector/output/quizzes/photo_quiz.html'},
+  {name:'教頭ダッシュボード',tag:'教頭業務',desc:'カレンダー連携・スプレッドシート連携。',icon:'fa-solid fa-table-columns',thumb:SS+'res_kyoto_dashboard.png',link:'kyoto-dashboard.html'},
+  {name:'教科書PDF・テキストデータ',tag:'教科書データ',desc:'算数・国語 1〜6年の教科書PDF+OCRテキスト化データ。',icon:'fa-solid fa-book',link:'../文章_作業スペース/05_仕事_Work/教科書PDF/'},
+  {name:'FW アプリカタログ',tag:'アプリ',desc:'教育アプリ15本のカタログページ。',icon:'fa-solid fa-rocket',link:'../文章_作業スペース/FriendlyWorkshop/catalog.html'},
+];
+
+// Apps data (from dev_dashboard)
+const APPS_DATA = [
+  {name:'掛け算ビンゴ',grade:'2-4年',subject:'算数',status:'published',file:'bingo.html'},
+  {name:'がいすうメーカー',grade:'4年',subject:'算数',status:'published',file:'gaisu_maker.html'},
+  {name:'気候グラフメーカー',grade:'5年',subject:'社会',status:'published',file:'japan_climate_graph_maker.html'},
+  {name:'角度スナイパー v3',grade:'4年',subject:'算数',status:'published',file:'kakudo_sniper_v3.html'},
+  {name:'けいさんバトル！デラックス',grade:'1-6年',subject:'算数',status:'published',file:'keisan_battle_deluxe.html'},
+  {name:'こそあど探偵',grade:'3-4年',subject:'国語',status:'published',file:'kosoado_tantei.html'},
+  {name:'公倍数メーカー v2',grade:'5年',subject:'算数',status:'published',file:'koubaisuu_maker_v2.html'},
+  {name:'ながさバトル',grade:'2-3年',subject:'算数',status:'published',file:'nagasa_battle.html'},
+  {name:'だれにする？ルーレット',grade:'\u2014',subject:'学級',status:'published',file:'roulette.html'},
+  {name:'せきがえ相談室',grade:'\u2014',subject:'学級',status:'published',file:'sekigae_soudanshitsu.html'},
+  {name:'主語・述語・修飾語タッチ',grade:'2-4年',subject:'国語',status:'published',file:'syugo_jutsugo_touch.html'},
+  {name:'おしらせタイマー',grade:'\u2014',subject:'学級',status:'published',file:'timer_notice.html'},
+  {name:'約数フォーカスメーカー v7',grade:'5年',subject:'算数',status:'published',file:'yakusuu_focus_maker_v7.html'},
+  {name:'とけいパズル',grade:'2-3年',subject:'算数',status:'ready',file:'clock_puzzle.html'},
+  {name:'データたんてい',grade:'4-6年',subject:'算数',status:'ready',file:'data_tantei.html'},
+  {name:'分数バーガーショップ',grade:'3-5年',subject:'算数',status:'ready',file:'fraction_burger.html'},
+  {name:'漢字プリントメーカー',grade:'1-6年',subject:'国語',status:'ready',file:'kanji_print_maker.html'},
+  {name:'慣用句クリニック',grade:'4年',subject:'国語',status:'ready',file:'kanyouku_clinic.html'},
+  {name:'ことわざ法てい',grade:'5-6年',subject:'国語',status:'ready',file:'kotowaza_houtei.html'},
+  {name:'お話スロット',grade:'3-4年',subject:'国語',status:'ready',file:'sandai_banashi.html'},
+  {name:'わりあいレストラン',grade:'5年',subject:'算数',status:'ready',file:'wariai_restaurant.html'},
+  {name:'ようやくトランク',grade:'4-6年',subject:'国語',status:'ready',file:'youyaku_trunk.html'},
+  {name:'面積単位どうじょう v5',grade:'4年',subject:'算数',status:'ready',file:'menseki_tani_dojo_v5.html'},
+  {name:'かさ単位どうじょう',grade:'2年',subject:'算数',status:'ready',file:'kasa_tani_dojo.html'},
+  {name:'じゅんびタイマー',grade:'\u2014',subject:'学級',status:'ready',file:'junbi_timer/index.html'},
+  {name:'時こくえきちょう',grade:'3年',subject:'算数',status:'dev',file:'jikoku_ekichou_v2.html'},
+  {name:'鼻歌スコアメーカー',grade:'\u2014',subject:'その他',status:'dev',file:'hanauta_score.html'},
+  {name:'いろまぜラボ',grade:'1-2年',subject:'その他',status:'dev',file:'iromaze_lab.html'},
+  {name:'まるてん',grade:'1-6年',subject:'全教科',status:'dev',file:'maruten.html'},
+  {name:'ふせんボード',grade:'\u2014',subject:'学級',status:'dev',file:'fusen_board.html'},
+  {name:'漢字の部品工場',grade:'3年',subject:'国語',status:'dev',file:'kanji_buhin_koujou.html'},
+  {name:'漢字鉱山',grade:'6年',subject:'国語',status:'external',url:'https://aru-tano.github.io/kanji-mine/'},
+  {name:'インフルエンザ復帰計算',grade:'\u2014',subject:'学級',status:'external',url:'https://aru-tano.github.io/flu-return-app/'},
+  {name:'VoicePad',grade:'\u2014',subject:'その他',status:'external',url:'https://aru-tano.github.io/voice-memo/'},
+];
+const APP_STATUS={published:{l:'公開済',c:'var(--green)'},ready:{l:'完成未掲載',c:'var(--amber)'},dev:{l:'開発中',c:'var(--blue)'},external:{l:'外部',c:'var(--pink)'}};
+
+// DB data (from context_manifest)
+const DB_DATA = [
+  {key:'attention-design-db',records:378,desc:'注意設計統合DB（11ドメイン+岡田斗司夫）',cat:'design'},
+  {key:'teaching-microskills',records:373,desc:'授業微細技術DB（26カテゴリ）',cat:'education'},
+  {key:'comedy-elements',records:116,desc:'お笑い構造DB',cat:'content'},
+  {key:'game-design-elements',records:112,desc:'ゲームデザイン要素DB',cat:'design'},
+  {key:'photo-elements',records:113,desc:'写真理論DB（6カテゴリ）',cat:'design'},
+  {key:'trial-log',records:454,desc:'失敗・発見事例DB',cat:'core'},
+  {key:'developmental-psychology',records:45,desc:'発達心理学DB',cat:'education'},
+  {key:'learning-science',records:50,desc:'学習科学DB',cat:'education'},
+  {key:'edu-law',records:48,desc:'教育法規DB（14法令）',cat:'work'},
+  {key:'crisis-management',records:45,desc:'学校危機管理DB',cat:'work'},
+  {key:'parent-relations',records:67,desc:'保護者対応DB',cat:'work'},
+  {key:'student-guidance',records:64,desc:'生徒指導DB',cat:'education'},
+  {key:'leadership',records:46,desc:'リーダーシップDB',cat:'work'},
+  {key:'coaching',records:42,desc:'コーチング・メンタリングDB',cat:'work'},
+  {key:'facilitation',records:40,desc:'ファシリテーションDB',cat:'work'},
+  {key:'nudge',records:40,desc:'行動経済学・ナッジDB',cat:'education'},
+  {key:'presentation',records:42,desc:'プレゼン・話し方DB',cat:'work'},
+  {key:'pedagogy-tagged',records:27024,desc:'教授法タグ付き実践事例DB',cat:'education'},
+  {key:'tokubetsu-shien',records:70,desc:'特別支援教育DB',cat:'education'},
+  {key:'shochu-setsuzoku',records:147,desc:'小中接続DB',cat:'education'},
+  {key:'mitsumura-kanji-by-unit',records:1026,desc:'光村図書 漢字初出マップ',cat:'education'},
+  {key:'animcjk-stroke-svg',records:5930,desc:'AnimCJK 筆順アニメーションSVG',cat:'education'},
+  {key:'lesson-plans-hiroshima',records:665,desc:'広島県教育センター 指導案DB',cat:'education'},
+  {key:'lesson-plans-iwate',records:534,desc:'岩手県教育センター 指導案DB',cat:'education'},
+  {key:'lesson-plans-fukuoka',records:378,desc:'福岡県教育センター 指導案DB',cat:'education'},
+  {key:'kyoto-cases',records:18,desc:'教頭ケースDB',cat:'work'},
+  {key:'kyoto-rules',records:47,desc:'教頭ルールDB',cat:'work'},
+  {key:'kyoto-tasks',records:98,desc:'教頭タスクDB',cat:'work'},
+  {key:'stumbling-points',records:107,desc:'全国学力テスト つまずきポイントDB',cat:'education'},
+  {key:'pref-questions',records:4244,desc:'都道府県学力テスト問題DB',cat:'education'},
+  {key:'okada-ichigeki',records:3317,desc:'岡田斗司夫一撃DB',cat:'content'},
+  {key:'chatgpt-ichigeki',records:4305,desc:'ChatGPTログ一撃DB',cat:'content'},
+  {key:'kindle-db',records:289,desc:'Kindle書籍DB',cat:'content'},
+  {key:'discord-fullserver',records:14871,desc:'Discordサーバー全投稿DB',cat:'content'},
+  {key:'voice-bank',records:270,desc:'声Aボイスバンク',cat:'content'},
+  {key:'notebooklm-guide',records:115,desc:'NotebookLM完全活用ガイドDB',cat:'reference'},
+  {key:'gws_edu_db',records:50,desc:'Google Workspace教育活用DB',cat:'education'},
+  {key:'ai_tools_guide_db',records:40,desc:'AIツール使い分けガイドDB',cat:'education'},
+  {key:'edu_dx_db',records:50,desc:'教育DX・GIGAスクール事例DB',cat:'education'},
+  {key:'storytelling-db',records:40,desc:'ストーリーテリングDB',cat:'content'},
+  {key:'time_management_db',records:40,desc:'時間管理・仕事術DB',cat:'work'},
+  {key:'kenshu-patterns-db',records:40,desc:'校内研修設計パターンDB',cat:'education'},
+  {key:'info-design-db',records:40,desc:'情報デザイン・図解DB',cat:'design'},
+  {key:'meta-knowledge-db',records:55,desc:'DB構築メタ知識DB',cat:'core'},
+  {key:'school_admin_db',records:51,desc:'校務効率化DB',cat:'education'},
+  {key:'sns-operations-db',records:48,desc:'SNS運用ノウハウDB',cat:'content'},
+  {key:'philosophy-db',records:55,desc:'哲学DB（プラトン中心）',cat:'reference'},
+  {key:'owase-local-db',records:66,desc:'三重県尾鷲市郷土DB',cat:'education'},
+  {key:'stylish-ui-principles',records:25,desc:'おしゃれUIの科学的原理+CSS値',cat:'design'},
+  {key:'home-building-db',records:56,desc:'家づくり・注文住宅DB',cat:'personal'},
+  {key:'solo-guitar-db',records:50,desc:'ソロギター・アコギDB',cat:'personal'},
+];
+const DB_CAT_LABELS={education:'教育',work:'業務',design:'デザイン',content:'コンテンツ',core:'コア',personal:'パーソナル',reference:'リファレンス'};
+const DB_CAT_ICONS={education:'fa-solid fa-graduation-cap',work:'fa-solid fa-briefcase',design:'fa-solid fa-palette',content:'fa-solid fa-pen-fancy',core:'fa-solid fa-gear',personal:'fa-solid fa-user',reference:'fa-solid fa-bookmark'};
+
+let resSubTab='resources';
+let resSearch='';
+let resDbCatFilter='all';
+let resAppStatusFilter='all';
+
+function renderResources(){
+  const el=document.getElementById('p-resources');
+  const totalRecords=DB_DATA.reduce((s,d)=>s+d.records,0);
+
+  // Sub-tab bar
+  const subTabs=[
+    {id:'resources',icon:'fa-solid fa-folder-open',label:'資料集',count:RESOURCES.length},
+    {id:'apps',icon:'fa-solid fa-rocket',label:'アプリ',count:APPS_DATA.length},
+    {id:'dbs',icon:'fa-solid fa-database',label:'DB一覧',count:DB_DATA.length},
+  ];
+
+  let html=`
+    <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--border)">
+      ${subTabs.map(t=>`<button onclick="resSubTab='${t.id}';renderResources()" style="padding:10px 20px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:15px;font-weight:600;color:${resSubTab===t.id?'var(--accent)':'var(--text-dim)'};border-bottom:2px solid ${resSubTab===t.id?'var(--accent)':'transparent'};transition:all .2s;display:flex;align-items:center;gap:6px"><i class="${t.icon}" style="font-size:13px"></i>${t.label}<span style="font-size:12px;background:${resSubTab===t.id?'var(--accent)':'var(--surface-dim)'};color:${resSubTab===t.id?'#fff':'var(--text-dim)'};padding:1px 7px;border-radius:10px;font-weight:700">${t.count}</span></button>`).join('')}
+    </div>
+    <div style="margin-bottom:16px">
+      <input type="text" placeholder="検索..." value="${resSearch}" oninput="resSearch=this.value;renderResources()" style="width:100%;max-width:320px;padding:7px 12px 7px 32px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:14px;outline:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2214%22 height=%2214%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23a8a29e%22 stroke-width=%222%22><circle cx=%2211%22 cy=%2211%22 r=%228%22/><path d=%22m21 21-4.3-4.3%22/></svg>');background-repeat:no-repeat;background-position:10px center">
+    </div>
+  `;
+
+  const q=resSearch.toLowerCase();
+
+  if(resSubTab==='resources'){
+    const filtered=RESOURCES.filter(r=>!q||r.name.toLowerCase().includes(q)||r.tag.toLowerCase().includes(q)||r.desc.toLowerCase().includes(q));
+    html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">${filtered.map((r,i)=>{
+      const actionHTML=r.links?r.links.map(l=>`<a href="${l.url}" target="_blank" style="font-size:13px;font-weight:600;padding:4px 10px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;transition:all .2s">${l.label}</a>`).join(''):r.link?`<a href="${r.link}" target="_blank" style="font-size:13px;font-weight:600;padding:4px 10px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;transition:all .2s">開く</a>`:'';
+      const thumbHTML=r.thumb?`<img src="${r.thumb}" alt="${r.name}" style="width:100%;height:100%;object-fit:cover;transition:transform .5s ease" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:'';
+      const fallbackIcon=`<div style="display:${r.thumb?'none':'flex'};align-items:center;justify-content:center;width:100%;height:100%"><i class="${r.icon}" style="font-size:1.8em;color:var(--accent);opacity:0.4"></i></div>`;
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 2px 8px rgba(0,0,0,0.04)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.07)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
+        <div style="width:100%;aspect-ratio:16/10;border-radius:10px;overflow:hidden;margin-bottom:10px;background:var(--surface-dim)">${thumbHTML}${fallbackIcon}</div>
+        <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--accent-bg);color:var(--accent);display:inline-block;margin-bottom:6px;align-self:flex-start">${r.tag}</span>
+        <div style="font-size:15px;font-weight:700;margin-bottom:3px">${r.name}</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.5;flex:1;margin-bottom:8px">${r.desc}</div>
+        <div style="display:flex;gap:5px">${actionHTML}</div>
+      </div>`;
+    }).join('')}</div>`;
+    if(!filtered.length) html+=`<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:15px">該当する資料がありません</div>`;
+
+  } else if(resSubTab==='apps'){
+    // Status filter
+    const statuses=['all','published','ready','dev','external'];
+    const statusLabels={all:'全て',published:'公開済',ready:'完成未掲載',dev:'開発中',external:'外部'};
+    html+=`<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">${statuses.map(s=>`<button onclick="resAppStatusFilter='${s}';renderResources()" style="padding:4px 12px;border-radius:7px;border:1px solid ${resAppStatusFilter===s?'var(--accent)':'var(--border)'};background:${resAppStatusFilter===s?'var(--accent)':'var(--surface)'};color:${resAppStatusFilter===s?'#fff':'var(--text-dim)'};font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s">${statusLabels[s]}</button>`).join('')}</div>`;
+    const filtered=APPS_DATA.filter(a=>{
+      if(resAppStatusFilter!=='all'&&a.status!==resAppStatusFilter)return false;
+      if(q&&!a.name.toLowerCase().includes(q)&&!a.subject.toLowerCase().includes(q))return false;
+      return true;
+    });
+    const ASS='../文章_作業スペース/FriendlyWorkshop/dev_screenshots/';
+    html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">${filtered.map(a=>{
+      const sm=APP_STATUS[a.status];
+      const href=a.file?'../文章_作業スペース/FriendlyWorkshop/apps/'+a.file:(a.url||'#');
+      const thumbFile=a.file?a.file.replace(/\/index\.html$/,'').replace('.html',''):a.name;
+      const thumbSrc=ASS+thumbFile+'.png';
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 1px 4px rgba(0,0,0,0.03)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)'" onmouseout="this.style.transform='';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.03)'">
+        <div style="width:100%;aspect-ratio:16/10;border-radius:8px;overflow:hidden;margin-bottom:8px;background:var(--surface-dim)"><img src="${thumbSrc}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="width:7px;height:7px;border-radius:50%;background:${sm.c};flex-shrink:0"></span><span style="font-size:11px;font-weight:600;color:var(--text-dim)">${sm.l}</span>${a.grade!=='\u2014'?`<span style="font-size:10.5px;padding:1px 5px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.grade}</span>`:''}<span style="font-size:10.5px;padding:1px 5px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.subject}</span></div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px">${a.name}</div>
+        <a href="${href}" target="_blank" style="font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:4px">${a.status==='external'?'外部サイト':'開く'} <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></a>
+      </div>`;
+    }).join('')}</div>`;
+    if(!filtered.length) html+=`<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:15px">該当するアプリがありません</div>`;
+
+  } else if(resSubTab==='dbs'){
+    // Category filter
+    const cats=['all',...Object.keys(DB_CAT_LABELS)];
+    html+=`<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">${cats.map(c=>{
+      const label=c==='all'?'全て':DB_CAT_LABELS[c];
+      const count=c==='all'?DB_DATA.length:DB_DATA.filter(d=>d.cat===c).length;
+      if(c!=='all'&&!count)return'';
+      return `<button onclick="resDbCatFilter='${c}';renderResources()" style="padding:4px 12px;border-radius:7px;border:1px solid ${resDbCatFilter===c?'var(--accent)':'var(--border)'};background:${resDbCatFilter===c?'var(--accent)':'var(--surface)'};color:${resDbCatFilter===c?'#fff':'var(--text-dim)'};font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s">${label} ${count}</button>`;
+    }).join('')}</div>`;
+    html+=`<div style="font-size:13px;color:var(--text-dim);margin-bottom:10px">${totalRecords.toLocaleString()} records</div>`;
+    const filtered=DB_DATA.filter(d=>{
+      if(resDbCatFilter!=='all'&&d.cat!==resDbCatFilter)return false;
+      if(q&&!d.key.toLowerCase().includes(q)&&!d.desc.toLowerCase().includes(q))return false;
+      return true;
+    });
+    html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">${filtered.map(d=>{
+      const icon=DB_CAT_ICONS[d.cat]||'fa-solid fa-database';
+      const label=DB_CAT_LABELS[d.cat]||d.cat;
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .25s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.05)'" onmouseout="this.style.transform='';this.style.boxShadow='none'">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;background:var(--accent-bg);color:var(--accent)">${label}</span><i class="${icon}" style="font-size:13px;color:var(--text-dim);opacity:0.5"></i></div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:4px;line-height:1.4">${d.desc}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><span style="font-size:12px;color:var(--text-dim);display:flex;align-items:center;gap:3px"><i class="fa-solid fa-database" style="font-size:11px"></i>${d.records.toLocaleString()}</span><span style="font-size:10.5px;font-family:monospace;color:var(--text-dim);opacity:0.5">${d.key}</span></div>
+      </div>`;
+    }).join('')}</div>`;
+    if(!filtered.length) html+=`<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:15px">該当するDBがありません</div>`;
+  }
+
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GAS LIVE SYNC
+// ═══════════════════════════════════════════════════════════════
+function gasDateToYMD(s){
+  if(!s)return '';
+  // "Wed Apr 01 2026 ..." → Date → "2026-04-01"
+  // or "2026-03-下旬" → そのまま
+  if(s.includes('下旬')||s.includes('初旬')||s.includes('中旬'))return s;
+  const d=new Date(s);
+  if(isNaN(d))return s;
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function gasToMonth(dateStr){
+  if(!dateStr)return null;
+  const m=dateStr.match(/(\d{4})-(\d{2})/);
+  return m?parseInt(m[2]):null;
+}
+function gasToDow(dateStr){
+  if(!dateStr)return '';
+  const d=new Date(dateStr);
+  if(isNaN(d))return '';
+  return ['日','月','火','水','木','金','土'][d.getDay()];
+}
+
+// GASのタスクデータをHTML内部形式に変換
+function convertGasTask(g){
+  const date=gasDateToYMD(g.date);
+  const m=gasToMonth(date);
+  return {
+    id:g.id,
+    d:g.category||'',
+    t:g.task,
+    cy:'yearly',
+    m:m,
+    wb:0,
+    cl:[],
+    pit:g.detail||'',
+    tg:[g.category||''],
+    due:g.dueDate||'',
+    date:date,
+    status:g.status||'未着手',
+    priority:g.priority||'',
+    timeSlot:g.timeSlot||'',
+    _row:g._row
+  };
+}
+
+async function fetchFromGAS(){
+  try{
+    showToast('スプレッドシートからデータ取得中...');
+    const res=await fetch(GAS_URL+'?action=tasks');
+    const json=await res.json();
+    if(json.tasks&&json.tasks.length>0){
+      // GASデータで差し替え（ローカルテンプレートのcl/sub情報は保持しない）
+      TASKS.length=0;
+      json.tasks.forEach(g=>{
+        const tk=convertGasTask(g);
+        TASKS.push(tk);
+      });
+      // ステータスをGASのデータで上書き
+      TASKS.forEach(tk=>{
+        if(tk.status)S.status[tk.id]=tk.status;
+      });
+      saveState();
+      LIVE_MODE=true;
+      rebuildTodayPicks(); /* [DU-009] GAS連携後にTODAY_PICKSを再構築 */
+      showToast(`${TASKS.length}件のタスクを読み込みました`);
+    }
+  }catch(err){
+    console.error('GAS fetch failed:',err);
+    showToast('オフラインモード（ローカルデータ使用）');
+  }
+  renderAll();
+}
+
+// GASにステータス変更を書き戻す
+function gasUpdateStatus(id,status){
+  if(!LIVE_MODE)return;
+  fetch(GAS_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'update_status',id:id,status:status})
+  }).catch(err=>console.error('GAS update failed:',err));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// [DU-011] NOW INDICATOR — Apple Calendar style red line
+// ═══════════════════════════════════════════════════════════════
+function placeNowIndicator(){
+  // Only for week view
+  if(S.calView!=='week')return;
+  const grid=document.querySelector('.week-grid');
+  if(!grid)return;
+  // Remove old indicator
+  document.querySelectorAll('.now-indicator').forEach(el=>el.remove());
+  const now=new Date();
+  const h=now.getHours()+now.getMinutes()/60;
+  // School hours: 7:00-18:00 mapped to TIME_BLOCKS
+  // Calculate which block and position within it
+  const blockRanges=[{id:'morning',start:7,end:8.5},{id:'am',start:8.5,end:12},{id:'pm',start:12,end:16},{id:'after',start:16,end:18}];
+  let targetBlock=null,pct=0;
+  for(const b of blockRanges){
+    if(h>=b.start&&h<b.end){targetBlock=b.id;pct=(h-b.start)/(b.end-b.start);break}
+  }
+  if(!targetBlock)return;
+  // Find the week-cell row for this block
+  const cells=grid.querySelectorAll(`.week-cell[data-block="${targetBlock}"]`);
+  if(!cells.length)return;
+  const cell=cells[0];
+  const gridRect=grid.getBoundingClientRect();
+  const cellRect=cell.getBoundingClientRect();
+  const top=cellRect.top-gridRect.top+cellRect.height*pct;
+  grid.style.position='relative';
+  const line=document.createElement('div');
+  line.className='now-indicator';
+  line.style.top=top+'px';
+  grid.appendChild(line);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// [DU-043] COMMAND PALETTE (Cmd+K)
+// ═══════════════════════════════════════════════════════════════
+let cmdActive=-1;
+const CMD_PANELS=[
+  {id:'today',icon:'fa-solid fa-crosshairs',label:'今日',key:'1'},
+  {id:'list',icon:'fa-solid fa-list-check',label:'リスト',key:'2'},
+  {id:'cal',icon:'fa-regular fa-calendar',label:'カレンダー',key:'3'},
+  {id:'board',icon:'fa-solid fa-columns',label:'ボード',key:'4'},
+  {id:'overview',icon:'fa-solid fa-chart-bar',label:'概要',key:'5'},
+  {id:'resources',icon:'fa-solid fa-folder-open',label:'資料集',key:'6'},
+];
+
+function openCmdPalette(){
+  const ov=document.getElementById('cmdOverlay');
+  ov.classList.add('open');
+  const inp=document.getElementById('cmdInput');
+  inp.value='';
+  inp.focus();
+  cmdActive=-1;
+  renderCmdResults('');
+}
+function closeCmdPalette(){
+  document.getElementById('cmdOverlay').classList.remove('open');
+}
+function renderCmdResults(q){
+  const el=document.getElementById('cmdResults');
+  q=q.toLowerCase().trim();
+  let items=[];
+  // Panel switches
+  CMD_PANELS.forEach(p=>{
+    if(!q||p.label.includes(q)||p.id.includes(q)){
+      items.push({type:'panel',id:p.id,icon:p.icon,label:p.label,key:p.key});
+    }
+  });
+  // Task search
+  if(q.length>=1){
+    TASKS.filter(tk=>tk.t.toLowerCase().includes(q)||tk.d.toLowerCase().includes(q)).slice(0,8).forEach(tk=>{
+      items.push({type:'task',id:tk.id,icon:'fa-solid fa-circle-dot',label:tk.t,sub:tk.d});
+    });
+  }
+  cmdActive=items.length>0?0:-1;
+  el.innerHTML=items.map((it,i)=>`<div class="cmd-item${i===cmdActive?' active':''}" data-idx="${i}" data-type="${it.type}" data-id="${it.id}" onclick="execCmdItem(this)"><span class="cmd-icon"><i class="${it.icon}"></i></span><span>${esc(it.label)}${it.sub?' <span style="font-size:12px;color:var(--text-dim)">'+esc(it.sub)+'</span>':''}</span>${it.key?'<span class="cmd-key">'+it.key+'</span>':''}</div>`).join('');
+  el._items=items;
+}
+function execCmdItem(el){
+  const type=el.dataset.type,id=el.dataset.id;
+  closeCmdPalette();
+  if(type==='panel'){S.tab=id;saveState();renderAll()}
+  else if(type==='task'){S.tab='list';saveState();renderAll();setTimeout(()=>{const inp=document.getElementById('fSearch');if(inp){const tk=TASKS.find(t=>t.id===id);if(tk)inp.value=tk.t;renderListRows()}},100)}
+}
+document.getElementById('cmdInput').addEventListener('input',function(){renderCmdResults(this.value)});
+document.getElementById('cmdInput').addEventListener('keydown',function(e){
+  const el=document.getElementById('cmdResults');
+  const items=el._items||[];
+  if(e.key==='ArrowDown'){e.preventDefault();cmdActive=Math.min(cmdActive+1,items.length-1)}
+  else if(e.key==='ArrowUp'){e.preventDefault();cmdActive=Math.max(cmdActive-1,0)}
+  else if(e.key==='Enter'&&cmdActive>=0){e.preventDefault();const sel=el.children[cmdActive];if(sel)execCmdItem(sel);return}
+  else if(e.key==='Escape'){closeCmdPalette();return}
+  else return;
+  el.querySelectorAll('.cmd-item').forEach((c,i)=>c.classList.toggle('active',i===cmdActive));
+  if(el.children[cmdActive])el.children[cmdActive].scrollIntoView({block:'nearest'});
+});
+
+// [DU-042] Keyboard shortcuts: Cmd+K + number keys 1-6
+document.addEventListener('keydown',function(e){
+  // Cmd+K or Ctrl+K → open command palette
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();const ov=document.getElementById('cmdOverlay');ov.classList.contains('open')?closeCmdPalette():openCmdPalette();return}
+  // Escape to close
+  if(e.key==='Escape'&&document.getElementById('cmdOverlay').classList.contains('open')){closeCmdPalette();return}
+  // Number keys 1-6 for panel switching (when not typing in an input)
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
+  const n=parseInt(e.key);
+  if(n>=1&&n<=6&&!e.metaKey&&!e.ctrlKey&&!e.altKey){
+    const panel=CMD_PANELS[n-1];
+    if(panel){S.tab=panel.id;saveState();renderAll();showToast(panel.label)}
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// [DU-036] CONFETTI — fires when all TODAY_PICKS are completed
+// ═══════════════════════════════════════════════════════════════
+function fireConfetti(){
+  const colors=['#4A7C59','#C45D5D','#C8934A','#5B7DB1','#B85A7A','#ef4444','#f59e0b','#10b981'];
+  for(let i=0;i<40;i++){
+    const piece=document.createElement('div');
+    piece.className='confetti-piece';
+    piece.style.left=Math.random()*100+'vw';
+    piece.style.background=colors[Math.floor(Math.random()*colors.length)];
+    piece.style.borderRadius=Math.random()>0.5?'50%':'0';
+    piece.style.width=(6+Math.random()*6)+'px';
+    piece.style.height=(6+Math.random()*6)+'px';
+    piece.style.animationDuration=(2+Math.random()*1.5)+'s';
+    piece.style.animationDelay=(Math.random()*0.5)+'s';
+    document.body.appendChild(piece);
+    setTimeout(()=>piece.remove(),4000);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// [DU-009] TODAY_PICKS GAS SYNC FIX — rebuildTodayPicks
+// ═══════════════════════════════════════════════════════════════
+function rebuildTodayPicks(){
+  const now=new Date();
+  const cm=now.getMonth()+1;
+  const candidates=TASKS.filter(tk=>!isDone(tk.id)&&(tk.m===cm||tk.m===cm+1));
+  const reasons=['今月の重要タスク','期限が近い','早めに着手すべき','今週中に対応','確認が必要'];
+  TODAY_PICKS.length=0;
+  candidates.slice(0,5).forEach((tk,i)=>{
+    TODAY_PICKS.push({id:tk.id,why:tk.pit||reasons[i]||'今月のタスク'});
+  });
+  if(TODAY_PICKS.length>0)todayRevealed=true;
+}
+
+// INIT — apply calendar overrides to TASKS
+(function(){const o=loadOverrides();Object.keys(o).forEach(id=>{const tk=TASKS.find(t=>t.id===id);if(tk){if(o[id].due)tk.due=o[id].due;if(o[id].m)tk.m=o[id].m}})})();
+// ローカルTASKSをバックアップ（GASマージ用）
+TASKS.forEach(tk=>LOCAL_TASKS_BACKUP.push(Object.assign({},tk)));
+loadState();applyTheme();renderAll();
+// GASからデータを非同期で取得して上書き
+fetchFromGAS();
+</script>
+</body>
+</html>
