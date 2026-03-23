@@ -255,6 +255,7 @@ body.dark .header{background:rgba(17,17,16,0.85)}
 }
 .today-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
 .today-card.done{opacity:.4}
+.today-card.recovery{background:rgba(196,93,93,0.03);border:1px solid rgba(196,93,93,0.15)}
 .today-card.done .today-card-title{text-decoration:line-through}
 .today-card.removing{animation:slideOut .35s ease forwards}
 .today-rank{
@@ -288,6 +289,84 @@ body.dark .header{background:rgba(17,17,16,0.85)}
   color:var(--text-secondary);line-height:1.6;
 }
 .today-remaining{margin-top:24px;text-align:center;color:var(--text-dim);font-size:14px;padding:16px;border:1px dashed var(--border-mid);border-radius:12px}
+
+/* ===== TODAY TAB: 3-SECTION LAYOUT ===== */
+.today-section{margin-bottom:28px}
+.today-section-header{
+  display:flex;align-items:center;gap:8px;margin-bottom:12px;
+  font-size:14px;font-weight:700;color:var(--text);
+}
+.today-section-header i{color:var(--text-dim);font-size:13px}
+.today-section-header .count{
+  font-size:11px;font-weight:600;color:var(--text-dim);
+  background:var(--surface-dim);padding:2px 8px;border-radius:99px;
+}
+
+/* Staff movement cards */
+.staff-row{
+  display:flex;align-items:center;gap:12px;padding:10px 16px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  margin-bottom:6px;font-size:13.5px;transition:all .2s var(--ease);
+}
+.staff-row:hover{box-shadow:var(--shadow-sm)}
+.staff-type{
+  font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;
+  white-space:nowrap;
+}
+.staff-type.出張{background:rgba(139,92,246,.1);color:#8b5cf6}
+.staff-type.年休{background:rgba(196,93,93,.1);color:var(--red)}
+.staff-type.研修{background:rgba(91,125,177,.1);color:var(--blue)}
+.staff-type.来校{background:rgba(74,124,89,.1);color:var(--green)}
+.staff-type.出張報告{background:rgba(200,147,74,.1);color:var(--amber)}
+.staff-name{font-weight:600;min-width:100px}
+.staff-time{color:var(--text-dim);font-size:12.5px}
+.staff-note{color:var(--text-secondary);font-size:12.5px;flex:1}
+
+/* Journal entries */
+.journal-row{
+  display:flex;gap:12px;padding:12px 16px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  margin-bottom:6px;font-size:13.5px;transition:all .2s var(--ease);
+  align-items:flex-start;
+}
+.journal-row:hover{box-shadow:var(--shadow-sm)}
+.journal-time{color:var(--text-dim);font-size:12px;font-weight:600;min-width:44px;padding-top:1px}
+.journal-type{
+  font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;
+  background:var(--surface-dim);color:var(--text-secondary);white-space:nowrap;
+}
+.journal-content{flex:1;line-height:1.5}
+.journal-todo{
+  font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;
+  background:rgba(196,93,93,.1);color:var(--red);white-space:nowrap;
+}
+.journal-memo{font-size:12px;color:var(--text-dim);margin-top:3px}
+.journal-follow{font-size:11px;color:var(--amber);font-weight:600}
+
+/* Journal input bar */
+.journal-input-bar{
+  display:flex;gap:8px;padding:12px 16px;
+  background:var(--surface);border:1px solid var(--border-mid);border-radius:12px;
+  margin-bottom:16px;align-items:center;
+}
+.journal-input-bar input{
+  flex:1;border:none;background:transparent;font-size:14px;
+  color:var(--text);font-family:inherit;outline:none;
+}
+.journal-input-bar input::placeholder{color:var(--text-dim2)}
+.journal-input-bar button{
+  padding:6px 16px;border-radius:8px;border:none;
+  background:var(--accent);color:#fff;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .2s var(--ease);white-space:nowrap;
+}
+.journal-input-bar button:hover{background:var(--accent-hover)}
+.journal-input-bar button:disabled{opacity:.4;cursor:not-allowed}
+
+/* Empty state */
+.today-empty{
+  padding:20px;text-align:center;color:var(--text-dim);font-size:13px;
+  border:1px dashed var(--border-mid);border-radius:12px;
+}
 .hide-done-toggle{
   font-size:12.5px;color:var(--text-dim);cursor:pointer;padding:6px 12px;
   border-radius:8px;border:1px solid var(--border-mid);background:transparent;
@@ -440,6 +519,7 @@ body.dark .header{background:rgba(17,17,16,0.85)}
 .kc-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
 .kc-title{font-weight:600;flex:1;overflow-wrap:break-word;word-wrap:break-word;line-height:1.4}
 .kc-domain{font-size:12px;color:var(--text-dim)}
+.kc-who{font-size:11.5px;color:var(--amber);font-weight:600;margin-top:4px;padding:3px 8px;background:rgba(200,147,74,0.08);border-radius:6px}
 .kc-meta{font-size:12px;color:var(--text-dim);display:flex;gap:8px}
 
 /* ===== PANEL 5: OVERVIEW ===== */
@@ -664,9 +744,11 @@ body.dark .header{background:rgba(17,17,16,0.85)}
 // ═══════════════════════════════════════════════════════════════
 // DATA
 // ═══════════════════════════════════════════════════════════════
-const GAS_URL='https://script.google.com/macros/s/AKfycbyOnVVdHdtX3Px1HPFrw_qRa7J1jeoBWErV43hNZOQdxTX7rESKfAzfIN0Us0keo7x3rQ/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbyJEH9sWhq38fmxMBA8Luu10ARzRRILPfWmXu02Zg5RT9lSXRt8eV0CTpACKrBoo9G0rQ/exec';
 let LIVE_MODE=false; // GASからデータ取得成功したらtrue
 const LOCAL_TASKS_BACKUP=[]; // GASマージ用にローカルTASKSを保持
+let JOURNAL_ENTRIES=[]; // シート2: 日誌・メモ
+let STAFF_RECORDS=[]; // シート3: 職員動態
 const TASKS=[
 {id:"T001",d:"行事",t:"入学式の準備",cy:"yearly",m:3,wb:3,cl:["式次第の原案作成","校長確認","来賓案内状の発送","座席配置図の作成","教職員の役割分担表","新入生名簿の最終確認","受付の段取り確認"],pit:"来賓の人数変更が直前に来る。席を2〜3席余分に用意",tg:["入学式","4月"]},
 {id:"T002",d:"教職員管理",t:"教職員との個別面談（年度始め）",cy:"yearly",m:4,wb:0,cl:["面談スケジュール調整","前年度の自己評価シート確認","今年度の校務分掌と照合","面談記録シートの準備","コンプライアンス自己申告の聴取（「私これやっちゃうかも」を聞く）"],pit:"4月は行事が多く後回しになりがち。最初の2週間で全員終わらせる",tg:["面談","人事","不祥事防止"]},
@@ -906,6 +988,7 @@ function renderHeader(){
       <div class="header-sub">${panelLabel}</div>
     </div>
     <div class="header-right">
+      <span class="stat-chip" style="font-size:11px;${LIVE_MODE?'color:var(--green)':'color:var(--red)'}">${LIVE_MODE?'<i class="fa-solid fa-cloud" style="font-size:.55rem;margin-right:3px"></i>接続中':'<i class="fa-solid fa-cloud-slash" style="font-size:.55rem;margin-right:3px"></i>オフライン'}</span>
       <span class="stat-chip highlight"><i class="fa-solid fa-circle-exclamation" style="font-size:.6rem;margin-right:4px"></i>${todoCount}</span>
       <span class="stat-chip"><i class="fa-solid fa-layer-group" style="font-size:.6rem;margin-right:4px"></i>${total}</span>
       ${S.tab==='today'?`<button class="ai-btn" id="aiBtn" onclick="aiPickToday()"><span class="spinner"></span><span class="btn-label"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</span></button>`:''}
@@ -936,55 +1019,203 @@ let todayRevealed=false;
 
 function renderToday(){
   const el=document.getElementById('p-today');
+  const todayStr=new Date().toISOString().slice(0,10);
 
-  if(!todayRevealed){
-    el.innerHTML=`
-      <div class="today-initial">
-        <div class="today-initial-icon"><i class="fa-solid fa-crosshairs" style="font-size:2.5rem;color:var(--accent);opacity:0.3"></i></div>
-        <div class="today-initial-text">AIに「今日やるべきこと」を選んでもらいましょう</div>
-        <div class="today-initial-sub">全${TASKS.length}件のタスクから、今日着手すべきものを優先順位付きで提案します</div>
-      </div>
-    `;
-    return;
+  // 今日の動態
+  const todayStaff=STAFF_RECORDS.filter(r=>r.date===todayStr);
+  // 今日の日誌
+  const todayJournal=JOURNAL_ENTRIES.filter(e=>e.date===todayStr);
+  // タスク（従来のTODAY_PICKS）
+  const picks=TODAY_PICKS;
+  let leftHtml='';
+  let rightHtml='';
+
+  // ── 右サイド: 投げ込み入力 + 動態一覧 + 日誌一覧 ──
+
+  // 日誌投げ込み
+  leftHtml+=`<div class="today-section" style="margin-bottom:12px">
+    <div class="journal-input-bar" style="margin-bottom:6px">
+      <i class="fa-solid fa-pen-nib" style="color:var(--accent);font-size:12px"></i>
+      <input type="text" id="journalInputToday" placeholder="日誌メモ（日時自動）" onkeydown="if(event.key==='Enter'){submitJournalToday()}">
+      <button onclick="submitJournalToday()">送信</button>
+    </div>
+    <div class="journal-input-bar" style="border-color:rgba(91,125,177,0.3)">
+      <i class="fa-solid fa-people-arrows" style="color:var(--blue);font-size:12px"></i>
+      <input type="text" id="staffInputToday" placeholder="動態メモ（例: 校長 出張 午後）" onkeydown="if(event.key==='Enter'){submitStaffQuickToday()}">
+      <button onclick="submitStaffQuickToday()" style="background:var(--blue)">送信</button>
+    </div>
+  </div>`;
+
+  // 動態一覧
+  if(todayStaff.length>0){
+    leftHtml+=`<div class="today-section" style="margin-bottom:12px">
+      <div class="today-section-header" style="margin-bottom:6px">
+        <i class="fa-solid fa-people-arrows"></i> 動態
+        <span class="count">${todayStaff.length}</span>
+      </div>`;
+    leftHtml+=todayStaff.map((r,i)=>`<div class="staff-row" style="animation:fadeIn ${.1+i*.05}s ease both;padding:6px 12px">
+      <span class="staff-type ${esc(r.type)}">${esc(r.type)}</span>
+      <span class="staff-name">${esc(r.name)}</span>
+      <span class="staff-time">${esc(r.timeSlot)}</span>
+      <span class="staff-note">${esc(r.note)}</span>
+    </div>`).join('');
+    leftHtml+=`</div>`;
   }
 
-  const picks=TODAY_PICKS;
-  const remaining=TASKS.length-picks.length;
-  const doneCount=picks.filter(p=>isDone(p.id)).length;
-  el.innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:8px">
-      <div style="font-size:.82rem;color:var(--text-secondary)">${TASKS.length}件から${picks.length}件を選定 -- ${doneCount}/${picks.length} 完了</div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button class="ai-btn" onclick="aiPickToday()" style="font-size:.72rem;padding:6px 14px"><span class="spinner"></span><span class="btn-label"><i class="fa-solid fa-rotate"></i> 再選定</span></button>
-        <button class="hide-done-toggle${S.hideDone?' active':''}" onclick="S.hideDone=!S.hideDone;saveState();renderToday()">
-          ${S.hideDone?'完了も表示':'完了を隠す'}
-        </button>
-      </div>
+  // 日誌一覧
+  leftHtml+=`<div class="today-section">
+    <div class="today-section-header" style="margin-bottom:6px">
+      <i class="fa-solid fa-pen-nib"></i> 日誌
+      <span class="count">${todayJournal.length}</span>
+    </div>`;
+  if(todayJournal.length===0){
+    leftHtml+=`<div class="today-empty" style="padding:12px;font-size:12px">まだメモはありません</div>`;
+  }else{
+    leftHtml+=todayJournal.map((e,i)=>{
+      const typeHtml=e.type?`<span class="journal-type">${esc(e.type)}</span>`:'';
+      const todoHtml=e.isTodo==='○'?`<span class="journal-todo">TODO</span>`:'';
+      const memoHtml=e.memo?`<div class="journal-memo">${esc(e.memo)}</div>`:'';
+      const followHtml=e.follow?`<span class="journal-follow"><i class="fa-solid fa-bell" style="font-size:10px;margin-right:3px"></i>${esc(e.follow)}</span>`:'';
+      return `<div class="journal-row" style="animation:fadeIn ${.1+i*.05}s ease both;padding:8px 12px">
+        <span class="journal-time">${esc(e.time)}</span>
+        ${typeHtml}
+        <div class="journal-content">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${esc(e.content)} ${todoHtml} ${followHtml}</div>
+          ${memoHtml}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  leftHtml+=`</div>`;
+
+  // ── 右カラム: 今日のタスク ──
+  rightHtml+=`<div class="today-section">
+    <div class="today-section-header">
+      <i class="fa-solid fa-crosshairs"></i> 今日のタスク
+      <span class="count">${picks.length}件</span>
     </div>
-    <div class="today-cards">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+      <button class="ai-btn" onclick="aiPickToday()" style="font-size:.72rem;padding:6px 14px"><span class="spinner"></span><span class="btn-label"><i class="fa-solid fa-rotate"></i> 再選定</span></button>
+      <button class="hide-done-toggle${S.hideDone?' active':''}" onclick="S.hideDone=!S.hideDone;saveState();renderToday()">
+        ${S.hideDone?'完了も表示':'完了を隠す'}
+      </button>
+    </div>`;
+
+  if(!todayRevealed&&picks.length===0){
+    rightHtml+=`<div class="today-empty">
+      <div style="margin-bottom:8px"><i class="fa-solid fa-crosshairs" style="font-size:1.5rem;color:var(--accent);opacity:.3"></i></div>
+      「再選定」ボタンで今日のタスクを選びます
+    </div>`;
+  }else{
+    const remaining=TASKS.length-picks.length;
+    const doneCount=picks.filter(p=>isDone(p.id)).length;
+    if(picks.length>0){
+      rightHtml+=`<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:8px">${doneCount}/${picks.length} 完了</div>`;
+    }
+    rightHtml+=`<div class="today-cards">
       ${picks.filter(p=>!S.hideDone||!isDone(p.id)).map((p,i)=>{
         const tk=TASKS.find(x=>x.id===p.id);if(!tk)return '';
         const done=isDone(tk.id);
         const domColor=DC[tk.d]||'var(--accent)';
-        return `<div class="today-card${done?' done':''}" style="animation:fadeIn ${.15+i*.08}s ease both;border-left-color:${domColor}">
-          ${cb(tk.id)}
-          <div class="today-rank">${i+1}</div>
-          <div class="today-card-body">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <span class="today-card-title">${esc(tk.t)}</span>
-              ${domDot(tk.d)} <span style="font-size:.7rem;color:var(--text-dim)">${esc(tk.d)}</span>
-              ${statusBtn(tk.id)}
-            </div>
-            <div style="margin-top:4px">${dueTag(tk)}</div>
-            <div class="today-card-why"><i class="fa-solid fa-lightbulb" style="color:var(--amber);margin-right:4px;font-size:.7rem"></i> ${esc(p.why)}</div>
-            ${tk.cl.length?`<div class="today-checklist">${tk.cl.map((c,ci)=>`<div class="today-cl-item${isClDone(tk.id,ci)?' cl-done':''}" onclick="toggleCl('${tk.id}',${ci});renderToday()"><span class="today-cl-check"></span> ${esc(c)}</div>`).join('')}</div>`:''}
+        const isOpen=S._openCards&&S._openCards[tk.id];
+        const hasDetail=tk.pit||(tk.cl&&tk.cl.length>0)||p.why;
+        const detailHtml=hasDetail?`<div class="today-card-detail" style="display:${isOpen?'block':'none'}">
+            ${p.why?`<div class="today-card-why"><i class="fa-solid fa-lightbulb" style="color:var(--amber);margin-right:4px;font-size:.7rem"></i> ${esc(p.why)}</div>`:''}
+            ${tk.cl&&tk.cl.length?`<div class="today-checklist">${tk.cl.map((c,ci)=>`<div class="today-cl-item${isClDone(tk.id,ci)?' cl-done':''}" onclick="event.stopPropagation();toggleCl('${tk.id}',${ci});renderToday()"><span class="today-cl-check"></span> ${esc(c)}</div>`).join('')}</div>`:''}
             ${tk.pit?`<div class="today-pitfall"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red);margin-right:4px;font-size:.65rem"></i> ${esc(tk.pit)}</div>`:''}
+          </div>`:'';
+        const isDelegated=getStatus(tk.id)==='委任';
+        const isRecovery=p.recovery;
+        const whoLabel=tk.who?esc(tk.who):'';
+        return `<div class="today-card${done?' done':''}${isRecovery?' recovery':''}" style="animation:fadeIn ${.15+i*.08}s ease both;border-left-color:${isRecovery?'var(--red)':domColor};cursor:pointer;padding:${isOpen?'20px 24px':'12px 16px'}" onclick="toggleCard('${tk.id}')">
+          <div style="display:flex;align-items:flex-start;gap:12px;width:100%">
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:8px">
+                ${isRecovery?'<span style="font-size:11px;font-weight:700;color:var(--red);background:rgba(196,93,93,0.1);padding:2px 8px;border-radius:6px;white-space:nowrap">回収確認</span>':''}
+                <span class="today-card-title" style="font-size:${isOpen?'16px':'14px'}">${esc(tk.t)}</span>
+                ${hasDetail?`<i class="fa-solid fa-chevron-${isOpen?'up':'down'}" style="font-size:10px;color:var(--text-dim);margin-left:auto;flex-shrink:0"></i>`:''}
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap">
+                ${domDot(tk.d)} <span style="font-size:.7rem;color:var(--text-dim)">${esc(tk.d)}</span>
+                ${dueTag(tk)}
+                ${isDelegated&&whoLabel?`<span style="font-size:11px;font-weight:600;color:var(--amber)"><i class="fa-solid fa-user" style="font-size:9px;margin-right:2px"></i>${whoLabel} 待ち</span>`:''}
+              </div>
+              <div style="display:flex;gap:6px;margin-top:8px" onclick="event.stopPropagation()">
+                <button onclick="toggleDone('${tk.id}',event);renderToday()" style="padding:4px 12px;border-radius:6px;border:1px solid ${done?'var(--green)':'var(--border-mid)'};background:${done?'var(--green)':'transparent'};color:${done?'#fff':'var(--text-secondary)'};font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s">
+                  <i class="fa-solid fa-check" style="margin-right:3px;font-size:9px"></i>${done?'完了済':'完了'}
+                </button>
+                ${!done?`<button onclick="delegateTask('${tk.id}')" style="padding:4px 12px;border-radius:6px;border:1px solid ${isDelegated?'var(--amber)':'var(--border-mid)'};background:${isDelegated?'rgba(200,147,74,0.1)':'transparent'};color:${isDelegated?'var(--amber)':'var(--text-secondary)'};font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s">
+                  <i class="fa-solid fa-paper-plane" style="margin-right:3px;font-size:9px"></i>${isDelegated?'委任中':'委任'}
+                </button>`:''}
+              </div>
+            </div>
           </div>
+          ${detailHtml}
         </div>`;
       }).join('')}
-    </div>
-    <div class="today-remaining">残り ${remaining}件は明日以降</div>
-  `;
+    </div>`;
+    if(picks.length>0){
+      rightHtml+=`<div class="today-remaining">残り ${remaining}件は明日以降</div>`;
+    }
+  }
+  rightHtml+=`</div>`;
+
+  el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 0.382fr;gap:24px;align-items:start">
+    <div>${rightHtml}</div>
+    <div>${leftHtml}</div>
+  </div>`;
+}
+
+function submitJournalToday(){
+  const inp=document.getElementById('journalInputToday');
+  if(!inp||!inp.value.trim())return;
+  addJournalEntry(inp.value.trim());
+  inp.value='';
+}
+function submitStaffQuickToday(){
+  const inp=document.getElementById('staffInputToday');
+  if(!inp||!inp.value.trim())return;
+  addStaffRecord(inp.value.trim(),'','','');
+  inp.value='';
+}
+
+function delegateTask(id){
+  const tk=TASKS.find(t=>t.id===id);
+  if(!tk)return;
+  const cur=getStatus(id);
+  if(cur==='委任'){
+    setStatus(id,'進行中');
+    tk.who='';
+    showToast('委任を解除しました');
+    renderToday();
+  }else{
+    const who=prompt('誰に委任しますか？',tk.who||'');
+    if(who===null)return; // キャンセル
+    tk.who=who.trim();
+    setStatus(id,'委任');
+    showToast(tk.who?`${tk.who} に委任しました`:'委任に移動しました');
+    renderToday();
+  }
+}
+
+function changeAppStatus(name,newStatus){
+  const app=APPS_DATA.find(a=>a.name===name);
+  if(app){app.status=newStatus;showToast(`${name}: ${APP_STATUS[newStatus].l}`)}
+}
+
+function toggleCard(id){
+  if(!S._openCards)S._openCards={};
+  S._openCards[id]=!S._openCards[id];
+  renderToday();
+}
+
+function submitJournal(){
+  const inp=document.getElementById('journalInput');
+  if(!inp)return;
+  const val=inp.value.trim();
+  if(!val)return;
+  inp.value='';
+  addJournalEntry(val);
 }
 
 async function aiPickToday(){
@@ -1424,12 +1655,15 @@ function renderBoard(){
         <span class="domain-dot" style="background:${statusColors[c.st]}"></span>
         ${c.st} <span class="count">${c.tasks.length}</span>
       </div>
-      ${c.tasks.map(tk=>`
+      ${c.tasks.map(tk=>{
+        const whoHtml=tk.who?`<div class="kc-who"><i class="fa-solid fa-user" style="font-size:.55rem;color:var(--amber);margin-right:3px"></i>${esc(tk.who)}${tk.due?' / 〆'+tk.due.slice(5):''}</div>`:'';
+        return `
         <div class="kanban-card${isDone(tk.id)?' done-card':''}" draggable="true" data-id="${tk.id}">
           <div class="kc-top">${domDot(tk.d)} <span class="kc-title">${esc(tk.t)}</span></div>
-          <div class="kc-meta"><span>${tk.m?tk.m+'月':'通年'}</span>${dueTag(tk)}${tk.cl.length?`<span><i class="fa-solid fa-list-check" style="font-size:.6rem"></i> ${tk.cl.length}</span>`:''}</div>
-        </div>
-      `).join('')}
+          ${whoHtml}
+          <div class="kc-meta"><span>${tk.m?tk.m+'月':'通年'}</span>${dueTag(tk)}${tk.cl&&tk.cl.length?`<span><i class="fa-solid fa-list-check" style="font-size:.6rem"></i> ${tk.cl.length}</span>`:''}</div>
+        </div>`;
+      }).join('')}
     </div>
   `).join('')}</div>`;
 
@@ -1602,6 +1836,104 @@ function renderAll(){
   else if(S.tab==='board')renderBoard();
   else if(S.tab==='overview')renderOverview();
   else if(S.tab==='resources')renderResources();
+  else if(S.tab==='input')renderInput();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL: 日誌投げ込み（鉛筆タブ）
+// ═══════════════════════════════════════════════════════════════
+function renderInput(){
+  const el=document.getElementById('p-input');
+  const todayStr=new Date().toISOString().slice(0,10);
+  const todayJournal=JOURNAL_ENTRIES.filter(e=>e.date===todayStr);
+  const todayStaff=STAFF_RECORDS.filter(r=>r.date===todayStr);
+
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+
+      <!-- 左カラム: 日誌の投げ込み -->
+      <div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:12px">
+          <i class="fa-solid fa-pen-nib" style="color:var(--accent);margin-right:6px"></i>日誌に投げ込む
+        </div>
+        <div class="journal-input-bar" style="margin-bottom:4px">
+          <input type="text" id="journalInput" placeholder="何でもメモ（日時は自動）" onkeydown="if(event.key==='Enter'){submitJournal()}" autofocus>
+          <button onclick="submitJournal()">送信</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:12px">種別・TODO判断は夕方CCが仕分け</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:6px">
+          今日の投げ込み <span class="count">${todayJournal.length}件</span>
+        </div>
+        ${todayJournal.length===0?`<div class="today-empty">まだ投げ込みはありません</div>`
+          :todayJournal.map((e,i)=>{
+            const typeHtml=e.type?`<span class="journal-type">${esc(e.type)}</span>`:'';
+            return `<div class="journal-row" style="animation:fadeIn ${.1+i*.05}s ease both">
+              <span class="journal-time">${esc(e.time)}</span>
+              ${typeHtml}
+              <div class="journal-content">${esc(e.content)}</div>
+            </div>`;
+          }).join('')}
+      </div>
+
+      <!-- 右カラム: 職員動態の投げ込み -->
+      <div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:12px">
+          <i class="fa-solid fa-people-arrows" style="color:var(--blue);margin-right:6px"></i>動態を投げ込む
+        </div>
+        <div class="journal-input-bar" style="margin-bottom:4px;border-color:rgba(91,125,177,0.3)">
+          <input type="text" id="staffInput" placeholder="例: 校長 出張 午後 / 佐藤先生 年休" onkeydown="if(event.key==='Enter'){submitStaffQuick()}">
+          <button onclick="submitStaffQuick()" style="background:var(--blue)">送信</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:12px">雑でOK。CCが後で名前・種別・時間帯に整形</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:6px">
+          今日の動態 <span class="count">${todayStaff.length}件</span>
+        </div>
+        ${todayStaff.length===0?`<div class="today-empty">今日の動態はありません</div>`
+          :todayStaff.map((r,i)=>`<div class="staff-row" style="animation:fadeIn ${.1+i*.05}s ease both">
+            <span class="staff-type ${esc(r.type)}">${esc(r.type)}</span>
+            <span class="staff-name">${esc(r.name)}</span>
+            <span class="staff-time">${esc(r.timeSlot)}</span>
+            <span class="staff-note">${esc(r.note)}</span>
+          </div>`).join('')}
+      </div>
+
+    </div>
+  `;
+  const inp=document.getElementById('journalInput');
+  if(inp)inp.focus();
+}
+
+// 動態をシート3に追加
+async function addStaffRecord(name,type,timeSlot,note){
+  const todayStr=new Date().toISOString().slice(0,10);
+  STAFF_RECORDS.push({date:todayStr,name,type,timeSlot,note,_row:null});
+  renderAll();
+  showToast(`動態を登録: ${name}`);
+  try{
+    await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'add_staff',record:{name,type,timeSlot,note}})});
+  }catch(err){console.error('GAS staff add failed:',err)}
+}
+
+function submitStaff(){
+  const name=document.getElementById('staffName');
+  const type=document.getElementById('staffType');
+  const time=document.getElementById('staffTime');
+  const note=document.getElementById('staffNote');
+  if(!name||!name.value.trim()){showToast('名前を入力してください');return}
+  addStaffRecord(name.value.trim(),type.value,time.value.trim(),note.value.trim());
+  name.value='';time.value='';note.value='';
+  name.focus();
+}
+
+// 動態の雑投げ込み（1行テキストで入れて、CCが後で整形）
+function submitStaffQuick(){
+  const inp=document.getElementById('staffInput');
+  if(!inp||!inp.value.trim())return;
+  // そのままcontentとして日誌シートではなく動態シートに入れる
+  // CCが後で name/type/timeSlot/note に分割する
+  addStaffRecord(inp.value.trim(),'','','');
+  inp.value='';
+  inp.focus();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1786,9 +2118,9 @@ function renderResources(){
       const href=a.file?'../文章_作業スペース/FriendlyWorkshop/apps/'+a.file:(a.url||'#');
       const thumbFile=a.file?a.file.replace(/\/index\.html$/,'').replace('.html',''):a.name;
       const thumbSrc=ASS+thumbFile+'.png';
-      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 1px 4px rgba(0,0,0,0.03)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)'" onmouseout="this.style.transform='';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.03)'">
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${sm.c};border-radius:12px;padding:12px;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 1px 4px rgba(0,0,0,0.03)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)'" onmouseout="this.style.transform='';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.03)'">
         <div style="width:100%;aspect-ratio:16/10;border-radius:8px;overflow:hidden;margin-bottom:8px;background:var(--surface-dim)"><img src="${thumbSrc}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"></div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="width:7px;height:7px;border-radius:50%;background:${sm.c};flex-shrink:0"></span><span style="font-size:11px;font-weight:600;color:var(--text-dim)">${sm.l}</span>${a.grade!=='\u2014'?`<span style="font-size:10.5px;padding:1px 5px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.grade}</span>`:''}<span style="font-size:10.5px;padding:1px 5px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.subject}</span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><select onchange="changeAppStatus('${a.name}',this.value);renderResources()" style="font-size:10.5px;font-weight:600;padding:2px 4px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:${sm.c};font-family:inherit;cursor:pointer">${Object.entries(APP_STATUS).map(([k,v])=>'<option value=\"'+k+'\"'+(k===a.status?' selected':'')+' style=\"color:'+v.c+'\">'+v.l+'</option>').join('')}</select>${a.grade!=='\u2014'?`<span style="font-size:10.5px;padding:1px 5px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.grade}</span>`:''}<span style="font-size:10.5px;padding:1px 5px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.subject}</span></div>
         <div style="font-size:15px;font-weight:700;margin-bottom:6px">${a.name}</div>
         <a href="${href}" target="_blank" style="font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:4px">${a.status==='external'?'外部サイト':'開く'} <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></a>
       </div>`;
@@ -1863,11 +2195,13 @@ function convertGasTask(g){
     cl:[],
     pit:g.detail||'',
     tg:[g.category||''],
-    due:g.dueDate||'',
-    date:date,
+    due:parseGasDate(g.dueDate)||'',
+    date:parseGasDate(date)||date,
     status:g.status||'未着手',
     priority:g.priority||'',
     timeSlot:g.timeSlot||'',
+    sub:!!(g.assignee),
+    who:g.assignee||'',
     _row:g._row
   };
 }
@@ -1875,29 +2209,98 @@ function convertGasTask(g){
 async function fetchFromGAS(){
   try{
     showToast('スプレッドシートからデータ取得中...');
-    const res=await fetch(GAS_URL+'?action=tasks');
-    const json=await res.json();
-    if(json.tasks&&json.tasks.length>0){
-      // GASデータで差し替え（ローカルテンプレートのcl/sub情報は保持しない）
+    // 3シート並列取得（GAS CORS対策: redirect:'follow'明示）
+    const fetchOpt={redirect:'follow'};
+    const [tasksRes, diaryRes, staffRes] = await Promise.all([
+      fetch(GAS_URL+'?action=tasks',fetchOpt).then(r=>{if(!r.ok)throw new Error('tasks:'+r.status);return r.json()}).catch(e=>{console.error('tasks fetch:',e);return null}),
+      fetch(GAS_URL+'?action=diary',fetchOpt).then(r=>{if(!r.ok)throw new Error('diary:'+r.status);return r.json()}).catch(e=>{console.error('diary fetch:',e);return null}),
+      fetch(GAS_URL+'?action=staff',fetchOpt).then(r=>{if(!r.ok)throw new Error('staff:'+r.status);return r.json()}).catch(e=>{console.error('staff fetch:',e);return null}),
+    ]);
+    // シート1: タスク
+    if(tasksRes&&tasksRes.tasks&&tasksRes.tasks.length>0){
       TASKS.length=0;
-      json.tasks.forEach(g=>{
+      tasksRes.tasks.forEach(g=>{
         const tk=convertGasTask(g);
         TASKS.push(tk);
       });
-      // ステータスをGASのデータで上書き
       TASKS.forEach(tk=>{
         if(tk.status)S.status[tk.id]=tk.status;
       });
       saveState();
       LIVE_MODE=true;
-      rebuildTodayPicks(); /* [DU-009] GAS連携後にTODAY_PICKSを再構築 */
-      showToast(`${TASKS.length}件のタスクを読み込みました`);
+      rebuildTodayPicks();
     }
+    // シート2: 日誌・メモ
+    if(diaryRes&&diaryRes.entries){
+      JOURNAL_ENTRIES=diaryRes.entries.map(e=>({
+        date:parseGasDate(e.date),
+        time:parseGasTime(e.time),
+        type:e.type||'',
+        content:e.content||'',
+        isTodo:e.isTodo||'',
+        memo:e.memo||'',
+        follow:e.follow||'',
+        _row:e._row
+      }));
+    }
+    // シート3: 職員動態
+    if(staffRes&&staffRes.records){
+      STAFF_RECORDS=staffRes.records.map(r=>({
+        date:parseGasDate(r.date),
+        name:r.name||'',
+        type:r.type||'',
+        timeSlot:r.timeSlot||'',
+        note:r.note||'',
+        _row:r._row
+      }));
+    }
+    const counts=[tasksRes?tasksRes.count:0,diaryRes?diaryRes.count:0,staffRes?staffRes.count:0];
+    showToast(`タスク${counts[0]}件・日誌${counts[1]}件・動態${counts[2]}件`);
   }catch(err){
     console.error('GAS fetch failed:',err);
     showToast('オフラインモード（ローカルデータ使用）');
   }
   renderAll();
+}
+
+// GAS日付パーサー（"Wed Apr 08 2026 ..." → "2026-04-08"）
+function parseGasDate(val){
+  if(!val)return '';
+  if(typeof val==='string'&&val.match(/^\d{4}-\d{2}-\d{2}/))return val.slice(0,10);
+  const d=new Date(val);
+  if(isNaN(d))return String(val);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+// GAS時刻パーサー（"1899-12-29T22:30:00.000Z" → "7:30" or 文字列そのまま）
+function parseGasTime(val){
+  if(!val)return '';
+  if(typeof val==='string'&&val.includes('1899-12-')){
+    const d=new Date(val);
+    // GASのDateはUTCで来るのでJST(+9)に変換
+    const h=d.getUTCHours();
+    const m=d.getUTCMinutes();
+    return h+':'+String(m).padStart(2,'0');
+  }
+  return String(val);
+}
+
+// 日誌にエントリ追加（ダッシュボードから）
+async function addJournalEntry(content){
+  if(!content||!content.trim())return;
+  const now=new Date();
+  const entry={
+    date:now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0'),
+    time:now.getHours()+':'+String(now.getMinutes()).padStart(2,'0'),
+    content:content.trim()
+  };
+  // ローカルに即追加
+  JOURNAL_ENTRIES.push({date:entry.date,time:entry.time,type:'',content:entry.content,isTodo:'',memo:'',follow:'',_row:null});
+  renderAll();
+  showToast('日誌に追加しました');
+  // GASに送信（LIVE_MODEに関係なく常に送信）
+  try{
+    await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'add_diary',entry:entry})});
+  }catch(err){console.error('GAS diary add failed:',err)}
 }
 
 // GASにステータス変更を書き戻す
@@ -2050,20 +2453,43 @@ function fireConfetti(){
 function rebuildTodayPicks(){
   const now=new Date();
   const cm=now.getMonth()+1;
-  const candidates=TASKS.filter(tk=>!isDone(tk.id)&&(tk.m===cm||tk.m===cm+1));
-  // 締切の近い順 → 優先度高い順 → overdue優先でソート
+  TODAY_PICKS.length=0;
+
+  // ① 回収リマインド: 委任中で締切3日以内のタスクを最優先で出す
+  const recoveryTasks=TASKS.filter(tk=>{
+    if(getStatus(tk.id)!=='委任')return false;
+    const due=getDueInfo(tk);
+    return due&&due.diff<=3;
+  });
+  recoveryTasks.sort((a,b)=>{
+    const da=getDueInfo(a),db=getDueInfo(b);
+    return (da?da.diff:999)-(db?db.diff:999);
+  });
+  recoveryTasks.forEach(tk=>{
+    const due=getDueInfo(tk);
+    const whoLabel=tk.who?tk.who+'から':'';
+    const why=due.diff<=0?`${whoLabel}回収期限超過！声かけを`:`${whoLabel}あと${due.diff}日で期限。回収確認を`;
+    TODAY_PICKS.push({id:tk.id,why:why,recovery:true});
+  });
+
+  // ② 通常タスク: 未着手・進行中で締切が近い順に、残り枠を埋める
+  const remaining=Math.max(0,5-TODAY_PICKS.length);
+  const candidates=TASKS.filter(tk=>{
+    if(isDone(tk.id)||getStatus(tk.id)==='委任')return false;
+    return tk.m===cm||tk.m===cm+1;
+  });
   candidates.sort((a,b)=>{
     const da=getDueInfo(a),db=getDueInfo(b);
     const diffA=da?da.diff:999,diffB=db?db.diff:999;
-    if(diffA!==diffB)return diffA-diffB; // 締切近い順
-    return (a.wb||0)-(b.wb||0); // 同じなら優先度高い順（wbが小さい=早めに着手）
+    if(diffA!==diffB)return diffA-diffB;
+    return (a.wb||0)-(b.wb||0);
   });
-  TODAY_PICKS.length=0;
-  candidates.slice(0,5).forEach((tk)=>{
+  candidates.slice(0,remaining).forEach(tk=>{
     const due=getDueInfo(tk);
     const why=due&&due.diff<=0?'期限超過！至急対応':due&&due.diff<=3?`あと${due.diff}日（${due.label}）`:tk.pit||'今月のタスク';
-    TODAY_PICKS.push({id:tk.id,why:why});
+    TODAY_PICKS.push({id:tk.id,why:why,recovery:false});
   });
+
   if(TODAY_PICKS.length>0)todayRevealed=true;
 }
 

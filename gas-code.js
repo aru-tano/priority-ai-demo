@@ -39,6 +39,8 @@ function doPost(e) {
     result = addTask(body.task);
   } else if (action === 'add_diary') {
     result = addDiary(body.entry);
+  } else if (action === 'add_staff') {
+    result = addStaff(body.record);
   } else {
     result = { error: 'Unknown action: ' + action };
   }
@@ -53,7 +55,7 @@ function doPost(e) {
 // ═══════════════════════════════════════════════════════════════
 function getTasks() {
   const ss = SpreadsheetApp.openById(SS_ID);
-  const sheet = ss.getSheetByName('シート1');
+  const sheet = ss.getSheetByName('タスク一覧 ');
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
 
@@ -156,7 +158,7 @@ function updateStatus(id, newStatus) {
   if (!row) return { error: 'ID not found: ' + id };
 
   const ss = SpreadsheetApp.openById(SS_ID);
-  const sheet = ss.getSheetByName('シート1');
+  const sheet = ss.getSheetByName('タスク一覧 ');
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   const statusCol = headers.indexOf('状態') + 1;
 
@@ -172,7 +174,7 @@ function updateDate(id, newDate) {
   if (!row) return { error: 'ID not found: ' + id };
 
   const ss = SpreadsheetApp.openById(SS_ID);
-  const sheet = ss.getSheetByName('シート1');
+  const sheet = ss.getSheetByName('タスク一覧 ');
   // A列が日付
   sheet.getRange(row, 1).setValue(newDate);
   return { ok: true, id: id, date: newDate };
@@ -183,7 +185,7 @@ function updateDate(id, newDate) {
 // ═══════════════════════════════════════════════════════════════
 function addTask(task) {
   const ss = SpreadsheetApp.openById(SS_ID);
-  const sheet = ss.getSheetByName('シート1');
+  const sheet = ss.getSheetByName('タスク一覧 ');
   const lastRow = sheet.getLastRow();
   const nextNum = lastRow; // ヘッダー除いた行数
   const newId = 'KD-R8-' + String(nextNum).padStart(3, '0');
@@ -231,11 +233,29 @@ function addDiary(entry) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// WRITE: 職員動態追加
+// ═══════════════════════════════════════════════════════════════
+function addStaff(record) {
+  const ss = SpreadsheetApp.openById(SS_ID);
+  const sheet = ss.getSheetByName('職員動態');
+
+  sheet.appendRow([
+    record.date || new Date(),
+    record.name || '',
+    record.type || '',
+    record.timeSlot || '',
+    record.note || ''
+  ]);
+
+  return { ok: true };
+}
+
+// ═══════════════════════════════════════════════════════════════
 // UTIL
 // ═══════════════════════════════════════════════════════════════
 function findRowById(id) {
   const ss = SpreadsheetApp.openById(SS_ID);
-  const sheet = ss.getSheetByName('シート1');
+  const sheet = ss.getSheetByName('タスク一覧 ');
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   const idCol = headers.indexOf('案件ID') + 1;
   if (idCol === 0) return null;
