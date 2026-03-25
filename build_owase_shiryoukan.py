@@ -66,27 +66,40 @@ for wid, mi in img_manifest.items():
             "kw": img_keywords.get(wid, set()),
         })
 
-# Weighted scoring: specific location/topic matches count more
-SPECIFIC_KW = {
+# Weighted scoring: content-specific matches count more than location-only matches
+# HIGH: 画像の内容（何が写っているか）と記事の主題が一致
+CONTENT_KW = {
+    'ヤーヤ祭り','尾鷲節','わっぱ','ヒノキ','深層水','河津桜','石畳','シダ',
+    'さんま','ブリ','カツオ','あぶり','燻製','養殖','林業',
+    'オハイブルー','三木里ビーチ','柱状節理','象の背','シダ群落',
+    '食べ物','漁業',  # ジャンルタグ（実際に写っている場合のみ付与）
+    'さんま寿司','めはり寿司','梶賀のあぶり','曲げわっぱ',  # food画像用
+}
+# MEDIUM: 具体的な場所名（場所が合えば関連性は高い）
+LOCATION_KW = {
     '九鬼','梶賀','三木浦','三木里','須賀利','向井','早田','賀田','曽根',
     '馬越峠','天狗倉山','便石山','八鬼山','ツヅラト峠','楯ヶ崎','九木崎',
-    'オハイ','弁財島','象の背','中村山','熊野古道','尾鷲神社','夢古道','魚市場',
-    'ヤーヤ祭り','尾鷲節','わっぱ','ヒノキ','深層水','河津桜','竹林','石畳','シダ',
-    'さんま','ブリ','カツオ','あぶり','燻製','九鬼水軍','漁師町','漁港',
-    '伊勢路','世界遺産','オハイブルー','三木里ビーチ','養殖','林業',
+    'オハイ','弁財島','中村山','尾鷲神社','夢古道','魚市場',
+    '熊野古道','伊勢路',
 }
-GENERIC_KW = {'尾鷲','三重県','三重','尾鷲市','海','山','川','風景','港','神社','祭り'}
+# LOW: 広すぎるキーワード
+GENERIC_KW = {
+    '尾鷲','三重県','三重','尾鷲市','海','山','川','風景','港','神社','祭り',
+    '漁港','漁師町','九鬼水軍','九鬼湾','世界遺産','竹林',  # 地名の延長
+}
 
 def weighted_score(overlap):
-    """Specific keywords (place names, topics) score 3x; generic ones 0.5x."""
+    """Content match=4, Location match=2, Generic=0.3"""
     score = 0
     for kw in overlap:
-        if kw in SPECIFIC_KW:
-            score += 3
+        if kw in CONTENT_KW:
+            score += 4
+        elif kw in LOCATION_KW:
+            score += 2
         elif kw in GENERIC_KW:
-            score += 0.5
+            score += 0.3
         else:
-            score += 1
+            score += 0.5
     return score
 
 def match_images_for_record(r, max_imgs=3):
@@ -111,8 +124,10 @@ def match_images_for_record(r, max_imgs=3):
     return scored[:max_imgs]
 
 # --- Prepare JS data ---
-# POLICY: weighted score >= 3.0 (at least one specific keyword match)
-MIN_MATCH_SCORE = 3.0
+# POLICY: weighted score >= 2.0
+# = location keyword 1つ以上（その場所の写真なら記事に合う）
+# generic keyword だけでは絶対にマッチしない (0.3 x 6 = 1.8 < 2.0)
+MIN_MATCH_SCORE = 2.0
 
 js_data = []
 match_stats = {"confident": 0, "rejected_low": 0, "none": 0}
