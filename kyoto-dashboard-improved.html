@@ -792,7 +792,6 @@ body.dark .header{background:rgba(17,17,16,0.85)}
   </div>
 </div>
 
-<script src="kyoto-briefing-data.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════════
 // DATA
@@ -923,7 +922,7 @@ let S;
 function loadState(){
   try{S=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){S={}}
   if(!S.status)S.status={};if(!S.cl)S.cl={};if(!S.theme)S.theme='';
-  if(!S.tab)S.tab='today';if(!S.hideDone)S.hideDone=false;if(S._briefingClosed===undefined)S._briefingClosed=false;
+  if(!S.tab)S.tab='today';if(!S.hideDone)S.hideDone=false;
   if(!S.sort)S.sort={col:'m',dir:1};if(!S.boardScope)S.boardScope='soon';if(!S.calView)S.calView='month';if(!S.calWeekStart)S.calWeekStart=null;if(!S.weekDays)S.weekDays=5;
   TASKS.forEach(tk=>{if(!S.status[tk.id])S.status[tk.id]=(tk.cy==='daily'||tk.cy==='weekly'||tk.cy==='monthly')?'進行中':'未着手'});
 }
@@ -1070,283 +1069,11 @@ const TODAY_PICKS=[
 ];
 let todayRevealed=false;
 
-// ═══════ BRIEFING DATA (from build_briefing.py JSON) ═══════
-let BRIEFING_DATA=null;
-let briefingLoaded=false;
-
-function loadBriefing(){
-  // kyoto-briefing-data.js が <script> で読み込まれていれば window.BRIEFING_DATA が存在する
-  if(window.BRIEFING_DATA){
-    BRIEFING_DATA=window.BRIEFING_DATA;
-    briefingLoaded=true;
-    if(S.tab==='today')renderToday();
-  }
-}
-
-function renderBriefingPanel(){
-  if(!BRIEFING_DATA)return `<div class="briefing-empty"><i class="fa-solid fa-sun" style="font-size:1.2rem;opacity:.3;margin-bottom:6px;display:block"></i>ブリーフィング未生成<br><span style="font-size:11px">build_briefing.py を実行してください</span></div>`;
-  const b=BRIEFING_DATA;
-  const hour=new Date().getHours();
-  const isAM=hour<12;
-  const open=isAM||!S._briefingClosed;
-  let h='';
-
-  // ── Header ──
-  h+=`<div class="briefing-header${open?' open':''}" onclick="toggleBriefing()">
-    <i class="fa-solid fa-sun" style="color:var(--amber);font-size:14px"></i>
-    <h3>モーニングブリーフィング</h3>
-    <span class="meta">${esc(b.meta.date_display)} — 赴任${b.meta.days_since_ninki}日目</span>
-    <i class="fa-solid fa-chevron-right chevron"></i>
-  </div>`;
-
-  h+=`<div class="briefing-body${open?'':' collapsed'}" id="briefingBody">`;
-
-  // ── Top3 タスク ──
-  if(b.top3&&b.top3.length){
-    h+=`<div class="briefing-section">
-      <div class="briefing-section-title"><i class="fa-solid fa-crosshairs"></i> Top ${b.top3.length} タスク</div>`;
-    b.top3.forEach(t=>{
-      const isCrit=t.priority==='critical';
-      h+=`<div class="briefing-task${isCrit?' critical':''}">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="briefing-task-title">${esc(t.task)}</span>
-          <span class="briefing-task-domain">${esc(t.domain)}</span>
-        </div>`;
-      if(t.checklist&&t.checklist.length){
-        h+=`<div class="briefing-cl">`;
-        t.checklist.forEach(c=>{h+=`<div class="briefing-cl-item">${esc(c)}</div>`});
-        h+=`</div>`;
-      }
-      if(t.pitfalls){h+=`<div class="briefing-pitfall"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red);margin-right:4px;font-size:10px"></i>${esc(t.pitfalls)}</div>`}
-      h+=`</div>`;
-    });
-    h+=`</div>`;
-  }
-
-  // ── 落とし穴アラート ──
-  if(b.pitfalls&&b.pitfalls.length){
-    h+=`<div class="briefing-section">
-      <div class="briefing-section-title"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red)"></i> 落とし穴アラート</div>`;
-    b.pitfalls.forEach(p=>{
-      h+=`<div class="briefing-pitfall" style="margin-bottom:6px"><strong>${esc(p.task)}</strong> — ${esc(p.pitfalls)}</div>`;
-    });
-    h+=`</div>`;
-  }
-
-  // ── 声かけリスト ──
-  if(b.voice&&b.voice.length){
-    h+=`<div class="briefing-section">
-      <div class="briefing-section-title"><i class="fa-solid fa-comments" style="color:var(--green)"></i> 今日の声かけ</div>`;
-    b.voice.forEach(v=>{
-      h+=`<div class="briefing-voice${v.is_priority?' priority':''}">
-        <span class="briefing-voice-target">${esc(v.target)}</span>
-        <div>
-          <div class="briefing-voice-action">${esc(v.action)}</div>
-          ${v.why?`<div class="briefing-voice-why">${esc(v.why)}</div>`:''}
-          ${v.feedback_reason?`<div class="briefing-voice-why" style="color:var(--red);font-weight:600">${esc(v.feedback_reason)}</div>`:''}
-        </div>
-      </div>`;
-    });
-    h+=`</div>`;
-  }
-
-  // ── タイムライン ──
-  if(b.timeline&&b.timeline.length){
-    h+=`<div class="briefing-section">
-      <div class="briefing-section-title"><i class="fa-solid fa-clock" style="color:var(--accent)"></i> タイムライン</div>
-      <div class="briefing-timeline">`;
-    b.timeline.forEach(t=>{
-      h+=`<div class="briefing-tl-row">
-        <span class="briefing-tl-time">${esc(t.time)}</span>
-        <span class="briefing-tl-dot"></span>
-        <div class="briefing-tl-content">
-          <div class="briefing-tl-title">${esc(t.title)}</div>
-          ${t.detail?`<div class="briefing-tl-detail">${esc(t.detail)}</div>`:''}
-        </div>
-      </div>`;
-    });
-    h+=`</div></div>`;
-  }
-
-  // ── 雑談ネタ ──
-  if(b.chat_topics&&b.chat_topics.length){
-    h+=`<div class="briefing-section">
-      <div class="briefing-section-title"><i class="fa-solid fa-mug-hot" style="color:var(--amber)"></i> 雑談ネタ</div>`;
-    b.chat_topics.forEach(c=>{h+=`<div class="briefing-chat">${esc(c)}</div>`});
-    h+=`</div>`;
-  }
-
-  // ── 前日引き継ぎ ──
-  if(b.feedback_prep&&b.feedback_prep.length){
-    h+=`<div class="briefing-section">
-      <div class="briefing-section-title"><i class="fa-solid fa-rotate-left" style="color:var(--blue)"></i> 前日からの引き継ぎ</div>`;
-    b.feedback_prep.forEach(p=>{h+=`<div class="briefing-chat">${esc(p)}</div>`});
-    h+=`</div>`;
-  }
-
-  // ── 詳細リンク ──
-  h+=`<a class="briefing-link" href="kyoto-secretary-briefing.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> 全文ブリーフィングを開く</a>`;
-
-  h+=`</div>`;
-  return h;
-}
-
-function toggleBriefing(){
-  S._briefingClosed=!S._briefingClosed;
-  saveState();
-  renderToday();
-}
-
 function renderToday(){
   const el=document.getElementById('p-today');
-  const todayStr=new Date().toISOString().slice(0,10);
 
-  // 今日の動態
-  const todayStaff=STAFF_RECORDS.filter(r=>r.date===todayStr);
-  // 今日の日誌
-  const todayJournal=JOURNAL_ENTRIES.filter(e=>e.date===todayStr);
-  // タスク（従来のTODAY_PICKS）
-  const picks=TODAY_PICKS;
-  let leftHtml='';
-  let rightHtml='';
-
-  // ── ブリーフィングパネル（タスクカラムの上部）──
-  rightHtml+=`<div class="briefing-panel">${renderBriefingPanel()}</div>`;
-
-  // ── 右サイド: 投げ込み入力 + 動態一覧 + 日誌一覧 ──
-
-  // 日誌投げ込み
-  leftHtml+=`<div class="today-section" style="margin-bottom:12px">
-    <div class="journal-input-bar" style="margin-bottom:6px">
-      <i class="fa-solid fa-pen-nib" style="color:var(--accent);font-size:12px"></i>
-      <input type="text" id="journalInputToday" placeholder="日誌メモ（日時自動）" onkeydown="if(event.key==='Enter'){submitJournalToday()}">
-      <button onclick="submitJournalToday()">送信</button>
-    </div>
-    <div class="journal-input-bar" style="border-color:rgba(91,125,177,0.3)">
-      <i class="fa-solid fa-people-arrows" style="color:var(--blue);font-size:12px"></i>
-      <input type="text" id="staffInputToday" placeholder="動態メモ（例: 校長 出張 午後）" onkeydown="if(event.key==='Enter'){submitStaffQuickToday()}">
-      <button onclick="submitStaffQuickToday()" style="background:var(--blue)">送信</button>
-    </div>
-  </div>`;
-
-  // 動態一覧
-  if(todayStaff.length>0){
-    leftHtml+=`<div class="today-section" style="margin-bottom:12px">
-      <div class="today-section-header" style="margin-bottom:6px">
-        <i class="fa-solid fa-people-arrows"></i> 動態
-        <span class="count">${todayStaff.length}</span>
-      </div>`;
-    leftHtml+=todayStaff.map((r,i)=>`<div class="staff-row" style="animation:fadeIn ${.1+i*.05}s ease both;padding:6px 12px">
-      <span class="staff-type ${esc(r.type)}">${esc(r.type)}</span>
-      <span class="staff-name">${esc(r.name)}</span>
-      <span class="staff-time">${esc(r.timeSlot)}</span>
-      <span class="staff-note">${esc(r.note)}</span>
-    </div>`).join('');
-    leftHtml+=`</div>`;
-  }
-
-  // 日誌一覧
-  leftHtml+=`<div class="today-section">
-    <div class="today-section-header" style="margin-bottom:6px">
-      <i class="fa-solid fa-pen-nib"></i> 日誌
-      <span class="count">${todayJournal.length}</span>
-    </div>`;
-  if(todayJournal.length===0){
-    leftHtml+=`<div class="today-empty" style="padding:12px;font-size:12px">まだメモはありません</div>`;
-  }else{
-    leftHtml+=todayJournal.map((e,i)=>{
-      const typeHtml=e.type?`<span class="journal-type">${esc(e.type)}</span>`:'';
-      const todoHtml=e.isTodo==='○'?`<span class="journal-todo">TODO</span>`:'';
-      const memoHtml=e.memo?`<div class="journal-memo">${esc(e.memo)}</div>`:'';
-      const followHtml=e.follow?`<span class="journal-follow"><i class="fa-solid fa-bell" style="font-size:10px;margin-right:3px"></i>${esc(e.follow)}</span>`:'';
-      return `<div class="journal-row" style="animation:fadeIn ${.1+i*.05}s ease both;padding:8px 12px">
-        <span class="journal-time">${esc(e.time)}</span>
-        ${typeHtml}
-        <div class="journal-content">
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${esc(e.content)} ${todoHtml} ${followHtml}</div>
-          ${memoHtml}
-        </div>
-      </div>`;
-    }).join('');
-  }
-  leftHtml+=`</div>`;
-
-  // ── 右カラム: 今日のタスク ──
-  rightHtml+=`<div class="today-section">
-    <div class="today-section-header">
-      <i class="fa-solid fa-crosshairs"></i> 今日のタスク
-      <span class="count">${picks.length}件</span>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
-      <button class="ai-btn" onclick="aiPickToday()" style="font-size:.72rem;padding:6px 14px"><span class="spinner"></span><span class="btn-label"><i class="fa-solid fa-rotate"></i> 再選定</span></button>
-      <button class="hide-done-toggle${S.hideDone?' active':''}" onclick="S.hideDone=!S.hideDone;saveState();renderToday()">
-        ${S.hideDone?'完了も表示':'完了を隠す'}
-      </button>
-    </div>`;
-
-  if(!todayRevealed&&picks.length===0){
-    rightHtml+=`<div class="today-empty">
-      <div style="margin-bottom:8px"><i class="fa-solid fa-crosshairs" style="font-size:1.5rem;color:var(--accent);opacity:.3"></i></div>
-      「再選定」ボタンで今日のタスクを選びます
-    </div>`;
-  }else{
-    const remaining=TASKS.length-picks.length;
-    const doneCount=picks.filter(p=>isDone(p.id)).length;
-    if(picks.length>0){
-      rightHtml+=`<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:8px">${doneCount}/${picks.length} 完了</div>`;
-    }
-    rightHtml+=`<div class="today-cards">
-      ${picks.filter(p=>!S.hideDone||!isDone(p.id)).map((p,i)=>{
-        const tk=TASKS.find(x=>x.id===p.id);if(!tk)return '';
-        const done=isDone(tk.id);
-        const domColor=DC[tk.d]||'var(--accent)';
-        const isOpen=S._openCards&&S._openCards[tk.id];
-        const hasDetail=tk.pit||(tk.cl&&tk.cl.length>0)||p.why;
-        const detailHtml=hasDetail?`<div class="today-card-detail" style="display:${isOpen?'block':'none'}">
-            ${p.why?`<div class="today-card-why"><i class="fa-solid fa-lightbulb" style="color:var(--amber);margin-right:4px;font-size:.7rem"></i> ${esc(p.why)}</div>`:''}
-            ${tk.cl&&tk.cl.length?`<div class="today-checklist">${tk.cl.map((c,ci)=>`<div class="today-cl-item${isClDone(tk.id,ci)?' cl-done':''}" onclick="event.stopPropagation();toggleCl('${tk.id}',${ci});renderToday()"><span class="today-cl-check"></span> ${esc(c)}</div>`).join('')}</div>`:''}
-            ${tk.pit?`<div class="today-pitfall"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red);margin-right:4px;font-size:.65rem"></i> ${esc(tk.pit)}</div>`:''}
-          </div>`:'';
-        const isDelegated=getStatus(tk.id)==='委任';
-        const isRecovery=p.recovery;
-        const whoLabel=tk.who?esc(tk.who):'';
-        return `<div class="today-card${done?' done':''}${isRecovery?' recovery':''}" style="animation:fadeIn ${.15+i*.08}s ease both;border-left-color:${isRecovery?'var(--red)':domColor};cursor:pointer;padding:${isOpen?'20px 24px':'12px 16px'}" onclick="toggleCard('${tk.id}')">
-          <div style="display:flex;align-items:flex-start;gap:12px;width:100%">
-            <div style="flex:1;min-width:0">
-              <div style="display:flex;align-items:center;gap:8px">
-                ${isRecovery?'<span style="font-size:11px;font-weight:700;color:var(--red);background:rgba(196,93,93,0.1);padding:2px 8px;border-radius:6px;white-space:nowrap">回収確認</span>':''}
-                <span class="today-card-title" style="font-size:${isOpen?'16px':'14px'}">${esc(tk.t)}</span>
-                ${hasDetail?`<i class="fa-solid fa-chevron-${isOpen?'up':'down'}" style="font-size:10px;color:var(--text-dim);margin-left:auto;flex-shrink:0"></i>`:''}
-              </div>
-              <div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap">
-                ${domDot(tk.d)} <span style="font-size:.7rem;color:var(--text-dim)">${esc(tk.d)}</span>
-                ${dueTag(tk)}
-                ${isDelegated&&whoLabel?`<span style="font-size:11px;font-weight:600;color:var(--amber)"><i class="fa-solid fa-user" style="font-size:9px;margin-right:2px"></i>${whoLabel} 待ち</span>`:''}
-              </div>
-              <div style="display:flex;gap:6px;margin-top:8px" onclick="event.stopPropagation()">
-                <button onclick="toggleDone('${tk.id}',event);renderToday()" style="padding:4px 12px;border-radius:6px;border:1px solid ${done?'var(--green)':'var(--border-mid)'};background:${done?'var(--green)':'transparent'};color:${done?'#fff':'var(--text-secondary)'};font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s">
-                  <i class="fa-solid fa-check" style="margin-right:3px;font-size:9px"></i>${done?'完了済':'完了'}
-                </button>
-                ${!done?`<button onclick="delegateTask('${tk.id}')" style="padding:4px 12px;border-radius:6px;border:1px solid ${isDelegated?'var(--amber)':'var(--border-mid)'};background:${isDelegated?'rgba(200,147,74,0.1)':'transparent'};color:${isDelegated?'var(--amber)':'var(--text-secondary)'};font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s">
-                  <i class="fa-solid fa-paper-plane" style="margin-right:3px;font-size:9px"></i>${isDelegated?'委任中':'委任'}
-                </button>`:''}
-              </div>
-            </div>
-          </div>
-          ${detailHtml}
-        </div>`;
-      }).join('')}
-    </div>`;
-    if(picks.length>0){
-      rightHtml+=`<div class="today-remaining">残り ${remaining}件は明日以降</div>`;
-    }
-  }
-  rightHtml+=`</div>`;
-
-  el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 0.382fr;gap:24px;align-items:start">
-    <div>${rightHtml}</div>
-    <div>${leftHtml}</div>
-  </div>`;
+  // ── TODAYタブ = ブリーフィングHTML埋め込み（iframe）──
+  el.innerHTML=`<iframe src="kyoto-secretary-briefing.html" style="width:100%;height:calc(100vh - 120px);border:none;border-radius:12px;background:#f8fafc"></iframe>`;
 }
 
 function submitJournalToday(){
@@ -2712,8 +2439,6 @@ TASKS.forEach(tk=>LOCAL_TASKS_BACKUP.push(Object.assign({},tk)));
 loadState();applyTheme();renderAll();
 // GASからデータを非同期で取得して上書き
 fetchFromGAS();
-// ブリーフィングJSONを非同期で読み込み
-loadBriefing();
 </script>
 </body>
 </html>
