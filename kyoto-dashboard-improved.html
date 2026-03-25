@@ -290,6 +290,58 @@ body.dark .header{background:rgba(17,17,16,0.85)}
 }
 .today-remaining{margin-top:24px;text-align:center;color:var(--text-dim);font-size:14px;padding:16px;border:1px dashed var(--border-mid);border-radius:12px}
 
+/* ===== BRIEFING PANEL (TODAY tab) ===== */
+.briefing-panel{margin-bottom:24px}
+.briefing-header{
+  display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;user-select:none;
+  border-bottom:2px solid var(--border);margin-bottom:12px;
+}
+.briefing-header:hover{opacity:.8}
+.briefing-header h3{font-size:15px;font-weight:700;color:var(--text);margin:0}
+.briefing-header .meta{font-size:11px;color:var(--text-dim);font-weight:500}
+.briefing-header .chevron{transition:transform .2s;font-size:10px;color:var(--text-dim);margin-left:auto}
+.briefing-header.open .chevron{transform:rotate(90deg)}
+.briefing-body{overflow:hidden;transition:max-height .35s var(--ease)}
+.briefing-body.collapsed{max-height:0!important;padding:0;margin:0}
+.briefing-section{margin-bottom:16px}
+.briefing-section-title{font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.briefing-task{
+  padding:12px 16px;background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:8px;border-left:3px solid var(--accent);
+}
+.briefing-task.critical{border-left-color:var(--red)}
+.briefing-task-title{font-weight:600;font-size:13.5px;margin-bottom:4px}
+.briefing-task-domain{font-size:11px;color:var(--text-dim);font-weight:500}
+.briefing-cl{margin-top:6px;display:flex;flex-direction:column;gap:2px}
+.briefing-cl-item{font-size:12px;color:var(--text-secondary);padding:2px 0;display:flex;align-items:center;gap:6px}
+.briefing-cl-item::before{content:'';width:10px;height:10px;border-radius:3px;border:1.5px solid var(--border-strong);flex-shrink:0}
+.briefing-pitfall{
+  font-size:12px;padding:6px 10px;margin-top:6px;border-radius:6px;
+  background:rgba(196,93,93,.05);border-left:2px solid var(--red);color:var(--text-secondary);
+}
+.briefing-voice{
+  padding:10px 14px;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;margin-bottom:6px;display:flex;gap:10px;align-items:flex-start;
+}
+.briefing-voice.priority{border-color:rgba(196,93,93,.3);background:rgba(196,93,93,.03)}
+.briefing-voice-target{
+  font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;
+  background:var(--accent-bg);color:var(--accent);white-space:nowrap;flex-shrink:0;
+}
+.briefing-voice-action{font-size:13px;font-weight:500}
+.briefing-voice-why{font-size:11px;color:var(--text-dim);margin-top:2px}
+.briefing-timeline{display:flex;flex-direction:column;gap:0}
+.briefing-tl-row{display:flex;gap:12px;padding:6px 0;font-size:12.5px;align-items:flex-start}
+.briefing-tl-time{font-weight:700;color:var(--accent);min-width:42px;flex-shrink:0;font-variant-numeric:tabular-nums}
+.briefing-tl-dot{width:8px;height:8px;border-radius:50%;background:var(--border-strong);flex-shrink:0;margin-top:5px}
+.briefing-tl-content{flex:1;min-width:0}
+.briefing-tl-title{font-weight:600;color:var(--text)}
+.briefing-tl-detail{font-size:11px;color:var(--text-dim);margin-top:1px}
+.briefing-empty{text-align:center;padding:24px;color:var(--text-dim);font-size:13px}
+.briefing-chat{font-size:12.5px;color:var(--text-secondary);padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:6px}
+.briefing-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--accent);text-decoration:none;margin-top:8px;font-weight:600}
+.briefing-link:hover{text-decoration:underline}
+
 /* ===== TODAY TAB: 3-SECTION LAYOUT ===== */
 .today-section{margin-bottom:28px}
 .today-section-header{
@@ -740,6 +792,7 @@ body.dark .header{background:rgba(17,17,16,0.85)}
   </div>
 </div>
 
+<script src="kyoto-briefing-data.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════════
 // DATA
@@ -870,7 +923,7 @@ let S;
 function loadState(){
   try{S=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){S={}}
   if(!S.status)S.status={};if(!S.cl)S.cl={};if(!S.theme)S.theme='';
-  if(!S.tab)S.tab='today';if(!S.hideDone)S.hideDone=false;
+  if(!S.tab)S.tab='today';if(!S.hideDone)S.hideDone=false;if(S._briefingClosed===undefined)S._briefingClosed=false;
   if(!S.sort)S.sort={col:'m',dir:1};if(!S.boardScope)S.boardScope='soon';if(!S.calView)S.calView='month';if(!S.calWeekStart)S.calWeekStart=null;if(!S.weekDays)S.weekDays=5;
   TASKS.forEach(tk=>{if(!S.status[tk.id])S.status[tk.id]=(tk.cy==='daily'||tk.cy==='weekly'||tk.cy==='monthly')?'進行中':'未着手'});
 }
@@ -1017,6 +1070,133 @@ const TODAY_PICKS=[
 ];
 let todayRevealed=false;
 
+// ═══════ BRIEFING DATA (from build_briefing.py JSON) ═══════
+let BRIEFING_DATA=null;
+let briefingLoaded=false;
+
+function loadBriefing(){
+  // kyoto-briefing-data.js が <script> で読み込まれていれば window.BRIEFING_DATA が存在する
+  if(window.BRIEFING_DATA){
+    BRIEFING_DATA=window.BRIEFING_DATA;
+    briefingLoaded=true;
+    if(S.tab==='today')renderToday();
+  }
+}
+
+function renderBriefingPanel(){
+  if(!BRIEFING_DATA)return `<div class="briefing-empty"><i class="fa-solid fa-sun" style="font-size:1.2rem;opacity:.3;margin-bottom:6px;display:block"></i>ブリーフィング未生成<br><span style="font-size:11px">build_briefing.py を実行してください</span></div>`;
+  const b=BRIEFING_DATA;
+  const hour=new Date().getHours();
+  const isAM=hour<12;
+  const open=isAM||!S._briefingClosed;
+  let h='';
+
+  // ── Header ──
+  h+=`<div class="briefing-header${open?' open':''}" onclick="toggleBriefing()">
+    <i class="fa-solid fa-sun" style="color:var(--amber);font-size:14px"></i>
+    <h3>モーニングブリーフィング</h3>
+    <span class="meta">${esc(b.meta.date_display)} — 赴任${b.meta.days_since_ninki}日目</span>
+    <i class="fa-solid fa-chevron-right chevron"></i>
+  </div>`;
+
+  h+=`<div class="briefing-body${open?'':' collapsed'}" id="briefingBody">`;
+
+  // ── Top3 タスク ──
+  if(b.top3&&b.top3.length){
+    h+=`<div class="briefing-section">
+      <div class="briefing-section-title"><i class="fa-solid fa-crosshairs"></i> Top ${b.top3.length} タスク</div>`;
+    b.top3.forEach(t=>{
+      const isCrit=t.priority==='critical';
+      h+=`<div class="briefing-task${isCrit?' critical':''}">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="briefing-task-title">${esc(t.task)}</span>
+          <span class="briefing-task-domain">${esc(t.domain)}</span>
+        </div>`;
+      if(t.checklist&&t.checklist.length){
+        h+=`<div class="briefing-cl">`;
+        t.checklist.forEach(c=>{h+=`<div class="briefing-cl-item">${esc(c)}</div>`});
+        h+=`</div>`;
+      }
+      if(t.pitfalls){h+=`<div class="briefing-pitfall"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red);margin-right:4px;font-size:10px"></i>${esc(t.pitfalls)}</div>`}
+      h+=`</div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // ── 落とし穴アラート ──
+  if(b.pitfalls&&b.pitfalls.length){
+    h+=`<div class="briefing-section">
+      <div class="briefing-section-title"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red)"></i> 落とし穴アラート</div>`;
+    b.pitfalls.forEach(p=>{
+      h+=`<div class="briefing-pitfall" style="margin-bottom:6px"><strong>${esc(p.task)}</strong> — ${esc(p.pitfalls)}</div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // ── 声かけリスト ──
+  if(b.voice&&b.voice.length){
+    h+=`<div class="briefing-section">
+      <div class="briefing-section-title"><i class="fa-solid fa-comments" style="color:var(--green)"></i> 今日の声かけ</div>`;
+    b.voice.forEach(v=>{
+      h+=`<div class="briefing-voice${v.is_priority?' priority':''}">
+        <span class="briefing-voice-target">${esc(v.target)}</span>
+        <div>
+          <div class="briefing-voice-action">${esc(v.action)}</div>
+          ${v.why?`<div class="briefing-voice-why">${esc(v.why)}</div>`:''}
+          ${v.feedback_reason?`<div class="briefing-voice-why" style="color:var(--red);font-weight:600">${esc(v.feedback_reason)}</div>`:''}
+        </div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // ── タイムライン ──
+  if(b.timeline&&b.timeline.length){
+    h+=`<div class="briefing-section">
+      <div class="briefing-section-title"><i class="fa-solid fa-clock" style="color:var(--accent)"></i> タイムライン</div>
+      <div class="briefing-timeline">`;
+    b.timeline.forEach(t=>{
+      h+=`<div class="briefing-tl-row">
+        <span class="briefing-tl-time">${esc(t.time)}</span>
+        <span class="briefing-tl-dot"></span>
+        <div class="briefing-tl-content">
+          <div class="briefing-tl-title">${esc(t.title)}</div>
+          ${t.detail?`<div class="briefing-tl-detail">${esc(t.detail)}</div>`:''}
+        </div>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  // ── 雑談ネタ ──
+  if(b.chat_topics&&b.chat_topics.length){
+    h+=`<div class="briefing-section">
+      <div class="briefing-section-title"><i class="fa-solid fa-mug-hot" style="color:var(--amber)"></i> 雑談ネタ</div>`;
+    b.chat_topics.forEach(c=>{h+=`<div class="briefing-chat">${esc(c)}</div>`});
+    h+=`</div>`;
+  }
+
+  // ── 前日引き継ぎ ──
+  if(b.feedback_prep&&b.feedback_prep.length){
+    h+=`<div class="briefing-section">
+      <div class="briefing-section-title"><i class="fa-solid fa-rotate-left" style="color:var(--blue)"></i> 前日からの引き継ぎ</div>`;
+    b.feedback_prep.forEach(p=>{h+=`<div class="briefing-chat">${esc(p)}</div>`});
+    h+=`</div>`;
+  }
+
+  // ── 詳細リンク ──
+  h+=`<a class="briefing-link" href="kyoto-secretary-briefing.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> 全文ブリーフィングを開く</a>`;
+
+  h+=`</div>`;
+  return h;
+}
+
+function toggleBriefing(){
+  S._briefingClosed=!S._briefingClosed;
+  saveState();
+  renderToday();
+}
+
 function renderToday(){
   const el=document.getElementById('p-today');
   const todayStr=new Date().toISOString().slice(0,10);
@@ -1029,6 +1209,9 @@ function renderToday(){
   const picks=TODAY_PICKS;
   let leftHtml='';
   let rightHtml='';
+
+  // ── ブリーフィングパネル（タスクカラムの上部）──
+  rightHtml+=`<div class="briefing-panel">${renderBriefingPanel()}</div>`;
 
   // ── 右サイド: 投げ込み入力 + 動態一覧 + 日誌一覧 ──
 
@@ -2529,6 +2712,8 @@ TASKS.forEach(tk=>LOCAL_TASKS_BACKUP.push(Object.assign({},tk)));
 loadState();applyTheme();renderAll();
 // GASからデータを非同期で取得して上書き
 fetchFromGAS();
+// ブリーフィングJSONを非同期で読み込み
+loadBriefing();
 </script>
 </body>
 </html>
