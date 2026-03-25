@@ -1,21 +1,88 @@
 #!/usr/bin/env python3
 """
-尾鷲郷土資料館 HTML Generator
+尾鷲郷土資料館 / 紀北町郷土資料館 HTML Generator
 owase-local-db.jsonl + image_manifest.jsonl → museum-like single HTML page
+
+Usage:
+  python3 build_owase_shiryoukan.py             # 尾鷲のみ（紀北町を除外）
+  python3 build_owase_shiryoukan.py --mode kihoku  # 紀北町のみ
+  python3 build_owase_shiryoukan.py --mode all     # 全件（従来互換）
 """
-import json, html as h
+import json, html as h, argparse
 from pathlib import Path
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--mode', choices=['owase', 'kihoku', 'all'], default='all')
+args = parser.parse_args()
 
 BASE = Path("/Users/rtano/Documents/WorkSpace ")
 OWASE_DB = BASE / "memory/owase-local-db.jsonl"
 IMG_MANIFEST = BASE / "文章_作業スペース/00_受信箱_Inbox/web_images_owase/image_manifest.jsonl"
 HISTORY_DB = BASE / "memory/history-japan-db.jsonl"
-OUTPUT = BASE / "priority-ai-demo/owase_shiryoukan.html"
 IMG_REL = "../文章_作業スペース/00_受信箱_Inbox/"
 
+# --- Mode config ---
+KIHOKU_TAG_MARKERS = ['紀北']
+KIHOKU_TITLE_MARKERS = ['紀北町', '銚子川', '魚飛渓', '種まき権兵衛', 'キャンプinn海山', '紀伊長島']
+KIHOKU_TAG_PLACE_MARKERS = ['銚子川', '魚飛渓', '種まき権兵衛', 'キャンプinn海山', '紀伊長島', '海山区', '海山地区']
+
+def is_kihoku(r):
+    """紀北町関連の記事かどうか判定"""
+    tags_str = ' '.join(r.get('tags', []))
+    title = r.get('title', '')
+    if any(m in tags_str for m in KIHOKU_TAG_MARKERS):
+        return True
+    if any(m in title for m in KIHOKU_TITLE_MARKERS):
+        return True
+    if any(m in tags_str for m in KIHOKU_TAG_PLACE_MARKERS):
+        return True
+    return False
+
+def is_mukai(r):
+    """向井地区関連の記事かどうか判定"""
+    tags_str = ' '.join(r.get('tags', []))
+    title = r.get('title', '')
+    return '向井' in tags_str or '向井' in title
+
+def get_area(r):
+    """レコードのエリアを判定: kihoku > mukai > owase"""
+    if is_kihoku(r):
+        return 'kihoku'
+    if is_mukai(r):
+        return 'mukai'
+    return 'owase'
+
+MODE_CONFIG = {
+    'owase': {
+        'output': BASE / "priority-ai-demo/owase_shiryoukan.html",
+        'title': '尾鷲郷土資料館',
+        'subtitle': '三重県尾鷲市 — 海と山と雨のまちの記憶',
+        'filter': lambda r: not is_kihoku(r),
+    },
+    'kihoku': {
+        'output': BASE / "priority-ai-demo/kihoku_shiryoukan.html",
+        'title': '紀北町郷土資料館',
+        'subtitle': '三重県北牟婁郡紀北町 — 清流と峠道のまち',
+        'filter': lambda r: is_kihoku(r),
+    },
+    'all': {
+        'output': BASE / "priority-ai-demo/owase_shiryoukan.html",
+        'title': '尾鷲郷土資料館',
+        'subtitle': '三重県尾鷲市 — 海と山と雨のまちの記憶',
+        'filter': lambda r: True,
+    },
+}
+
+cfg = MODE_CONFIG[args.mode]
+OUTPUT = cfg['output']
+SITE_TITLE = cfg['title']
+SITE_SUBTITLE = cfg['subtitle']
+
 # --- Load data ---
-records = [json.loads(l) for l in open(OWASE_DB)]
+all_records = [json.loads(l) for l in open(OWASE_DB)]
+records = [r for r in all_records if cfg['filter'](r)]
 img_manifest = {json.loads(l)["id"]: json.loads(l) for l in open(IMG_MANIFEST)}
+print(f"Mode: {args.mode} ({len(records)}/{len(all_records)} records)")
 
 # history connections
 history_records = []
@@ -174,6 +241,7 @@ for r in records:
     js_data.append({
         "id": r["id"],
         "c": r["category"],
+        "a": get_area(r),
         "t": r["title"],
         "x": r["content"],
         "e": r.get("edu_use", ""),
@@ -253,7 +321,7 @@ html_out = f'''<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>尾鷲郷土資料館</title>
+<title>{SITE_TITLE}</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -330,6 +398,27 @@ body.dark .topbar{{background:rgba(17,17,16,0.9)}}
   display:flex;align-items:center;justify-content:center;transition:all .2s;
 }}
 .theme-btn:hover{{border-color:var(--accent);color:var(--accent)}}
+
+/* Area tabs */
+.area-bar{{
+  padding:0 32px;display:flex;gap:0;
+  border-bottom:1px solid var(--border);background:var(--bg);
+}}
+.area-tab{{
+  padding:10px 20px;font-size:14px;font-weight:600;
+  color:var(--text-secondary);cursor:pointer;
+  border:none;background:transparent;font-family:inherit;
+  border-bottom:2px solid transparent;
+  transition:all .2s var(--ease);
+  display:flex;align-items:center;gap:6px;
+}}
+.area-tab:hover{{color:var(--text);border-bottom-color:var(--border-mid)}}
+.area-tab.active{{color:var(--accent);border-bottom-color:var(--accent)}}
+.area-tab .area-cnt{{
+  font-size:11px;font-weight:700;opacity:0.6;
+  background:var(--surface-dim);padding:1px 6px;border-radius:10px;
+}}
+.area-tab.active .area-cnt{{background:var(--accent-bg);opacity:1}}
 
 /* Category pills */
 .cat-bar{{
@@ -668,6 +757,8 @@ body.dark .topbar{{background:rgba(17,17,16,0.9)}}
   .hero-title{{font-size:2rem}}
   .hero-content{{padding:24px}}
   .topbar{{padding:10px 16px}}
+  .area-bar{{padding:0 16px}}
+  .area-tab{{padding:8px 14px;font-size:13px}}
   .cat-bar{{padding:10px 16px}}
   .content{{padding:16px}}
   .card-grid{{grid-template-columns:1fr}}
@@ -682,8 +773,8 @@ body.dark .topbar{{background:rgba(17,17,16,0.9)}}
   <div class="hero-bg" id="heroBg" style="background-image:url('{hero_imgs[0] if hero_imgs else ""}')"></div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="hero-title">尾鷲郷土資料館</div>
-    <div class="hero-sub">三重県尾鷲市 — 海と山と雨のまちの記憶</div>
+    <div class="hero-title">{SITE_TITLE}</div>
+    <div class="hero-sub">{SITE_SUBTITLE}</div>
     <div class="hero-stats">
       <div class="hero-stat"><div class="hero-stat-num">{total}</div><div class="hero-stat-label">ARTICLES</div></div>
       <div class="hero-stat"><div class="hero-stat-num">{total_imgs}</div><div class="hero-stat-label">PHOTOS</div></div>
@@ -701,6 +792,9 @@ body.dark .topbar{{background:rgba(17,17,16,0.9)}}
   <span id="resultCount" style="font-size:13px;color:var(--text-dim);font-weight:600"></span>
   <button class="theme-btn" onclick="toggleTheme()" title="テーマ切替"><i class="fa-solid fa-circle-half-stroke"></i></button>
 </div>
+
+<!-- Area tabs -->
+<div class="area-bar" id="areaBar"></div>
 
 <!-- Category bar -->
 <div class="cat-bar" id="catBar"></div>
@@ -728,7 +822,17 @@ const CAT_ORDER = {json.dumps(CAT_ORDER)};
 const CAT_META = {json.dumps(CAT_META, ensure_ascii=False, separators=(',', ':'))};
 const CAT_OVERVIEW = {json.dumps(js_cat_overview, ensure_ascii=False, separators=(',', ':'))};
 
+// ═══ AREA CONFIG ═══
+const AREA_META = {{
+  all:     {{n:'すべて', icon:'fa-solid fa-layer-group'}},
+  owase:   {{n:'尾鷲市', icon:'fa-solid fa-water'}},
+  kihoku:  {{n:'紀北町', icon:'fa-solid fa-mountain-sun'}},
+  mukai:   {{n:'向井地区', icon:'fa-solid fa-school'}},
+}};
+const AREA_ORDER = ['all','owase','kihoku','mukai'];
+
 // ═══ STATE ═══
+let activeArea = 'all';
 let activeCat = 'all';
 let searchQuery = '';
 let modalImgIdx = 0;
@@ -756,12 +860,45 @@ function toggleTheme() {{
 }}
 if (localStorage.getItem('owase-theme') === 'dark') document.body.classList.add('dark');
 
+// ═══ AREA FILTER ═══
+function getFilteredByArea() {{
+  if (activeArea === 'all') return DATA;
+  return DATA.filter(r => r.a === activeArea);
+}}
+
+function renderAreaBar() {{
+  const el = document.getElementById('areaBar');
+  let html = '';
+  AREA_ORDER.forEach(a => {{
+    const m = AREA_META[a];
+    const cnt = a === 'all' ? DATA.length : DATA.filter(r => r.a === a).length;
+    if (cnt === 0 && a !== 'all') return;
+    html += `<button class="area-tab ${{activeArea===a?'active':''}}" onclick="setArea('${{a}}')"><i class="${{m.icon}}" style="font-size:12px"></i> ${{m.n}} <span class="area-cnt">${{cnt}}</span></button>`;
+  }});
+  el.innerHTML = html;
+}}
+
+function setArea(a) {{
+  activeArea = a;
+  activeCat = 'all';
+  renderAreaBar();
+  renderCatBar();
+  renderContent();
+  // Update hero title/subtitle
+  const titles = {{all: ['{SITE_TITLE}','{SITE_SUBTITLE}'], owase: ['尾鷲郷土資料館','三重県尾鷲市 — 海と山と雨のまちの記憶'], kihoku: ['紀北町郷土資料館','三重県北牟婁郡紀北町 — 清流と峠道のまち'], mukai: ['向井地区資料館','尾鷲市向井 — 海と山に挟まれた小さな集落']}};
+  const [t, s] = titles[a] || titles.all;
+  document.querySelector('.hero-title').textContent = t;
+  document.querySelector('.hero-sub').textContent = s;
+  window.scrollTo({{top: 0, behavior: 'smooth'}});
+}}
+
 // ═══ CATEGORY BAR ═══
 function renderCatBar() {{
   const el = document.getElementById('catBar');
+  const areaData = getFilteredByArea();
   const counts = {{}};
-  DATA.forEach(r => counts[r.c] = (counts[r.c] || 0) + 1);
-  let html = `<button class="cat-pill ${{activeCat==='all'?'active':''}}" onclick="setCat('all')"><i class="fa-solid fa-grip"></i> すべて <span class="cnt">${{DATA.length}}</span></button>`;
+  areaData.forEach(r => counts[r.c] = (counts[r.c] || 0) + 1);
+  let html = `<button class="cat-pill ${{activeCat==='all'?'active':''}}" onclick="setCat('all')"><i class="fa-solid fa-grip"></i> すべて <span class="cnt">${{areaData.length}}</span></button>`;
   CAT_ORDER.forEach(c => {{
     const m = CAT_META[c];
     if (!m || !counts[c]) return;
@@ -808,24 +945,25 @@ function renderContent() {{
     return;
   }}
 
-  const filtered = DATA.filter(r => {{
+  const areaData = getFilteredByArea();
+  const filtered = areaData.filter(r => {{
     if (activeCat !== 'all' && r.c !== activeCat) return false;
     return matchSearch(r);
   }});
 
-  document.getElementById('resultCount').textContent = filtered.length < DATA.length ? `${{filtered.length}}件` : '';
+  document.getElementById('resultCount').textContent = filtered.length < areaData.length ? `${{filtered.length}}件` : '';
 
   if (activeCat === 'all' && !searchQuery) {{
     // === OVERVIEW MODE: 館内案内 ===
     const counts = {{}};
-    DATA.forEach(r => counts[r.c] = (counts[r.c] || 0) + 1);
-    const totalRecords = DATA.length;
-    const totalWithImg = DATA.filter(r => r.im.length > 0).length;
+    areaData.forEach(r => counts[r.c] = (counts[r.c] || 0) + 1);
+    const totalRecords = areaData.length;
+    const totalWithImg = areaData.filter(r => r.im.length > 0).length;
 
     let html = `
       <div class="concierge" id="conciergePanel">
-        <div class="concierge-title"><i class="fa-solid fa-compass" style="color:var(--accent)"></i> 尾鷲コンシェルジュ</div>
-        <div class="concierge-sub">尾鷲について何でも聞いてください。955件の記事から答えを探します。</div>
+        <div class="concierge-title"><i class="fa-solid fa-compass" style="color:var(--accent)"></i> ${{activeArea==='kihoku'?'紀北町':activeArea==='mukai'?'向井':'尾鷲'}}コンシェルジュ</div>
+        <div class="concierge-sub">${{activeArea==='kihoku'?'紀北町':activeArea==='mukai'?'向井地区':'尾鷲'}}について何でも聞いてください。${{totalRecords}}件の記事から答えを探します。</div>
         <div class="concierge-input-wrap">
           <input type="text" class="concierge-input" id="conciergeInput" placeholder="例: 尾鷲で有名な食べ物は？" onkeydown="if(event.key==='Enter')askConcierge()">
           <button class="concierge-send" onclick="askConcierge()"><i class="fa-solid fa-paper-plane"></i> 聞く</button>
@@ -1494,6 +1632,7 @@ window.addEventListener('scroll', () => {{
 }});
 
 // ═══ INIT ═══
+renderAreaBar();
 renderCatBar();
 renderContent();
 </script>
