@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>紀北町郷土資料館</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Inter','Noto Sans JP',sans-serif;min-height:100vh;transition:background .4s,color .3s}
+
+:root{
+  --bg:#FAF9F6;--surface:#FFFFFF;--surface-dim:#F5F3F0;--surface-container:#EDE9E3;
+  --border:rgba(45,38,33,0.07);--border-mid:rgba(45,38,33,0.12);
+  --text:#2d2621;--text-secondary:#6b6560;--text-dim:#a8a29e;
+  --accent:#4A7C59;--accent-bg:rgba(74,124,89,0.07);
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.04);--shadow-md:0 4px 16px rgba(0,0,0,0.06);--shadow-lg:0 16px 40px rgba(0,0,0,0.1);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+body{background:var(--bg);color:var(--text)}
+body.dark{
+  --bg:#111110;--surface:#1a1917;--surface-dim:#1e1d1b;--surface-container:#252320;
+  --border:rgba(255,255,255,0.06);--border-mid:rgba(255,255,255,0.1);
+  --text:#e8e4df;--text-secondary:#b5afa8;--text-dim:#6b6560;
+  --accent:#7aad8a;--accent-bg:rgba(122,173,138,.1);
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.15);--shadow-md:0 4px 16px rgba(0,0,0,0.2);--shadow-lg:0 16px 40px rgba(0,0,0,0.3);
+}
+
+/* Grain */
+body::before{
+  content:"";position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:0.03;pointer-events:none;z-index:9999;
+}
+
+/* Hero */
+.hero{
+  position:relative;height:420px;overflow:hidden;
+  display:flex;align-items:flex-end;
+}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:opacity 1.5s ease}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.15) 60%,rgba(0,0,0,0.3) 100%)}
+.hero-content{position:relative;z-index:2;padding:40px 48px;width:100%}
+.hero-title{font-family:'Shippori Mincho',serif;font-size:2.8rem;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:0.05em}
+.hero-sub{font-size:1rem;color:rgba(255,255,255,0.8);margin-bottom:16px;font-weight:400}
+.hero-stats{display:flex;gap:24px}
+.hero-stat{display:flex;flex-direction:column;align-items:center}
+.hero-stat-num{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:#fff;line-height:1}
+.hero-stat-label{font-size:0.7rem;color:rgba(255,255,255,0.7);margin-top:2px;font-weight:600;letter-spacing:0.05em}
+
+/* Top bar */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(250,249,246,0.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);padding:10px 32px;
+  display:flex;align-items:center;gap:12px;
+}
+body.dark .topbar{background:rgba(17,17,16,0.9)}
+.topbar-back{
+  display:flex;align-items:center;gap:6px;color:var(--accent);text-decoration:none;font-size:14px;font-weight:600;
+  padding:6px 12px;border-radius:8px;border:none;background:transparent;cursor:pointer;
+  transition:background .2s;
+}
+.topbar-back:hover{background:var(--accent-bg)}
+.search-box{
+  flex:1;max-width:360px;padding:7px 12px 7px 32px;
+  border:1px solid var(--border);border-radius:8px;background:var(--surface);
+  color:var(--text);font-family:inherit;font-size:14px;outline:none;
+  background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2214%22 height=%2214%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23a8a29e%22 stroke-width=%222%22><circle cx=%2211%22 cy=%2211%22 r=%228%22/><path d=%22m21 21-4.3-4.3%22/></svg>');
+  background-repeat:no-repeat;background-position:10px center;
+}
+.search-box:focus{border-color:var(--accent)}
+.theme-btn{
+  width:34px;height:34px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-dim);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Category pills */
+.cat-bar{
+  padding:12px 32px;display:flex;gap:6px;flex-wrap:wrap;
+  border-bottom:1px solid var(--border);background:var(--bg);
+}
+.cat-pill{
+  padding:5px 14px;border-radius:20px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-secondary);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .25s var(--ease);display:flex;align-items:center;gap:5px;
+  font-family:inherit;
+}
+.cat-pill:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.cat-pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cat-pill .cnt{font-size:11px;opacity:0.7;font-weight:700}
+
+/* Content area */
+.content{max-width:1400px;margin:0 auto;padding:24px 32px}
+
+/* ===== OVERVIEW GRID (館内案内) ===== */
+.overview-section{margin-bottom:32px}
+.overview-heading{
+  font-family:'Shippori Mincho',serif;font-size:1.3rem;font-weight:700;
+  margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.overview-heading span{font-size:13px;font-weight:500;color:var(--text-dim);font-family:'Inter','Noto Sans JP',sans-serif}
+.overview-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-auto-rows:auto;
+  gap:14px;
+}
+.ov-card{
+  position:relative;border-radius:14px;overflow:hidden;cursor:pointer;
+  background:var(--surface);border:1px solid var(--border);
+  transition:all .35s var(--ease);display:flex;flex-direction:column;
+}
+.ov-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.ov-card.large{grid-column:span 2;grid-row:span 2}
+.ov-card-photos{
+  display:grid;gap:2px;width:100%;overflow:hidden;
+}
+.ov-card-photos.single{grid-template-columns:1fr}
+.ov-card-photos.duo{grid-template-columns:1fr 1fr}
+.ov-card-photos.trio{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.ov-card-photos.trio img:first-child{grid-row:span 2}
+.ov-card-photos.quad{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.ov-card-photos img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .6s ease;
+}
+.ov-card:hover .ov-card-photos img{transform:scale(1.04)}
+.ov-card-photos.single{aspect-ratio:16/9}
+.ov-card-photos.duo,.ov-card-photos.trio,.ov-card-photos.quad{aspect-ratio:16/9}
+.ov-card.large .ov-card-photos{aspect-ratio:16/10}
+.ov-card-body{padding:14px 16px 16px;flex:1;display:flex;flex-direction:column}
+.ov-card-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.ov-card-icon{
+  width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:#fff;flex-shrink:0;
+}
+.ov-card-name{font-size:16px;font-weight:700}
+.ov-card-count{
+  margin-left:auto;font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;
+  color:var(--text-dim);line-height:1;
+}
+.ov-card-desc{font-size:12.5px;color:var(--text-secondary);margin-bottom:8px}
+.ov-card-titles{display:flex;flex-direction:column;gap:2px;flex:1}
+.ov-card-titles span{
+  font-size:12px;color:var(--text-dim);line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;
+}
+.ov-card-titles span::before{content:"\2014\00a0";opacity:0.4}
+.ov-card-enter{
+  display:flex;align-items:center;gap:4px;
+  font-size:12px;font-weight:600;color:var(--accent);margin-top:8px;
+  transition:gap .2s;
+}
+.ov-card:hover .ov-card-enter{gap:8px}
+
+/* Stats bar */
+.stats-bar{
+  display:flex;gap:24px;padding:20px 28px;margin-bottom:24px;
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  flex-wrap:wrap;
+}
+.stat-item{display:flex;flex-direction:column;align-items:center;min-width:80px}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--text);line-height:1}
+.stat-label{font-size:11px;font-weight:600;color:var(--text-dim);letter-spacing:0.05em;margin-top:2px}
+
+/* ===== CONCIERGE ===== */
+.concierge{
+  margin-bottom:28px;background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:24px 28px;
+}
+.concierge-title{
+  font-family:'Shippori Mincho',serif;font-size:1.1rem;font-weight:700;
+  margin-bottom:4px;display:flex;align-items:center;gap:8px;
+}
+.concierge-sub{font-size:13px;color:var(--text-dim);margin-bottom:16px}
+.concierge-input-wrap{
+  display:flex;gap:8px;margin-bottom:14px;
+}
+.concierge-input{
+  flex:1;padding:10px 16px;border:1px solid var(--border-mid);border-radius:10px;
+  background:var(--bg);color:var(--text);font-family:inherit;font-size:15px;outline:none;
+  transition:border-color .2s;
+}
+.concierge-input:focus{border-color:var(--accent)}
+.concierge-input::placeholder{color:var(--text-dim)}
+.concierge-send{
+  padding:10px 20px;border-radius:10px;border:none;
+  background:var(--accent);color:#fff;font-family:inherit;font-size:14px;font-weight:600;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;
+}
+.concierge-send:hover{filter:brightness(1.1)}
+.concierge-courses{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0}
+.concierge-course{
+  padding:6px 14px;border-radius:20px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text-secondary);font-size:13px;font-weight:500;
+  cursor:pointer;transition:all .2s;font-family:inherit;
+  display:flex;align-items:center;gap:5px;
+}
+.concierge-course:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+
+/* Concierge response */
+.concierge-response{
+  margin-top:20px;padding-top:18px;border-top:1px solid var(--border);
+  animation:fadeUp .4s var(--ease);
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.concierge-answer{
+  font-size:15px;line-height:1.7;color:var(--text);margin-bottom:16px;
+}
+.concierge-answer strong{color:var(--accent)}
+.concierge-picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.concierge-pick{
+  display:flex;gap:12px;padding:12px;border-radius:12px;
+  background:var(--bg);border:1px solid var(--border);cursor:pointer;
+  transition:all .25s var(--ease);align-items:flex-start;
+}
+.concierge-pick:hover{border-color:var(--accent);background:var(--accent-bg);transform:translateY(-1px)}
+.concierge-pick-img{
+  width:72px;height:54px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--surface-dim);
+}
+.concierge-pick-body{flex:1;min-width:0}
+.concierge-pick-cat{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;color:#fff;display:inline-block;margin-bottom:3px}
+.concierge-pick-title{font-size:13.5px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.concierge-pick-excerpt{font-size:12px;color:var(--text-dim);line-height:1.4;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.concierge-typing{display:flex;align-items:center;gap:4px;padding:8px 0}
+.concierge-typing span{width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:0.3;animation:typingDot 1.2s ease-in-out infinite}
+.concierge-typing span:nth-child(2){animation-delay:0.2s}
+.concierge-typing span:nth-child(3){animation-delay:0.4s}
+@keyframes typingDot{0%,60%,100%{opacity:0.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+
+/* ===== MAP VIEW ===== */
+.map-container{width:100%;height:calc(100vh - 200px);min-height:500px;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+.map-sidebar{
+  position:absolute;top:10px;right:10px;z-index:1000;
+  width:320px;max-height:calc(100% - 20px);overflow-y:auto;
+  background:var(--surface);border-radius:12px;border:1px solid var(--border);
+  box-shadow:var(--shadow-lg);
+}
+.map-sidebar-header{padding:12px 16px;border-bottom:1px solid var(--border);font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.map-sidebar-list{max-height:400px;overflow-y:auto}
+.map-sidebar-item{
+  display:flex;gap:10px;padding:10px 14px;cursor:pointer;transition:background .15s;
+  border-bottom:1px solid var(--border);align-items:flex-start;
+}
+.map-sidebar-item:hover{background:var(--accent-bg)}
+.map-sidebar-item img{width:52px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0}
+.map-sidebar-item-body{flex:1;min-width:0}
+.map-sidebar-item-title{font-size:12.5px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3}
+.map-sidebar-item-cat{font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;color:#fff;display:inline-block;margin-top:2px}
+.leaflet-popup-content{font-family:'Inter','Noto Sans JP',sans-serif;font-size:13px;line-height:1.5}
+.leaflet-popup-content strong{font-size:14px}
+
+@media(max-width:960px){
+  .overview-grid{grid-template-columns:repeat(2,1fr)}
+  .ov-card.large{grid-column:span 2;grid-row:span 1}
+  .map-sidebar{width:100%;position:relative;top:0;right:0;border-radius:0 0 12px 12px}
+}
+@media(max-width:600px){
+  .overview-grid{grid-template-columns:1fr}
+  .ov-card.large{grid-column:span 1}
+}
+
+/* Room header */
+.room-header{
+  margin:32px 0 16px;padding:20px 24px;border-radius:16px;
+  background:var(--surface);border:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;
+}
+.room-header:first-child{margin-top:0}
+.room-icon{
+  width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;color:#fff;flex-shrink:0;
+}
+.room-info h2{font-size:1.2rem;font-weight:700;margin-bottom:2px}
+.room-info p{font-size:13px;color:var(--text-secondary)}
+.room-count{margin-left:auto;font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--text-dim);line-height:1}
+
+/* Card grid */
+.card-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;
+  margin-bottom:8px;
+}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;cursor:pointer;transition:all .35s var(--ease);
+}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.card-img{
+  width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--surface-dim);
+  display:block;
+}
+.card-img-placeholder{
+  width:100%;aspect-ratio:16/10;background:var(--surface-dim);
+  display:flex;align-items:center;justify-content:center;
+}
+.card-img-placeholder i{font-size:2rem;color:var(--text-dim);opacity:0.3}
+.card-body{padding:14px 16px 16px}
+.card-cat{
+  display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:5px;
+  margin-bottom:6px;color:#fff;
+}
+.card-title{font-size:15px;font-weight:700;line-height:1.4;margin-bottom:6px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-excerpt{
+  font-size:13px;color:var(--text-secondary);line-height:1.6;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.card-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.card-tag{font-size:10.5px;padding:1px 6px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)}
+
+/* Detail modal */
+.modal-overlay{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);
+  opacity:0;pointer-events:none;transition:opacity .3s;
+  display:flex;justify-content:flex-end;
+}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal-panel{
+  width:640px;max-width:90vw;height:100vh;background:var(--bg);
+  overflow-y:auto;transform:translateX(100%);transition:transform .4s var(--ease);
+  box-shadow:-8px 0 32px rgba(0,0,0,0.15);
+}
+.modal-overlay.open .modal-panel{transform:translateX(0)}
+.modal-close{
+  position:sticky;top:12px;float:right;margin:12px 12px 0 0;
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-dim);cursor:pointer;z-index:10;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.modal-close:hover{border-color:var(--accent);color:var(--accent)}
+.modal-gallery{position:relative;width:100%;aspect-ratio:16/10;background:#111;overflow:hidden}
+.modal-gallery img{width:100%;height:100%;object-fit:contain;transition:opacity .4s}
+.modal-gallery-nav{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:36px;height:36px;border-radius:50%;border:none;
+  background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);
+  color:#fff;cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.modal-gallery-nav:hover{background:rgba(255,255,255,0.3)}
+.modal-gallery-nav.left{left:12px}
+.modal-gallery-nav.right{right:12px}
+.modal-gallery-counter{
+  position:absolute;bottom:8px;right:12px;
+  font-size:12px;color:rgba(255,255,255,0.7);
+  background:rgba(0,0,0,0.4);padding:2px 8px;border-radius:4px;
+}
+.modal-body{padding:24px 28px 40px}
+.modal-cat-badge{
+  display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;
+  color:#fff;margin-bottom:10px;
+}
+.modal-title{font-family:'Shippori Mincho',serif;font-size:1.4rem;font-weight:700;line-height:1.5;margin-bottom:16px}
+.modal-content{font-size:14.5px;line-height:1.9;color:var(--text);margin-bottom:24px;white-space:pre-wrap}
+.modal-section{margin-bottom:20px}
+.modal-section-title{
+  font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;
+  margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
+.modal-edu{
+  font-size:13.5px;line-height:1.8;color:var(--text-secondary);
+  padding:16px;border-radius:10px;background:var(--accent-bg);
+}
+.modal-tags{display:flex;gap:5px;flex-wrap:wrap}
+.modal-tag{font-size:12px;padding:3px 10px;border-radius:6px;background:var(--surface-dim);color:var(--text-secondary);font-weight:500}
+.modal-source{font-size:12px;color:var(--text-dim);margin-top:12px}
+
+/* History timeline */
+.timeline{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.timeline-item{
+  display:flex;gap:14px;padding:14px 16px;border-radius:12px;
+  background:var(--surface);border:1px solid var(--border);transition:all .2s;
+}
+.timeline-item:hover{border-color:var(--accent);background:var(--accent-bg)}
+.timeline-era{
+  flex-shrink:0;width:56px;height:56px;border-radius:10px;
+  background:linear-gradient(135deg,#8B7355,#A0896A);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;text-align:center;line-height:1.2;
+}
+.timeline-body h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.timeline-body p{font-size:13px;color:var(--text-secondary);line-height:1.6}
+
+/* Scroll top */
+.scroll-top{
+  position:fixed;bottom:24px;right:24px;z-index:90;
+  width:42px;height:42px;border-radius:50%;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-dim);cursor:pointer;
+  box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:all .3s;pointer-events:none;
+}
+.scroll-top.show{opacity:1;pointer-events:auto}
+.scroll-top:hover{color:var(--accent);border-color:var(--accent)}
+
+/* Loading skeleton */
+.skeleton{animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* Print */
+@media print{
+  .topbar,.cat-bar,.modal-overlay,.scroll-top,.theme-btn,.search-box{display:none!important}
+  .hero{height:200px}
+  .card-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Responsive */
+@media(max-width:768px){
+  .hero{height:300px}
+  .hero-title{font-size:2rem}
+  .hero-content{padding:24px}
+  .topbar{padding:10px 16px}
+  .cat-bar{padding:10px 16px}
+  .content{padding:16px}
+  .card-grid{grid-template-columns:1fr}
+  .modal-panel{width:100vw;max-width:100vw}
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero" id="hero">
+  <div class="hero-bg" id="heroBg" style="background-image:url('../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_052_otyoboiwa.jpg')"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-title">紀北町郷土資料館</div>
+    <div class="hero-sub">三重県北牟婁郡紀北町 — 清流と峠道のまち</div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">135</div><div class="hero-stat-label">ARTICLES</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">279</div><div class="hero-stat-label">PHOTOS</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">14</div><div class="hero-stat-label">ROOMS</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">38</div><div class="hero-stat-label">HISTORY</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Sticky topbar -->
+<div class="topbar">
+  <a href="kyoto-dashboard-improved.html" class="topbar-back"><i class="fa-solid fa-arrow-left"></i> ダッシュボードへ</a>
+  <input type="text" class="search-box" id="searchBox" placeholder="記事・タグ・場所を検索..." oninput="handleSearch(this.value)">
+  <div style="flex:1"></div>
+  <span id="resultCount" style="font-size:13px;color:var(--text-dim);font-weight:600"></span>
+  <button class="theme-btn" onclick="toggleTheme()" title="テーマ切替"><i class="fa-solid fa-circle-half-stroke"></i></button>
+</div>
+
+<!-- Category bar -->
+<div class="cat-bar" id="catBar"></div>
+
+<!-- Main content -->
+<div class="content" id="mainContent"></div>
+
+<!-- Detail modal -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-panel" id="modalPanel">
+    <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-gallery" id="modalGallery"></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Scroll to top -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fa-solid fa-arrow-up"></i></button>
+
+<script>
+// ═══ DATA ═══
+const DATA = [{"id":"OW-119","c":"food","t":"渡利牡蠣 — 白石湖で育つ幻の汽水カキ","x":"渡利かき（わたりかき）は、紀北町相賀にある白石湖で養殖されるカキで、生産量の少なさから「幻のカキ」の異名を持つ。白石湖は大台山系の船津川と熊野灘の海水が混じり合う汽水湖で、プランクトンとミネラルが豊富な独特の環境。養殖の歴史は古く、安永年間（1772〜1781年）には本格的な養殖が行われていた記録がある。採卵から種苗育成・養殖・出荷まですべて白石湖内で完結する一貫生産体制は、日本国内でも珍しい。汽水湖育ちのため磯臭さやクセが少なく、生食ではさっぱりとした味わいで、加熱すると旨みが凝縮される。グリコーゲンを多く含み、身全体が黄色みを帯びるのが特徴。出荷時期は冬季（11月〜3月頃）で、地元の飲食店で渡利かき料理を提供する期間は限られる。厳密には紀北町の産品だが、東紀州の食文化圏として尾鷲地域と密接に結びついており、尾鷲から車で20分程度の距離にある。","e":"理科「水の循環」で汽水湖の仕組みを学ぶ実例。社会科「農業・水産業」で養殖の工夫を学ぶ教材。地域の伝統産業として250年の歴史を持つ点も歴史学習に。","tg":["渡利かき","牡蠣","白石湖","汽水湖","養殖","紀北町","food"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Wikipedia「渡利かき」、東紀州の食、大紀商店、さかな通信","su":""},{"id":"OW-126","c":"society","t":"東紀州の中心地・尾鷲と紀北広域連合 — 1市1町の広域行政","x":"尾鷲市は三重県南部の東紀州地域の中央に位置し、北牟婁郡紀北町（旧紀伊長島町・海山町）とともに「紀北広域連合」を構成する。1999年4月に設立されたこの広域連合は、2007年に尾鷲地区広域行政事務組合と統合され、消防・ごみ処理・介護認定審査などを共同で行っている。三重県紀北県民センターの管轄は尾鷲市と北牟婁郡で、この地域は「尾鷲生活創造圏」として位置づけられている。東紀州地域は尾鷲市・紀北町・熊野市・御浜町・紀宝町の2市3町で構成され、尾鷲は商業・医療・行政サービスの中心地として周辺地域の生活を支える。ただし東紀州は三重県の中でも県北部と比べて経済格差や生活基盤整備の遅れが指摘されており、紀勢自動車道の整備によるアクセス改善が地域活性化の鍵とされている。かつては3万人超の人口を抱えた尾鷲市は、東紀州における最大の都市であり続けている。","e":"社会科「市の様子」で尾鷲市と周辺自治体の関係を学ぶ資料。広域連合の仕組みは「みんなで協力する行政」として理解しやすい。","tg":["東紀州","紀北町","広域連合","紀北県民センター","society"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"尾鷲市公式サイト、Wikipedia「紀北広域連合」「東紀州」、三重県公式サイト","su":""},{"id":"OW-160","c":"energy","t":"又口川旧発電所の歴史 — 尾鷲電気と大正期の水力発電","x":"又口川発電所は尾鷲電気株式会社が建設した同社最初の水力発電所で、1920年（大正9年）3月に運転を開始した。所在地は尾鷲町南浦矢所、銚子川水系又口川と古和谷の合流点直前に位置する。技術仕様は出力145kW、取水量0.50m³/s、水路延長約2.7km（川の左岸沿い）、有効落差39.5m。発電設備は電業社製フランシス水車と芝浦製作所製三相交流発電機が各1台、周波数50Hz。尾鷲電気は1910年（明治43年）5月21日に尾鷲町中浦で設立、資本金5万円、創業者は地元有力者の濱田丈助ら。当初は本社隣接の吸入ガス機関（出力75kW）による火力発電で、中部地方初の吸入ガス機関採用だった。供給区域は当初尾鷲町のみ、1915年に引本町（現紀北町）まで拡大。2番目の発電所として1923年（大正12年）11月に銚子川発電所（相賀村、出力120kW）を建設。1927年（昭和2年）5月15日に三重合同電気に合併・解散。又口川発電所は合同電気時代の1935年（昭和10年）8月に廃止された。廃止から90年以上が経過しているが、39.5mの落差と0.50m³/sの取水量は現在のマイクロ水力技術で十分活用可能なスペックであり、同地点での新設が検討に値する。現在この水系にはJ-POWER（電源開発）のクチスボダム（堤高35m、総貯水容量196万m³、1961年完成）があり、尾鷲第二発電所へ送水して発電している。","e":"6年生歴史で明治・大正の産業発展と地域の電化の歴史を学ぶ素材。技術の授業でフランシス水車の仕組みを学ぶ導入にも。","tg":["又口川","尾鷲電気","大正","水力発電","フランシス水車","クチスボダム","銚子川","energy"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Wikipedia「尾鷲電気」、J-POWERクチスボダム情報、ダム便覧","su":""},{"id":"OW-208","c":"culture","t":"撮影日2025.07.26🎇Canon📸R6 MarkⅡ","x":"✨撮影日✨2025.07.26🎇Canon📸R6 MarkⅡ\n🎆2025 きほく燈籠祭🎆 \n🔍撮影場所🔎紀伊長島郷土資料室・図書室　南東側・法面土留め　下段（無料エリア）当時\nーーーーーーーーーーーーーーーーーーーーーーーーーーー\n🙇SPECIAL🙇THANKS🙇\nーーーーーーーーーーーーーーーーーーーーーーーーーーー\n事前準備や当日に色々と‼️お世話になりました✨本当皆さんの力が有ったので素晴らしい写真が撮れました📸ありがとうございます🙇\nーーーーーーーーーーーーーーーーーーーーーーーーーーー\nCHECK MY GALLERY👉\nーーーーーーーーーーーーーーーーーーーーーーーーーーー","e":"","tg":["近畿地方","三重県","三重花火","紀北町","紀北花火","花火","花火大会","2025きほく燈籠祭","きほく燈籠祭","紀北燈籠祭"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #きほく燈籠祭 (2025-10-30)","su":""},{"id":"OW-209","c":"culture","t":"----","x":"----\nきほく燈籠祭\n彩雲孔雀千輪\n\n🗓2024/07/27\n📍三重県紀北町\n----------------\nZ6Ⅱ\nZ 24-70 F2.8 S","e":"","tg":["三重県","三重","三重花火","紀北町","きほく燈籠祭","きほく燈籠祭2024","花火","花火大会","彩色千輪","彩色千輪菊"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #きほく燈籠祭 (2025-11-12)","su":""},{"id":"OW-210","c":"culture","t":"#きほく燈籠祭の投稿","x":"*\n三重🎆紀北花火大会【きほく燈籠祭】\n\nしえちゃんが声をかけてくれた花火大会\nローカルなアットホーム花火大会だと勝手に思ったらびっくり😳\n大大花火大会！だった😆🙌\n和太鼓を真横で聞いてるくらいの音の響き\n打ち上げ台から近すぎて地響きのように身体に伝わってくる衝撃🎇✨\n\n帰り23時頃まで紀北から出れない程の渋滞も、\n感動の余韻で帰ってこれた🚗♪\n花火大会に遠出したり場所取りしたり初めてのことだったけどたまにはこういう身体張ったイベント参加も良いもんだなと思った🤗\n\n2025.7.26","e":"","tg":["きほく燈籠祭","打ち上げ花火","花火大会","夏の風物詩","三重県紀北町"],"im":[],"s":"Instagram #きほく燈籠祭 (2025-12-28)","su":""},{"id":"OW-213","c":"nature","t":"筏の後はこれ。","x":"筏の後はこれ。\nシュノーケリングで銚子川のゆらゆら帯と生き物観察❗️\nご覧下さい。下流でもこの透明度…。\n鉄橋の柱周りが掘れていてそこにハゼ科の魚やアユが群れてました。\nちょうど中潮の上潮になった直後の時間帯でしたので､残念ながら「ゆらゆら帯」は確認できませんでした。⤵️\nもう少し河口付近へ行けば観れたかもしれませんね。😅","e":"","tg":["紀北町海山地区渚泊推進協議会","体験部会","漁業体験","漁獲体験","作業体験","歴史体験","自然体験","手作り筏で川下り体験","銚子川で川遊び","まいこみ淵"],"im":[],"s":"Instagram #ゆらゆら帯 (2023-08-20)","su":""},{"id":"OW-214","c":"nature","t":"#ゆらゆら帯の投稿","x":"","e":"","tg":["国道42号線","紀北町","小山浦","銚子川","銚子川河川敷","ゆらゆら帯","川","えふぶんのいちゆらぎ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ゆらゆら帯 (2023-09-18)","su":""},{"id":"OW-216","c":"nature","t":"奇跡の川 銚子川のゆらゆら帯。大潮のとき海水と真水が重なり合うことで出現する。銚子川の透明度と緩やかな流れが織りなす奇跡","x":"奇跡の川 銚子川のゆらゆら帯。大潮のとき海水と真水が重なり合うことで出現する。銚子川の透明度と緩やかな流れが織りなす奇跡","e":"","tg":["銚子川","ゆらゆら帯","尾鷲","シュノーケリング"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ゆらゆら帯 (2024-02-19)","su":""},{"id":"OW-217","c":"nature","t":"#ゆらゆら帯の投稿","x":"・\nゆらゆら帯を独り占めという贅沢。この透明度はやはり息継ぎ無しで楽しみたい。","e":"","tg":["銚子川","ゆらゆら帯","水中スクーター","シュノーケルマスク"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ゆらゆら帯 (2024-08-22)","su":""},{"id":"OW-218","c":"tourism","t":"久しぶりに銚子川に潜ってみた🤿","x":"久しぶりに銚子川に潜ってみた🤿\nいつもながら銚子川は綺麗だな〜\n鮎もたくさん🐟\n冷たい淡水と、ゆらゆら温かい海水の境目を撮った(2枚目)\nこの境目は綺麗な川でしか見られない\nついでに半水面で撮り鉄もやってみた🚆","e":"","tg":["銚子川","奇跡の清流","きれいな川","ゆらゆら帯","ダイビング","特急南紀","撮り鉄","半水面","canon5dmarkiii","三重県"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ゆらゆら帯 (2024-09-09)","su":""},{"id":"OW-219","c":"culture","t":"こんにちは。僕の名前は西岡橙李（とうり）です。","x":"こんにちは。僕の名前は西岡橙李（とうり）です。\n1才1ヶ月で銚子川デビューしました。\n来年はじーじと一緒に「手作り筏で川下り体験」したいと思います。\n「種まき権兵衛の里」で鯉の餌とボーロを間違えてクズってしまってすみませんでした😥\n夜はばーばの実家の錦で花火を観ました。すごく良かったです。\nまた遊びに来ますので、皆さん宜しくお願いします🤲","e":"","tg":["紀北町","奇跡の清流","銚子川","魚飛渓","ゆらゆら帯","種まき権兵衛の里","鯉の餌やり体験","来年は鯛の餌やり体験","紀北町海山地区","渚泊推進協議会"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #ゆらゆら帯 (2024-09-18)","su":""},{"id":"OW-221","c":"food","t":"紀北町 一冨士の冬期1番人気🦪","x":"紀北町 一冨士の冬期1番人気🦪\n(汽水湖で育った幻の弘法牡蠣)渡利牡蠣コース\n【12月〜3月末頃まで冬期限定・要予約】税込4,840円\nお心待ちにしていただいているお客様、お知らせが中々できずに申し訳ございませんでした🙇\n近年は気候の影響もあり、12月中はほとんどの牡蠣がまだまだ大きく育っておらず、牡蠣の出荷量がとても少ないため仕入れ状況が定まりにくく、中々公開できずにおりました。始まったばかりの現時点では12月中はそういった状況が予想されるため、牡蠣コース提供スタートは12月10日(火)以降ですが、12月中はどうしても提供可能数に限りがございます。\n大きく育つ1月〜2月頃が一番旬の時期ですので、その頃のご予約をおすすめいたします。\nまた、シーズン期間中(特に週末)は予約多数で満席日が出てくることがございます。牡蠣料理やそれ以外の料理をお求めのお客様もお早めのご予約をお願いいたします📞\nご予約・お問合せはお電話にてお願いいたします😌\n紀北町 一冨士\n📞0597-32-0250","e":"","tg":["一冨士","牡蠣コース","牡蠣のフルコース","牡蠣料理","幻の牡蠣","渡利牡蠣","弘法牡蠣","汽水湖","白石湖","ゆらゆら帯"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ゆらゆら帯 (2024-12-08)","su":""},{"id":"OW-222","c":"food","t":"🌊⛰🥗⠀","x":"🌊⛰️🥗⠀\n風は北から南に吹いています🌬️⠀\n三重県#紀北町\n一富士さんから⠀\n『渡利牡蠣フルコース』のお便りです✉️⠀\n⠀\n#くまのこどうらへんグルメ の観光情報が気になった方は⠀\n＠around_kumanokodo をフォロー&いいね！をして⠀\nもらえると嬉しいです☺️⠀\n⠀\n#Repost  さんフォローお願いします🙏\n・・・\n紀北町 一冨士の冬期1番人気🦪\n(汽水湖で育った幻の弘法牡蠣)渡利牡蠣コース\n【12月〜3月末頃まで冬期限定・要予約】税込4,840円\nお心待ちにしていただいているお客様、お知らせが中々できずに申し訳ございませんでした🙇\n近年は気候の影響もあり、12月中はほとんどの牡蠣がまだまだ大きく育っておらず、牡蠣の出荷量がとても少ないため仕入れ状況が定まりにくく、中々公開できずにおりました。始まったばかりの現時点では12月中はそういった状況が予想されるため、牡蠣コース提供スタートは12月10日(火)以降ですが、12月中はどうしても提供可能数に限りがございます。\n大きく育つ1月〜2月頃が一番旬の時期ですので、その頃のご予約をおすすめいたします。\nまた、シーズン期間中(特に週末)は予約多数で満席日が出てくることがございます。牡蠣料理やそれ以外の料理をお求めのお客様もお早めのご予約をお願いいたします📞\nご予約・お問合せはお電話にてお願いいたします😌\n紀北町 一冨士\n📞0597-32-0250","e":"","tg":["紀北町","くまのこどうらへんグルメ","around_kumanokodo⠀","熊野古道⠀","伊勢路⠀","東紀州⠀","三重県⠀","三重観光⠀","三重旅行⠀","Repost"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ゆらゆら帯 (2024-12-22)","su":""},{"id":"OW-223","c":"tourism","t":"今シーズン４回目のSUPは、前から漕いでみたかった紀北町の赤羽川を海まで。","x":"今シーズン４回目のSUPは、前から漕いでみたかった紀北町の赤羽川を海まで。\n水深が浅い部分もあるので、マイSUPではなく、スクールのものを貸してもらいました。\nメインのフィンは外してあって、サイドフィンのみなので、ユラユラするし、空気圧も低くいれてあるのでチャプチャプして、漕ぎ味がいつもと全然違って、面白かった！\n\n海に出るあたりでは、海水と淡水が混じり合ったユラユラ帯。海水は川底に、淡水は上に。水温も全然違って、下があったかい。\n見え方はガムシロップを水に流したみたい。\n\n曇りだったのが本当に残念。\n光が入ったら、もっともっと綺麗だっただろうなー。まぁ、こればっかりは仕方ないけど。\nまた、ピーカンの日に来てみたい。\n\n川から海へ。2〜3キロくらい？\n面白かったー。\n列車が通るところを撮影できなかったのが心残り(笑)\n\n川にかかる最後の橋から向こうが、「海」と言われると、初めて知りました！","e":"","tg":["SUP","standuppaddleboard","赤羽川","紀北町","三重県","ゆらゆら帯","川から海へ","最後の橋の向こうは海","海が好きな人と繋がりたい"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ゆらゆら帯 (2025-06-21)","su":""},{"id":"OW-224","c":"nature","t":"ふらり日帰り旅in三重県","x":"ふらり日帰り旅in三重県","e":"","tg":["三重県","銚子川","川遊び","透明度","ゆらゆら帯","神川温泉","共同浴場"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ゆらゆら帯 (2025-06-28)","su":""},{"id":"OW-227","c":"food","t":"朝4時に起きてお弁当作って","x":"朝4時に起きてお弁当作って\n今これ！","e":"","tg":["銚子川","奇跡の清流銚子川","ゆらゆら帯","淡水と海水の境界線","めちゃくちゃ気持ちいい","今これ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ゆらゆら帯 (2025-08-04)","su":""},{"id":"OW-228","c":"food","t":"銚子川。ゆらゆら帯を撮影しに。尾鷲港河口の汽水地帯で、海水が下、淡水が上。その境目がユラユラする。","x":"銚子川。ゆらゆら帯を撮影しに。尾鷲港河口の汽水地帯で、海水が下、淡水が上。その境目がユラユラする。\n✨️見えないものが見える！奇跡の清流✨️NHKスペシャルで紹介されてた。場所は三重県紀北町。\n雨が降って、澄んだ水になり、かつ満潮近くの時間帯に見られるそう。陽の光が差し込んで。\n今日は11時頃満潮で、その時間近くに行ってきました。\nしかし、水中で撮れるカメラはむかーし使ってたKYOCERAのスマホしかなく、ソレで挑戦！\n②が動画。画素数が少なくクリアでない(^o^;\n揺れてるのはわかるが。。。\n画面上部の画像は水中から水面が映っているので鏡のように見えてしまってます。\nもっとクリアで見なければ、今度は自分も顔を川に入れて撮影しなきゃネ。","e":"","tg":["銚子川","銚子川ゆらゆら帯","銚子川ブルー","ゆらゆら帯","北牟婁郡紀北町","北牟婁郡","尾鷲港","海鮮丼","おわせお魚いちばおとと","尾鷲市"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ゆらゆら帯 (2025-09-14)","su":""},{"id":"OW-229","c":"tourism","t":"ゆらゆら帯の宇宙飛行士","x":"ゆらゆら帯の宇宙飛行士\n\n \n\n過去p","e":"","tg":["銚子川ブルー","ゆらゆら帯","truecolor_owase","尾鷲","紀北町","トゥルーカラー尾鷲","olympus","Mac","camera","Lightroom"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ゆらゆら帯 (2025-10-22)","su":""},{"id":"OW-230","c":"food","t":"2025年9月、三重県銚子川河川敷","x":"2025年9月、三重県銚子川河川敷\n\nゆらゆら帯（きすいいき）で遊びながらのキャンプ。\n川なのにクラゲやスズメダイとかが泳いでてすごく楽しい。\n\n夜は尾鷲のカツオ刺身とローストビーフをザクと一緒に。\n朝はベーコンエッグマフィンとビール。\n\n#kbcamp25 6GR","e":"","tg":["ウイングフォート","ゆらゆら帯","キャンプ飯","日本酒のあるキャンプ","kbcamp25"],"im":[],"s":"Instagram #ゆらゆら帯 (2026-02-21)","su":""},{"id":"OW-244","c":"tourism","t":"校長です👨‍🦳","x":"校長です👨‍🦳\n\n先日のソロ・デュオイベントではご参加ありがとうございました☺️\n\nキャンプを楽しまれている様子を撮影させて頂きましたのでご紹介させて頂きますね✨\n\n撮影ご協力ありがとうございました😌","e":"","tg":["三重県","紀北町","キャンプinn海山","キャンプイン海山","銚子川","リバーサイト","林間キャンプ","デュオキャンプ","林間サイト","ソロキャンプ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-10)","su":""},{"id":"OW-245","c":"tourism","t":"校長です👨‍🦳","x":"校長です👨‍🦳\n\n度々申し訳ありません💦\n\nソロ・デュオではちょっと写真間違いありました😅\nごめんなさいね。\n\nまた皆さんに会えるのを楽しみにしています😁\n\n撮影ご協力ありがとうございました🙂‍↕️","e":"","tg":["三重県","紀北町","キャンプinn海山","キャンプイン海山","銚子川","林間キャンプ","リバーサイト","ソロキャンプ","デュオキャンプ","林間サイト"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-10)","su":""},{"id":"OW-246","c":"tourism","t":"スタッフのトトロです🐷","x":"スタッフのトトロです🐷\n\n去年から雨がなく、渇水が続き→久しぶりの雨で少し水量が戻り→まとまった雨で増水\nと最近、目まぐるしく変化のあった銚子川ですが💦\nようやく水量も落ち着き、いつもの銚子川に戻った感じがします☺️\n\nリバーサイトの階段前、川の水が流れてる😀\nそんな、当たり前のような光景もなんだか久しぶりに感じて\n少し感動🥺\n\n水面まで来ると気になるのが水中の様子。\n少しカメラで覗いてみました🧐\n\nん～なんだか泳ぎたくなって来ちゃいます😂\n生き物の姿は確認できませんでしたが、これからアユの遡上が始まったり\nどんどん生き物たちも増えてきて、水中は賑やかになってくるんだと思います✨\n\n渇水時にご来場いただいた、利用者さまから『こんなに水がなくて、大丈夫😅❓』\nとご心配の声を頂きましたが、もう大丈夫だと思います☺️\n\nキャンプ場の目の前を流れる銚子川、いつもの景色が戻ってきましたよー😉","e":"","tg":["三重県","紀北町","キャンプinn海山","キャンプイン海山","リバーサイト","林間キャンプ","ファミリーキャンプ","ソロキャンプ","林間サイト","デュオキャンプ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-11)","su":""},{"id":"OW-247","c":"tourism","t":"こんにちは、スタッフちゃあ♪です","x":"こんにちは、スタッフちゃあ♪です\n本日、３/14（土）キャンプinn海山ご利用者さんにウェルカムサービスで【HAPPY!ホワイトチョコフォンデュ！】を開催😄\n\nホワイトデイキャンプ、楽しんでくださいね！～\nご参加頂いた皆様、ありがとうございました！","e":"","tg":["キャンプinn海山","キャンプインミヤマ","ホワイトデー","ホワイトチョコフォンデュ","チョコフォンデ","ホワイトチョコ","紀北町","銚子川","三重県","デュオキャンプ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-14)","su":""},{"id":"OW-248","c":"tourism","t":"こんにちは、スタッフちゃあ♪です","x":"こんにちは、スタッフちゃあ♪です\n三寒四温を繰り返しながら、春になってきていますね～♪\n\n３月の三連休、もう間もなくですがご予定はお決まりですか？\nキャンプinn海山で、三連休の中日２１日土曜日に開催イベントのご案内です。\n🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸\n『お花見キャンプ』\n場内のソメイヨシノが咲くエリアで、ワークショップやぜんざいの振る舞いをしますよ！\n無料で遊べるコーナーもありますので、是非遊びに来て下さいね♪\n日時：2026年3月21日（土）14:00～16:00\n会場：キャンプinn海山　木工アートひろば\n対象：キャンプinn海山利用者\n〇ワークショップ：おしゃれ鍋敷き（有料）　木工職人がマンツーマンで指導してくれるよ！15種類以上の樹種から好みの材を選んで作るオリジナル鍋敷き。キャンプでも、家でも使えるよ！\n〇ジャイアントウッドブロック　大人も子どもも夢中になれる！\n〇ぜんざいの振る舞い　15:00～（数量限定/無くなり次第終了）三重県東紀州エリアのぜんざいを召し上がれ♪\n🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸\n3連休、コテージ・オートキャンプサイト共に空きありますよ♪\nご予約・ご利用お待ちしております！","e":"","tg":["キャンプinn海山","キャンプイン海山","紀北町","三重県","銚子川","春キャンプ","鍋敷き作り","ワークショップ","花見キャンプ","お花見キャンプ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-15)","su":""},{"id":"OW-249","c":"tourism","t":"『親子自然体験 できワク！夢中のタネ』～遊びの原体験が子どもの未来をひらく～","x":"『親子自然体験 できワク！夢中のタネ』～遊びの原体験が子どもの未来をひらく～　\n\n真剣なまなざし、はじけるような笑顔\n自然の中で何かに没頭する子どもたちの姿は、私たち大人の心も動かしてくれます🥰\n\n澄んだ川の冷たさ。自分の手で何かを作り出す手応え。\n自然のフィールドの遊びを通じて得られる体験は、子ども達にとって大切な「夢中のタネ」になります。\n\nでも「子どもを自然の中で遊ばせたいけど、一歩踏み出せない」ママやパパがいらっしゃると思います。\n\nそんなママやパパの背中を押す親子自然体験プログラム『できワク・夢中のタネ』\n\n子どもが大好き！キャンプ場スタッフが道具に触ることから大冒険まで全力でサポート🎉。\n\n「最初の一歩」に迷うご家族の、ワクワクのアウトドアデビューに伴走します。\n\n【フォロワーの皆さまへ】\nいつもキャンプinn海山を応援してくださり、ありがとうございます😊。\n\n皆さんの周りに「アウトドアに興味はあるけど、迷っている」という親御さんはいませんか？\n\nもし顔が浮かんだら、ぜひこの投稿をストーリーズでシェアしたり、情報をシェアしていただけると嬉しいです。\n海山の自然が、次の世代の笑顔あふれる場所になりますように。\nプログラム詳細はプロフィールのリンクからどうぞ！😊","e":"","tg":["親子自然体験できワク！","親子自然体験","できワク！","キャンプinn海山","キャンプインミヤマ","紀北町","銚子川","三重県"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-16)","su":""},{"id":"OW-250","c":"food","t":"相変わらずの透明度🫥","x":"相変わらずの透明度🫥\n夏以外では初めての海山キャンプ🏕️\n肌寒くても川でエビ探し🦐\n化石も発見🐚\nキャンプ場は子どもたちが唯一火を扱える場所🔥\n100均スターターで着火するまでレベル上がってた😳\n夜はハイエースで大富豪♥️♠️♦️♣️\n1泊なのに24時間以上滞在⏳\n\n以前から行ってみたかった便石山へ⛰️\n想像以上の傾斜は正直ナメてた…💦\n親は足ブルブル🥶\n子どもは余裕🏃‍➡️\n象の背は天候に恵まれとても良い景色☀️","e":"","tg":["キャンプinn海山","象の背","ハイエースdx","ハイエース車中泊"],"im":[],"s":"Instagram #キャンプinn海山 (2026-03-16)","su":""},{"id":"OW-251","c":"tourism","t":"【できワク！親子ワーケーション開催！】","x":"【できワク！親子ワーケーション開催！】\n\nアウトドアって初めてで...どうしたらいいのかわからない...\nそんな方に！\n\n「できワク！親子ワーケーション」がキャンプinn海山で開催されます✨\n\n開催日時:4月18日〜19日\n場所:キャンプinn海山\n\n【子どもたちの「できた！」を、キャンプinn海山から】\n\n \n真剣なまなざし、はじけるような笑顔\n\n自然の中で何かに没頭する子どもたちの姿は、私たち大人の心も動かしてくれます。\n\n澄んだ川の冷たさ。自分の手で何かを作り出す手応え。\n\n自然のフィールドの遊びを通じて得られる体験は、子ども達にとって大切な「夢中のタネ」になります。\n\nでも「子どもを自然の中で遊ばせたいけど、一歩踏み出せない」ママやパパがいらっしゃると思います。\n\n \n\nそこでキャンプinn海山では、\n\n未就学～低学年の親子に特化した「自然体験の入り口」となる一泊二日のプログラムをスタートします！\n\n子どもが大好き！キャンプ場スタッフが道具に触ることから大冒険まで全力でサポート。\n\n「最初の一歩」に迷うご家族の、ワクワクのアウトドアデビューに伴走します。\n\n \n\n親子自然体験プログラム『できワク、夢中のタネ』\n\n \n\n「教える」のではなく、子どもが自ら「夢中」になる環境を整える。\n\nそんな、私たちのこだわりが詰まった内容です。\n\nぜひご参加ください✨","e":"","tg":["紀北町","キャンプinn海山","できワク親子ワーケーション","銚子川"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-18)","su":""},{"id":"OW-252","c":"tourism","t":"こんにちは。もりまりです🌳","x":"こんにちは。もりまりです🌳\n\n昨日からの雨もあがり、午後からは青空がひろがった海山です😊\n場内のソメイヨシノのつぼみも膨らみ、明日には開花宣言できそうです🌸🌸\n\nさて、明日からは三連休✨\nお天気も良く、あたたかくなりそうですね😄✌️\n今日も直前の問い合わせやご予約いただきましたが、コテージ、キャンプサイトともに当日予約もオッケー😊👌\nもちろん、気軽にデイキャンプ、日帰りバーベキュー（炭火焼ハウス利用）もおすすめ！！\n\n春を感じにぜひぜひお越しください😊🙌\nご来場をお待ちしています🙋","e":"","tg":["キャンプinn海山","キャンプイン海山","銚子川","紀北町","三重県","自然体験","林間キャンプ","デュオキャンプ","リバーサイト","林間サイト"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-19)","su":""},{"id":"OW-253","c":"tourism","t":"こんにちは。もりまりです🌳","x":"こんにちは。もりまりです🌳\n\n桜もポツポツと咲きはじめ、春の始まりを感じつつ三連休がスタートしました～😃✌\nみなさま、ご来場ありがとうございます😊🙌\n\n夕方、チェックインが終わったタイミングで校長先生👨‍🦳が撮影に📷✨\n撮影のご協力ありがとうございます😊🙌\n\n夕方になって少し冷えてきました。あたたかくして、ごゆるりと夜のキャンプ時間をお楽しみくださいね🔥\nそして明日は『お花見キャンプ』イベント🌸🌸\n「ぜんざいふるまい」、「おしゃれ鍋敷きワークショップ」などなど・・・。どうぞお楽しみくださいね～😊🫶","e":"","tg":["キャンプinn海山","キャンプイン海山","銚子川","紀北町","三重県","自然体験","林間キャンプ","ソロキャンプ","デュオキャンプ","ファミリーキャンプ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-20)","su":""},{"id":"OW-254","c":"tourism","t":"スタッフのトトロです🐷","x":"スタッフのトトロです🐷\n\n本日は、『お花見キャンプ』を開催しました🌸\n\n場内のソメイヨシノはまだ一分咲きといった感じでしたが🥲\n春らしい陽気の中☀️イベント会場ではおしゃれ鍋敷き作り、\nぜんざいのふるまいに巨大ウッドブロックなどの遊び場コーナーをご用意しました✨\n\n鍋敷き作りでは沢山の種類から好きな木材を４つ選んで、木工職人さんとマンツーマンで\n世界の１つだけのオリジナル鍋敷きを作りました😁\n本職が使用するカンナで削り、組み立て、最後はレーザープリントで焼き印まで😄\n初めて使う道具にドキドキ＆楽しみながら素敵な鍋敷きが出来上がってましたよ😉\n\nぜんざいはトトロのおばあちゃん手作りのものをふるまいました✨\n沢山の方が食べに来てくれて『美味しい☺️』と好評でした。\n\nウッドブロックでは家族で、場内で仲良くなった子供同士で盛り上がってました☺️\n大胆な子に、慎重な子…見てるだけでも楽しかった🤣\n\nサクラが満開じゃなかったのは、残念ですが😅会場では春のひとときを楽しんで\nもらえたかなーと思います☺","e":"","tg":["三重県","紀北町","キャンプinn海山","キャンプイン海山","リバーサイト","林間サイト","ファミリーキャンプ","デュオキャンプ","ソロキャンプ","アウトドア"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-21)","su":""},{"id":"OW-255","c":"tourism","t":"三重県紀北町にある「キャンプinn海山」で春キャンプ","x":"三重県紀北町にある「キャンプinn海山」で春キャンプ\n\n桜は一分咲き程度で来週が見頃かな？\n\n三連休の初日を景色のいい場所でのんびり\n\n焚き火を楽しむ","e":"","tg":["キャンプイン海山","キャンプinn海山","春キャンプ"],"im":[],"s":"Instagram #キャンプinn海山 (2026-03-22)","su":""},{"id":"OW-256","c":"tourism","t":"お天気に恵まれた三連休😊⛺","x":"お天気に恵まれた三連休😊⛺\n朝晩はすこし冷えたけど、日中は半そでのキャンパーさんも😲\nみなさま、ゆっくり過ごしていただけましたでしょうか？\nガソリン高騰な中でも行って良かったな～、リフレッシュできたな～、楽しかったな～と思っていただけていたら幸いです♡\nご利用ありがとうございました♬\n\n今日の写真はすべて三連休初日夕方に校長先生が撮影📷✨\n1枚目のキャンパーさんの目の前には、まだつぼみのソメイヨシノ桜😆🌸\n二日後の今日は1分咲き程度に咲き始めてますよ～😀✌\n春休みシーズン、これから桜も徐々に見頃を迎えていくと思います！\n海山でのお花見キャンプをどうぞお楽しみくださいね🙋✨","e":"","tg":["キャンプinn海山","キャンプイン海山","銚子川","紀北町","三重県","自然体験","林間キャンプ","デュオキャンプ","リバーサイト","林間サイト"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-22)","su":""},{"id":"OW-257","c":"tourism","t":"こんばんは。もりまりです🌳","x":"こんばんは。もりまりです🌳\n\n最近、山歩き目的なキャンパーさんが増えているな～と、山歩きが趣味のもりまりはうれしく思ってます😊🫶\n\n写真のグループさんは三連休中に利用いただきました✨\n林間エムサイトで山岳テント4張り⛺\n夕食は炭火焼ハウス利用で手軽にバーベキュー🍗\n炭火焼ハウスは準備も片付けも楽だし、荷物も少なく済むし、サイトではゆっくり休めて、山歩きキャンプの海山での上手な利用の仕方だと思います😊👍\n\nお声がけさせていただいたところ、チェックインの日は度会町の山を歩いて海山に到着。\n次の日の朝早くから、テントそのままで「便石山・象の背」登頂！\n下山し撤収、チェックアウト後に尾鷲市のオハイヘ😲\n\n一日にふたつのお山歩きとは・・・みなさんタフですね～👏👏\n撮影のご協力や山歩きセンパイのお話いろいろ聞かせていただきありがとうございました😊\n\nキャンプinn海山周辺には熊野古道も含め、魅力的な山歩きスポットがいっぱいです😊✌\nみなさん、山歩き🚶‍♀️×キャンプ⛺でのご利用お待ちしていま～す😀🙌","e":"","tg":["キャンプinn海山","キャンプイン海山","銚子川","紀北町","三重県","自然体験","林間キャンプ","林間サイト","リバーサイト","ソロキャンプ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-23)","su":""},{"id":"OW-258","c":"tourism","t":"キャンプinn海山で","x":"キャンプinn海山で\nこたつキャンプ","e":"","tg":["キャンプinn海山","こたつキャンプ","ジムニー","JB64","デュオキャンプ"],"im":[],"s":"Instagram #キャンプinn海山 (2026-03-23)","su":""},{"id":"OW-259","c":"tourism","t":"【イベント情報】","x":"【イベント情報✨】\n「親子自然体験 できワク！夢中のタネ」開催されます✨\n\n子どもたちのできた！」を、キャンプinn海山から　　　　　　　　　　　　　　　　\n真剣なまなざし、はじけるような笑顔\n自然の中で何かに没頭する子どもたちの姿は、私たち大人の心も動かしてくれます。\n\n澄んだ川の冷たさ。自分の手で何かを作り出す手応え。\n自然のフィールドの遊びを通じて得られる体験は、子ども達にとって大切な「夢中のタネ」になります。\n\nでも「子どもを自然の中で遊ばせたいけど、一歩踏み出せない」ママやパパがいらっしゃると思います。\n\nそこでキャンプinn海山では、\n未就学～低学年の親子に特化した「自然体験の入り口」となる一泊二日のプログラムをスタートします！\n子どもが大好き！キャンプ場スタッフが道具に触ることから大冒険まで全力でサポート。\n「最初の一歩」に迷うご家族の、ワクワクのアウトドアデビューに伴走します。\n\n親子自然体験プログラム『できワク、夢中のタネ』\n\n「教える」のではなく、子どもが自ら「夢中」になる環境を整える。\nそんな、私たちのこだわりが詰まった内容です。\n\n（１）開催日程\n　2026年4月18日(土) 10:30～19日(日) 12:45\n　（受付　９：３０～１０：１５）\n\n（２）場所\n　キャンプinn海山\n　519-3408 三重県北牟婁郡紀北町便ノ山271番地\n　\n（３）募集対象\n　４家族（最少催行：２家族）\n　家族の内訳イメージ：親１～２名・子ども１～２名　※最大５名まで\n　※上記の家族の内訳イメージと大きく異なる人数でのご参加についてはお問い合わせ下さい。\n\n（４）参加するお子さんの推奨年齢\n　３歳～小学校低学年\n\n（５）参加費（モニター参加価格）\n［基本料金］（大人１名＋子ども１名）28,800円\n［追加料金］子ども１名につき 9,000円／大人１名につき 10,000円\n　※上記金額には、宿泊費（コテージ１棟１泊２日）、食費（昼食２回分）、プログラム体験料を含みます。\n［料金例］大人１名・子ども２名での参加の場合：28,800円＋9,000円＝37,800円\n　※キャンプinn海山までの交通費は自己負担となります。\n\nできワクをより良いプログラムに育てていくために、終了後にアンケートにご協力頂ける方を対象としたモニター参加価格です。次回以降は通常価格でのご案内となります。\n\n（６）プログラム内容\n　①キャンプ道具にふれてみよう\n　　みんなでつくる、ぼくらの基地！テントの設営にチャレンジ！\n　②親子で銚子川大冒険\n　　ワクワクドキドキの自然体験・自分だけの発見を。\n　③火を楽しもう！\n　　薪をつくって焚き火をしよう！\n　④作るって楽しい！　食べるって楽しい！\n　　小さな「できた！」が、最高のごちそう\n　　アマゴのつかみ取り＆お昼ごはんづくり\n\n▼スタッフの想いとプログラム詳細\nhttps://camp-inn-miyama.com/dekiwaku/","e":"","tg":["三重県","いなか旅のススメ","自然体験","三重まるごと自然体験","紀北町","キャンプinn海山","キャンプイン海山","銚子川","ファミリーキャンプ","アウトドア"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-24)","su":""},{"id":"OW-260","c":"food","t":"こんにちは、スタッフちゃあ♪です。","x":"こんにちは、スタッフちゃあ♪です。\n本日は天気に恵まれているので好天時を狙った外作業をしています。\n\n場内水路にたまった土砂をかきだし…\nテントサイトやコテージ周りに生える樹木のかかり枝や枯れ枝を撤去したり。\n今日は、高所作業車でいつもお世話になってる川本さんにも出動していただけました！\n（いつもありがとうございます！）\n\n春休みはもうすぐ！\nオートキャンプサイト・コテージともにいつでも利用できるように準備していますよ♪\nとびこみも大歓迎で～す！","e":"","tg":["キャンプinn海山","紀北町","三重県","自然体験","リバーサイト","林間サイト","ファミリーキャンプ","ソロキャンプ","オートキャンプ","コテージ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #キャンプinn海山 (2026-03-24)","su":""},{"id":"OW-261","c":"tourism","t":"本日のショット📸","x":"本日のショット📸\n\n世界遺産ツヅラト峠 紀北町側登口にある石畳🪨\n数十年前までは埋もれて見えなかった石道ですが、\n掘り起こして発掘されました🙌\nツヅラト峠、荷坂峠は大紀町側から登ると\n下り道が多くなるのでオススメです♪","e":"","tg":["三重県","大紀町","紀北町","熊野古道","ツヅラト峠","世界遺産","石畳","自然","シダ","写真好きな人と繋がりたい"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_021_ishidatami_owasemichi.jpg","t":"石畳の尾鷲道","id":"WEB-121","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_028_kumano_kodo_daimon.jpg","t":"熊野古道大門坂","id":"WEB-128","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"大門坂"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/kodo_iseji_002_magose_stone_bridge.jpg","t":"石橋と石畳","id":"WEB-154","u":"https://www.kodo.pref.mie.lg.jp/course/08.html","li":"三重県公式（熊野古道伊勢路）","loc":"馬越峠"}],"s":"Instagram #ツヅラト峠 (2025-10-08)","su":""},{"id":"OW-262","c":"food","t":"11月2日に道の駅マンボウにて熊野古道秋まつりを開催致します","x":"11月2日に道の駅マンボウにて熊野古道秋まつりを開催致します\nみなさんのお越しをお待ちしております。","e":"","tg":["三重県","紀北町","紀伊長島","道の駅マンボウ","熊野古道","ツヅラト峠","秋まつり"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_021_ishidatami_owasemichi.jpg","t":"石畳の尾鷲道","id":"WEB-121","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_027_kumano_kodo_trail.jpg","t":"Kumano Kodo trail","id":"WEB-127","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"熊野古道"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_028_kumano_kodo_daimon.jpg","t":"熊野古道大門坂","id":"WEB-128","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"大門坂"}],"s":"Instagram #ツヅラト峠 (2025-10-16)","su":""},{"id":"OW-264","c":"food","t":"【古道秋まつりinツヅラト】","x":"【古道秋まつりinツヅラト】\n\n11月2日（日）道の駅紀伊長島マンボウの芝生広場にて、古道秋まつりinツヅラトが開催されます♪♪\n\n世界遺産熊野古道のツヅラト峠を歩いたり、kihoku戦隊アババインのショーなど、イベント盛りだくさんの1日‼️\n飲食ブースも多数出店予定で、あおさ汁のふるまいや、餅まきもありますよ〜‼️\n\nきーほくんも遊びに来るかも....❓\n\nぜひ皆さんお越しください✨\n\n※ツヅラト峠ウォークは定員を超えましたのでご了承ください※\n\n日時:11月2日 10時～15時（ツヅラト峠ウォークは8時30分から）\n場所:道の駅紀伊長島マンボウ 芝生広場","e":"","tg":["紀北町","道の駅紀伊長島マンボウ","ツヅラト峠","古道秋まつり"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ツヅラト峠 (2025-10-22)","su":""},{"id":"OW-265","c":"culture","t":"秋は歩こう。","x":"秋は歩こう。\n世界遺産・熊野古道を、紀北町内の“歩きやすい”4スポットに絞ってご紹介。\n石畳、森の匂い、海の眺め。はじめてでも楽しめるコース中心です。\n\n見どころ4選\n① ツヅラト峠：伊勢×紀伊の国境。九十九折の道と熊野灘の眺望。\n② 荷坂峠：道幅広めで歩きやすい。季節の植物＆沖見平の景色。\n③ 始神峠：明治の道と江戸の道が交差。紀伊の松島を一望。\n④ 馬越峠：伊勢路で人気。美しい石畳を存分に。\n\n歩いたら、温泉で整える。\n海風が抜ける露天風呂「きほく千年温泉」（ナトリウム塩化物泉）で\n湯冷めしにくく、芯からぽかぽか。旅の締めくくりにどうぞ。\n\nメモ\n・持ち物：滑りにくい靴、タオル、飲み水\n・天候・通行情報は事前にご確認ください\n\n保存して旅の計画に。\nご予約はプロフィールから。\n\n◆◆◆━━━━━━━━━━━━━━━━\n◆◆　ホテル季の座（ときのざ）\n◆━━━━━━━━━━━━━━━━━━\n\n📍三重県北牟婁郡紀北町\n　 東長島3043-4（城ノ浜）\n☎ 0597-46-2111（9時〜19時）\n🕒 チェックイン ：15:00〜\n　 チェックアウト：11:00\n🅿️ 100台あり（無料）\n🚙 紀伊長島ICから約10分\n🚃 JR紀伊長島駅から無料送迎あり\n　（事前連絡・宿泊者のみ）\n\n━━━━━━━━━━━━━━━━━━◆","e":"","tg":["季の座","きほく千年温泉","紀北町","熊野古道","世界遺産","三重旅行","ハイキング","トレッキング","馬越峠","ツヅラト峠"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/kodo_iseji_002_magose_stone_bridge.jpg","t":"石橋と石畳","id":"WEB-154","u":"https://www.kodo.pref.mie.lg.jp/course/08.html","li":"三重県公式（熊野古道伊勢路）","loc":"馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_021_ishidatami_owasemichi.jpg","t":"石畳の尾鷲道","id":"WEB-121","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_028_kumano_kodo_daimon.jpg","t":"熊野古道大門坂","id":"WEB-128","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"大門坂"}],"s":"Instagram #ツヅラト峠 (2025-10-22)","su":""},{"id":"OW-266","c":"food","t":"今年も紀伊民報と共同で「語り部と歩く熊野古道伊勢路ツアー」を企画しました。🚶‍♂🚌💨","x":"今年も紀伊民報と共同で「語り部と歩く熊野古道伊勢路ツアー」を企画しました。🚶‍♂️🚌💨\n\n今回は4回目、11月30日にツヅラト峠（紀伊と伊勢の境）を歩くコースです。\n \n ツヅラト峠は三重県中部にあり、昔はここが伊勢と紀伊（熊野）の境で、伊勢側から来ると、熊野の玄関となる峠です。\n\n晴れていれば峠から雄大な熊野灘を見ることができます。👀\n\n昼食は、駅弁で有名な「あら竹」のモー太郎弁当をご用意しております。🐮🐄🥩\n \n詳細は以下をご覧ください。\n\n●行先　　　ツヅラト峠（大紀町側から紀北町）\n●行程　　　紀伊民報　6時00発\n●定員　　　40名　※最少催行人数30名\n●旅行代金　一人15,000円　　　※昼食弁当付き\n●バス会社　　　龍神バス\n●添乗員　　同行します。\n●申込方法　\n　①申込フォーム　https://docs.google.com/forms/d/e/1FAIpQLSeK4vDlzIUk79sgqFhjdKkrl07WI6UOG7V_oZ6wSX3RRFerFg/viewform\n\n募集広告にはQRコード掲載しています\n　②メール　　info-kumano.jp\n　③FAX　　　募集広告の裏面が申込み用紙になっています。FAX番号0739-26-5820\n\n皆さまのご応募をお待ちしております👋\n\nhttps://www.agara.co.jp/sp/article/554215","e":"","tg":["語り部と歩く","伊勢路","三重県","紀北町","大紀町","ツヅラト峠","熊野古道","あら竹","紀伊長島","熊野トラベル"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_029_kumano_kodo_magose_sign.jpg","t":"Kumano Kodo Magose sign","id":"WEB-129","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_033_Kumano_Kodo.jpg","t":"Kumano Kodo (Magose pass route).JPG","id":"WEB-319","u":"https://commons.wikimedia.org/wiki/File:Kumano_Kodo_(Magose_pass_route).JPG","li":"CC BY-SA 4.0","loc":"尾鷲市馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_034_Kumano_Kodo.jpg","t":"Kumano Kodo (Magose pass route s3).JPG","id":"WEB-320","u":"https://commons.wikimedia.org/wiki/File:Kumano_Kodo_(Magose_pass_route_s3).JPG","li":"CC BY-SA 4.0","loc":"尾鷲市馬越峠"}],"s":"Instagram #ツヅラト峠 (2025-10-22)","su":""},{"id":"OW-268","c":"culture","t":"2025年11月2日(日)10:00-15:00","x":"2025年11月2日(日)10:00-15:00\n古道秋まつり in ツヅラト\n\n・午前は、ツヅラト峠ウォーク\n・午後は、あおさ汁のふるまい、餅まき、紀北町のヒーローアババインショー　など\n・飲食ブースも多数出展予定\n\n季の座からお車で約7分\n\n◆◆◆━━━━━━━━━━━━━━━━\n◆◆　ホテル季の座（ときのざ）\n◆━━━━━━━━━━━━━━━━━━\n\n📍三重県北牟婁郡紀北町\n　 東長島3043-4（城ノ浜）\n☎ 0597-46-2111（9時〜19時）\n🕒 チェックイン ：15:00〜\n　 チェックアウト：11:00\n🅿️ 100台あり（無料）\n🚙 紀伊長島ICから約10分\n🚃 JR紀伊長島駅から無料送迎あり\n　（事前連絡・宿泊者のみ）\n\n━━━━━━━━━━━━━━━━━━◆","e":"","tg":["季の座","きほく千年温泉","紀北町","熊野古道","世界遺産","三重旅行","ハイキング","トレッキング","ツヅラト峠","三重県イベント"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_002_Magose_Fudo_Waterfall.jpg","t":"Magose Fudo Waterfall.JPG","id":"WEB-288","u":"https://commons.wikimedia.org/wiki/File:Magose_Fudo_Waterfall.JPG","li":"CC BY-SA 4.0","loc":"尾鷲市馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_006_Magose_Fudoson_and_Fudo_Waterfall.jpg","t":"Magose Fudoson and Fudo Waterfall.JPG","id":"WEB-292","u":"https://commons.wikimedia.org/wiki/File:Magose_Fudoson_and_Fudo_Waterfall.JPG","li":"CC BY-SA 4.0","loc":"尾鷲市馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_021_ishidatami_owasemichi.jpg","t":"石畳の尾鷲道","id":"WEB-121","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"尾鷲市"}],"s":"Instagram #ツヅラト峠 (2025-10-26)","su":""},{"id":"OW-272","c":"food","t":"紀伊民報との共同企画ツアーで、熊野古道伊勢路ツヅラト峠を歩きました。","x":"紀伊民報との共同企画ツアーで、熊野古道伊勢路ツヅラト峠を歩きました。\n\n伊勢と紀伊（熊野）の境になる峠です。\n\n大紀町側の定坂小公園でバスを降りると語り部さんが出迎えてくれる\n\nこの辺に花山法皇の遥拝所があったと言われています。近露の牛馬童子像も花山法皇やでな🤔\n\n熊対策のため、みんな鈴🛎️つけて、チリンチリン鳴らしながら歩く🚶‍♂️‍➡️🐻\n\n峠道に入ると登りばっかり、高低差は約150m📈\n\n標高357mのツヅラト峠の頂上からは、熊野の山々と紀伊長島の市街地とその向こうには、熊野灘の景色が一面に広がる👀\n\nこの絶景をみたかったんや👀\n\n伊勢から旅してきた人は、初めて見る熊野の景色と海に感動したことでしょう🤩\n\nここからが紀伊\n\n真下には、昼食の弁当を食べるキャンプ場が見える。\n\nえっ、これ降りるの⁉️というぐらい真下😲\n\n1kmちょっとで、300mも下る📉\n\nえんえんとジグザグした下り坂が続く\n\nこれがツヅラト峠の名前の由来\n\n紀伊だけに、気いつけておりなあかん😆\n\nこれが紀伊の由来🤭　それはちゃう\n\nもう一つの見どころ「野面乱層積」\n\n自然の石を、隙間を開けて積むことによって、山からの水が通り抜けられるので、雨が降っても崩壊せずに今も残っているんやって\n\n降りたら、山を見上げる🙄\n\nあんな高いところから降りてきたんやな、改めて思う\n\nYAMAPを使って奇跡を辿ってたら、動画のような感じになりました。","e":"","tg":["熊野古道","伊勢路","ツヅラト峠","大紀町","紀北町","ヤマップ","YAMAP"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_029_kumano_kodo_magose_sign.jpg","t":"Kumano Kodo Magose sign","id":"WEB-129","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_033_Kumano_Kodo.jpg","t":"Kumano Kodo (Magose pass route).JPG","id":"WEB-319","u":"https://commons.wikimedia.org/wiki/File:Kumano_Kodo_(Magose_pass_route).JPG","li":"CC BY-SA 4.0","loc":"尾鷲市馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_034_Kumano_Kodo.jpg","t":"Kumano Kodo (Magose pass route s3).JPG","id":"WEB-320","u":"https://commons.wikimedia.org/wiki/File:Kumano_Kodo_(Magose_pass_route_s3).JPG","li":"CC BY-SA 4.0","loc":"尾鷲市馬越峠"}],"s":"Instagram #ツヅラト峠 (2025-12-01)","su":""},{"id":"OW-274","c":"tourism","t":"#ツヅラト峠の投稿","x":".\n🔻ツヅラト峠\n\n峠から紀伊長島の海が見える紀州への玄関口コース。名前の由来である九十九折の坂道に現れる石垣や木々の間の石畳で歴史を感じることができます。","e":"","tg":["三重県","東紀州","紀北町","熊野古道","熊野古道伊勢路","ツヅラト峠"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_021_ishidatami_owasemichi.jpg","t":"石畳の尾鷲道","id":"WEB-121","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_027_kumano_kodo_trail.jpg","t":"Kumano Kodo trail","id":"WEB-127","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"熊野古道"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_028_kumano_kodo_daimon.jpg","t":"熊野古道大門坂","id":"WEB-128","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"大門坂"}],"s":"Instagram #ツヅラト峠 (2025-12-16)","su":""},{"id":"OW-277","c":"food","t":"きほく仕事バンク","x":"✨きほく仕事バンク✨\n\n🔸お仕事の内容\n　【食堂の接客と調理補助】\n　　接客\n　　・注文伺い、後片付け\n　　・その他関連する業務全般\n\n　　調理\n　　・盛り付けや簡単な調理\n　　・食材の下処理、揚げ物の衣つけ\n　　・調理器具などの洗浄\n\n🔸雇用形態：パート\n\n週３～4日勤務できる方、歓迎！\n\n🔸給与：時給　1,087円\n　　　　（試用期間3ヶ月）\n\n🔸勤務時間　9：00～15：00\n　　　　　　　　　または\n　　　　　　8：00～14：00\n　　　　　　（休憩時間は30分）\n\n🔸休日：シフト制\n　　　　\n🔸保険：雇用保険・労災保険\n　※雇用保険は週20時間以上の方が対象\n\n🔸手当：通勤手当\n　※紀伊長島エリア以外に在住の方が対象\n\n🔸勤務地：道の駅\n　紀伊長島マンボウ内(食堂)\n　　三重県北牟婁郡紀北町東長島2410-73\n　\n💠応募方法💠\n　　　電話でお問合せください。\n\n　☎️  ０５９７－４７－００６６\n 　 \n  　    　担当：谷口（タニグチ）\n　　\n　　ギョルメ舎フーズ株式会社\n　　　〒519-3205\n　　　三重県北牟婁郡紀北町長島1719-22\n\n＼お気軽に問い合わせください！／😊😁🥰\n\n食堂では\n\n海鮮盛合丼や\n\nマンボウフライなどを\n\n食べることができます！🐟\n\n売り場では\n\n海・山・川の恵みを受けた\n\n名産品がズラリと並んでいます！🍱🦪🍊","e":"","tg":["三重県","伊勢","伊勢神宮","東紀州","紀北町","世界遺産","熊野古道","ツヅラト峠","銚子川","魚まち"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #ツヅラト峠 (2026-02-16)","su":""},{"id":"OW-341","c":"tourism","t":"大台山系　加茂助の頭","x":"大台山系　加茂助の頭\n紀北町船津から林道を走って、峠手前から明治の土倉古道にとりつく。\n山頂まで約2時間半。\n\n標高１３８０mの山頂付近からは、大台ケ原日出ヶ岳が間近に見えます。\n志摩半島、台高山脈の山々も見えて紀伊半島の大きさが体感できます。\n山、山、山、海、空\nそんな感じの風景です。\n\nやたらに上空飛行機が飛び交うのにびっくりしました。\n空路アプリがあるなら、飛行機ウォッチングで楽しめます。\n１５分の間に6機が飛び交っていました。","e":"","tg":["大台ケ原","土倉古道","大杉谷","加茂助の頭","飛行機ウォッチング","航空路","紀北町","ブナ林","絶景","リアス式海岸"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #九木崎 (2022-12-13)","su":""},{"id":"OW-393","c":"tourism","t":"象さんのしっぽと河津桜 〜便石山〜","x":"象さんのしっぽと河津桜 〜便石山〜\n\n2026.3.1  三重県北牟婁郡紀北町\n\n巨岩の背に立ち 春を呼ぶ？ 🕺\n\n三重の絶景  便石山へ\n\nそこにはスリル満点の巨岩と\nひと足早い春の便りが待っていました ✨\n\nビビりの私は\n象の背 ならぬ 象さんのしっぽ まで 😙\n\n下山後に迎えてくれたのは\nひと足早いピンクの微笑み 😍\n\n雪山とはまた違う\n春の訪れを感じる至福のひとときでした 👍","e":"","tg":["便石山","象の背","河津桜","種まき権兵衛の里","登山好きな人と繋がりたい"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_005_blossoms_toward_blue_sky.jpg","t":"Blossoms Toward Blue Sky","id":"WEB-165","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #便石山 (2026-03-08)","su":""},{"id":"OW-402","c":"tourism","t":"便石山　三重県紀北町〜尾鷲市","x":"便石山　三重県紀北町〜尾鷲市\n熊野古道 伊勢路馬越峠より\n\n念願の便石山、象の背と牛の背\n尾鷲の市街地や尾鷲湾が一望の超大絶景は想像以上で、\nそしてつい地球を押したくなりました。","e":"","tg":["便石山","熊野古道伊勢路","象の背","尾鷲市","自然のアート"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_021_ishidatami_owasemichi.jpg","t":"石畳の尾鷲道","id":"WEB-121","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/unsplash_001_kumano_kodo_forest_path.jpg","t":"Kumano Kodo forest path","id":"WEB-279","u":"https://unsplash.com/s/photos/kumano-kodo","li":"Unsplash License (free for commercial use)","loc":"尾鷲市/熊野古道"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_027_kumano_kodo_trail.jpg","t":"Kumano Kodo trail","id":"WEB-127","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"熊野古道"}],"s":"Instagram #便石山 (2026-03-21)","su":""},{"id":"OW-465","c":"tourism","t":"三重：便石山▲599（象の背）","x":"三重：便石山▲599（象の背）\nMBSよんチャンTVで紹介されたらしい","e":"","tg":["天狗倉山","よんチャンtv","登山","三重県紀北町","キャンプin海山"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_016_tengura_owase_bay.jpg","t":"Mt. Tengura and Owase Bay","id":"WEB-116","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"天狗倉山"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_039_tengura_owase_bay_2.jpg","t":"Mt. Tengura and Owase Bay 2","id":"WEB-139","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"天狗倉山"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_045_tengura_mountain.jpg","t":"Mt. Tengura","id":"WEB-145","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"天狗倉山"}],"s":"Instagram #天狗倉山 (2026-03-18)","su":""},{"id":"OW-467","c":"food","t":"2026/1/19📍天狗倉山","x":"2026/1/19📍天狗倉山\n\nえみっぺと三重県紀北町にある天狗倉山(522m)に行ってきたよ⛰️\n\n朝運転中に突然ハッと登山靴を家に忘れてきたことを思い出して手に汗握りながら引き返すかこのまま行くか考え、このまま行くことに🏃‍♀️\n\n所々歩きづらかったから靴の大切さを実感した😷\n\n熊野古道を歩きながら馬の背峠を目指し、そこから山頂を一回スルーして尾鷲湾が一望できるおちょぼ岩へ🪨\n\nほーーーーんとに遠かったし5月並の暑さだった😵‍💫\n\n天狗倉山は岩を梯子で登って山頂って感じ⛰️(ガクブル)\n\n下山して道の駅でカキフライ食べて道の駅にいる巨大マンボウと遊んで大内山牛乳ソフトクリーム食べてえみっぺが特大忘れ物をして１日が終わった☺️","e":"","tg":["熊野古道","紀北町","天狗倉山","尾鷲湾","おちょぼ岩"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_016_tengura_owase_bay.jpg","t":"Mt. Tengura and Owase Bay","id":"WEB-116","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"天狗倉山"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_039_tengura_owase_bay_2.jpg","t":"Mt. Tengura and Owase Bay 2","id":"WEB-139","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"天狗倉山"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_045_tengura_mountain.jpg","t":"Mt. Tengura","id":"WEB-145","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"天狗倉山"}],"s":"Instagram #天狗倉山 (2026-03-21)","su":""},{"id":"OW-469","c":"food","t":"【8日目 熊野古道歩き】古里温泉（紀北町）→相賀（紀北町）","x":"【8日目 熊野古道歩き】古里温泉（紀北町）→相賀（紀北町）\n※伊勢神宮から熊野大社までの熊野古道伊勢路を日を分けながら歩いています。目指せ！熊野速玉大社！プライベートな日記です。\n\n初の民宿宿泊は食事も美味しく、懐かしい匂いがする布団であたたかく寝られて快適でした。「いま旅をしている！！」という気持ちを強く感じられて良い経験になりました。また泊まりたい。。。\nこの日は、快晴の青空もとにかく風が強かった！日差しはあたたかいのに、風が吹くと寒いという…服装選びが難しかったです。\n\nさて、前日の遅れを取り戻すべく、朝からズンズンととにかく歩きます。きのうの曇り空ではわかりませんでしたが、とにかく青い海と空が美しい。海岸沿いを走る紀勢線の線路も映えていますね(笑)\nこの熊野古道旅は、特に鉄道ありきで始めたわけではないですが、結果的に紀勢線を歩き通す旅になっています。歩き鉄、とでも言いましょうか？\n\n古里の町を出てすぐの山道にある、サボ道展望台。ここからの海がまたキラキラ輝いてキレイ。ただのペットボトルの水もここで飲むだけでとても美味しく感じます。近くには落石注意の看板。どう注意して歩けばいいのか分からないので、早足で進む。\n\n前日は雨と曇り空で熊出没への恐怖心がかなり強かったものの、晴れているだけで、そんな不安もなんだか半減。春先は若いオスの熊が多いらしいです。どうかこのあとも出会いませんように。峠を越えて、人里に降りてきたときの達成感が、安心感に変わりつつあります(笑)\n\n三浦の町を経て、熊野古道の峠のなかでも人気の始神峠（はじかみとうげ）に入ります。登りがかなり急。1つ前の三浦峠でも、息がかなり上がってキツかったのですが…斜面が急なのか、体力が落ちたのか…。黙々と無心で脚を動かして、ただ登る。この無になれる瞬間がけっこう好きです。何も考えずに登るといつの間にか峠に着いていました。\n始神峠は熊野古道きってのビュースポットだそうで、峠から見える三浦の海と太平洋の青がこれまた美しい。江戸時代にはこの峠に茶屋もあったそう。息を切らしながらここまで上がってきて、峠で甘いものでも食べられたら、たしかに最高だっただろうなぁ。眼下には紀勢線も見えます。ちょうど通過したものの上手く捉えられず！！\n\n船津の町に入ってからは、しばらく紀勢線沿いを歩きます。日中のあまり列車もない時間なので、ぜんぜんすれ違いませんでしたが、線路が見えるだけでもテンションが上がります。（足はガクガクでしたが）途中の踏切の列車のシルエットに違和感をおぼえて思わずパシャリ(笑)\n\n昼食にお刺身定食と道中の和菓子屋さんの大福？を食べて満腹に。予定ではもうひと山越えて、尾鷲まで行こうとしていましたが…すでに19キロ歩いた足がかなり限界。きょうはここまで！よく歩きました。海山町ではもう桜が咲いていましたよ！\n\nその後、相賀駅から帰ってきましたが、付近の道しるべを見たところ「新宮まで70キロ」。気が付いたら半分を越えていました！伊勢神宮から96キロくらい。なんとなく始めた熊野古道ウォーキングですが、本当に踏破できそうでワクワクしています！","e":"","tg":["熊野古道","熊野古道伊勢路","kumano","kumanokodo","三浦峠","始神峠","紀伊長島","尾鷲","紀勢線","紀勢本線"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_033_Kumano_Kodo.jpg","t":"Kumano Kodo (Magose pass route).JPG","id":"WEB-319","u":"https://commons.wikimedia.org/wiki/File:Kumano_Kodo_(Magose_pass_route).JPG","li":"CC BY-SA 4.0","loc":"尾鷲市馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_034_Kumano_Kodo.jpg","t":"Kumano Kodo (Magose pass route s3).JPG","id":"WEB-320","u":"https://commons.wikimedia.org/wiki/File:Kumano_Kodo_(Magose_pass_route_s3).JPG","li":"CC BY-SA 4.0","loc":"尾鷲市馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_056_Magose_pass.jpg","t":"Magose pass.JPG","id":"WEB-342","u":"https://commons.wikimedia.org/wiki/File:Magose_pass.JPG","li":"CC BY-SA 4.0","loc":"尾鷲市馬越峠"}],"s":"Instagram #始神峠 (2025-03-19)","su":""},{"id":"OW-472","c":"tourism","t":"美鈴は、50周年を迎えることが出来ました。","x":"美鈴は、50周年を迎えることが出来ました。\nこれからも精進を重ねて参りますので、\n皆様のお越しを心よりお待ちしております。\n　\n上手く画面が表示出来なく、また、文章も重複しており、ご迷惑をおかけいたします。","e":"","tg":["美鈴","からすみ","紀伊長島","紀北町","東紀州","三重県","三重県観光","三重県旅行","小宿","和食"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #始神峠 (2025-04-01)","su":""},{"id":"OW-473","c":"tourism","t":"始神さくら広場","x":"始神さくら広場🌸\n\none of my favorite places to enjoy the combination of cherry  blossoms and ocean scenery","e":"","tg":["花見スポット","桜","紀北町","始神さくら広場","始神峠","cherryblossomviewing","cherryblossom","ocean"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #始神峠 (2025-04-02)","su":""},{"id":"OW-474","c":"tourism","t":"log0302","x":"log0302\n.\n.\n.\n.\n.\n始神峠から（熊野古道伊勢路）\nthe view from Hajikami pass ( Iseji, Kumano-Kodō )\n\n2+5+3=10daysの伊勢路を振り返る\n\n6日目に通った始神峠からの眺め。\n\n奥には海に浮かぶ島々、\n中央には三浦漁港、\n手前には1時間ほど前に休憩していた広場と発電所。\n\n🧭三重県紀北町\n📷X-S10 + XC15-45\n2025/03","e":"","tg":["始神峠","熊野古道","伊勢路","熊野古道伊勢路","三浦漁港","紀北町","世界遺産","kumanokodo","kumanokodoiseji","hyakkeime"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_033_Kumano_Kodo.jpg","t":"Kumano Kodo (Magose pass route).JPG","id":"WEB-319","u":"https://commons.wikimedia.org/wiki/File:Kumano_Kodo_(Magose_pass_route).JPG","li":"CC BY-SA 4.0","loc":"尾鷲市馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_034_Kumano_Kodo.jpg","t":"Kumano Kodo (Magose pass route s3).JPG","id":"WEB-320","u":"https://commons.wikimedia.org/wiki/File:Kumano_Kodo_(Magose_pass_route_s3).JPG","li":"CC BY-SA 4.0","loc":"尾鷲市馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_056_Magose_pass.jpg","t":"Magose pass.JPG","id":"WEB-342","u":"https://commons.wikimedia.org/wiki/File:Magose_pass.JPG","li":"CC BY-SA 4.0","loc":"尾鷲市馬越峠"}],"s":"Instagram #始神峠 (2025-04-13)","su":""},{"id":"OW-477","c":"tourism","t":"ーーー","x":"ーーー\n古道の右手にはどっしりとした山々、\n左手にはリアス海岸と島々。\n潮の香りの海岸や古い集落道、峠道を歩いて行く。\n\n古い時代には長島から尾鷲への乗船をすすめる船頭たちが待ち受けていた。だが、道中案内記や道中日記ではここでの乗船を固く止めている。\n荒海を行く危険を避け、道沿いの観音や八鬼山荒神堂などを詣でながら厳しい山道を歩むのがあるべき姿だったからだ。\n\n熊野古道 伊勢路をゆく。\n紀伊長島から始神峠を越えた。\n新宮までの旅も半分まで来た。","e":"","tg":["熊野古道","熊野古道伊勢路","紀伊山地の霊場と参詣道","紀伊長島","一石峠","三浦峠","始神峠","世界文化遺産","kumanokodo","kumanokodotrail"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_021_ishidatami_owasemichi.jpg","t":"石畳の尾鷲道","id":"WEB-121","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_027_kumano_kodo_trail.jpg","t":"Kumano Kodo trail","id":"WEB-127","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"熊野古道"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_028_kumano_kodo_daimon.jpg","t":"熊野古道大門坂","id":"WEB-128","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"大門坂"}],"s":"Instagram #始神峠 (2025-05-26)","su":""},{"id":"OW-478","c":"tourism","t":"#とら焼き といえば名店は沢山あると思いますが、私の好きなお店はたねやさんと","x":"#とら焼き といえば名店は沢山あると思いますが、私の好きなお店はたねやさんと\nこちらの菊屋さんのどら焼き〜😍😍\n生地はしっとり❗️\nあんこははちきれんばかりにたっぷり😋\n\nお店の近くまで行ったので立ち寄りました‼️\nするとどら焼きの隣に近くを流れる#清流 #銚子川 の鮎の様にまるまる太った鮎さんが…可愛かったのでついつい😋😋😋\n鮎さんのお腹の中は求肥でした❗️なので\n後味はサッパリしておりました‼️\nご馳走様でした😋\n\nどら焼きのお名前始神峠は近くの#熊野古道 の#始神峠 です\n\n#三重県#紀北町#菊屋 さん#和菓子屋 #和菓子#トイプードル #犬のいる暮らし","e":"","tg":["とら焼き","清流","銚子川","熊野古道","始神峠","三重県","紀北町","菊屋","和菓子屋","和菓子"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #始神峠 (2025-05-30)","su":""},{"id":"OW-485","c":"tourism","t":"#始神峠  好きな場所","x":"#始神峠  好きな場所\n#hc85系 特急南紀\n#紀北町  三重県","e":"","tg":["熊野古道","始神峠","hc85系","紀北町","紀伊の松島"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_021_ishidatami_owasemichi.jpg","t":"石畳の尾鷲道","id":"WEB-121","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_027_kumano_kodo_trail.jpg","t":"Kumano Kodo trail","id":"WEB-127","u":"https://openverse.org (Flickr CC)","li":"CC BY-SA 2.0","loc":"熊野古道"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_028_kumano_kodo_daimon.jpg","t":"熊野古道大門坂","id":"WEB-128","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"大門坂"}],"s":"Instagram #始神峠 (2026-01-08)","su":""},{"id":"OW-486","c":"food","t":"【出発確定】","x":"【出発確定】\n\n田辺発、語り部と歩く伊勢路ツアーのご案内です。\n\n紀伊民報と田辺市熊野ツーリズムビューローの共同企画です。\n\n今回のご案内するのは、3月29日（日）　紀北町の始神を歩くコースです。🚶\n\n見どころは、\n🌤️途中、熊野灘が見えるポイント👀\n🌸さくら広場で桜見物しながらのお弁当🍱\n🐟紀伊長島の魚町をめぐります。\n\n詳細は以下をご覧ください\n\n●日程　　　　　　　2026年3月29日（日）\n●行先　　　　　　　始神峠（三重県紀北町）\n●行程　　　　　　　紀伊民報　7時00発\n●旅行代金　　　　　お一人様15,000円　弁当付\n●バス会社　　　　　龍神バス\n●添乗員　　　　　　同行します\n●申込方法　　\n　①申込フォーム　\n\nhttps://docs.google.com/forms/d/e/1FAIpQLSe8mJKqQC5oduSm2dncE8bSfcsxT7CLFCJAYxt7iil_vaIyRg/viewform\n\n募集広告にはQRコード掲載しています。　\n\n　②メール　　　　info-kumano.jp\n\n　③FAX　　　　　募集広告の裏面が申込み用紙になっています。FAX番号0739-26-5820\n\n多数のご応募をいただいており、出発確定しました。\n\nみなさまのご参加をお待ちしております。\n\nhttps://www.agara.co.jp/goout/4994\n\nhttps://www.tb-kumano.jp/2026/03/02/14575/","e":"","tg":["伊勢路","田辺市熊野ツーリズムビューロー","紀北町","紀伊長島","語り部と歩く","熊野トラベル","紀伊民報","始神峠","龍神バス","熊野古道"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_029_kumano_kodo_magose_sign.jpg","t":"Kumano Kodo Magose sign","id":"WEB-129","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_045_tengura_mountain.jpg","t":"Mt. Tengura","id":"WEB-145","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"天狗倉山"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/kodo_iseji_001_magose_yonaki_jizo.jpg","t":"夜泣き地蔵","id":"WEB-153","u":"https://www.kodo.pref.mie.lg.jp/course/08.html","li":"三重県公式（熊野古道伊勢路）","loc":"馬越峠"}],"s":"Instagram #始神峠 (2026-03-08)","su":""},{"id":"OW-565","c":"food","t":"🌊⛰🥗⠀","x":"🌊⛰️🥗⠀ \n\n風は北から南に吹いています🌬️⠀ \n\n三重県#尾鷲市⠀ \n\n尾鷲商工会議所さんから⠀ \n\n『尾鷲イタダキ市』のお便りです✉️⠀ \n\n⠀ \n\n#くまのこどうらへんイベント の観光情報が気になった方は⠀ \n\n＠around_kumanokodo をフォロー&いいね！をして⠀ \n\nもらえると嬉しいです☺️⠀ \n\n⠀ \n\n#REPOST  さんフォローお願いします🙏\n 12月の尾鷲イタダキ市は２回開催！\n\n【1回目】\n12月 6日（土）9：00～13：00\n・🆕初出店あり\n\n【2回目】\n12月20日（土）9：00～13：00\n・太鼓披露あり\n・サンタクロースによるお菓子プレゼント🎅\n\n参加店舗・詳細は決まり次第、お知らせします。\nぜひお楽しみに😃🎶","e":"","tg":["尾鷲市⠀","くまのこどうらへんイベント","around_kumanokodo⠀","熊野古道⠀","伊勢路⠀","東紀州⠀","銚子川","滝原宮","オハイ","鬼ヶ城"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_015_onigajo.jpg","t":"鬼ヶ城（熊野市）","id":"WEB-365","u":"https://commons.wikimedia.org/wiki/File:Oniga-jo01.JPG","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #尾鷲イタダキ市 (2025-11-20)","su":""},{"id":"OW-578","c":"food","t":"本日土曜日より期間限定で販売中です","x":"本日土曜日より期間限定で販売中です🌸\nおいしいですよ☺","e":"","tg":["尾鷲グルメ","尾鷲カフェ","たい焼き","紀北町グルメ"],"im":[],"s":"Instagram #尾鷲グルメ (2026-02-28)","su":""},{"id":"OW-631","c":"food","t":"建設レポートPart4です☺見学会も予定していますのでお楽しみに♪","x":"建設レポートPart4です☺見学会も予定していますのでお楽しみに♪\n\nクレバリーホーム熊野店・新宮店では、お客様の理想が詰まったお家を実現したいと思っています。\nお客様と私たち、同じ目的を持ったパートナーとして、あなたの最適な「暮らし」を提案いたします。\n\nー・－・－・－・－・－・－・－\nクレバリーホーム熊野店＆新宮店\n　▼ プロフィールはこちら ▼\n\n【営業時間】\n9:00～18:00　水曜定休\n\n【熊野店】\n〒519-4325\n三重県熊野市有馬町 512-41\n\n【新宮店】\n〒647-0061\n三輪崎 1-4-5\n\n【問い合わせ・来店予約】\nHPからお願いします✨\nー・－・－・－・－・－・－・－","e":"","tg":["熊野市","尾鷲市","紀宝町","紀北町","新宮市","那智勝浦町","串本町","新築","マイホーム","住宅デザイン"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #尾鷲市 (2026-03-24)","su":""},{"id":"OW-634","c":"culture","t":"河津桜ツーリング","x":"河津桜ツーリング\n\n久しぶりのツーリングらしい事をしたので画像UP\n\n1 .2  尾鷲神社\n2.3  種まき権兵衛の里\n4.5  河村瑞賢公園\n\n宮リバー度会パークは、まだ蕾","e":"","tg":["河津桜","ツーリング","尾鷲神社","種まき権兵衛の里","河村瑞賢公園"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_city_7027.jpg","t":"尾鷲神社｜参道から河津桜を見上げる","id":"WEB-242","u":"https://photo.mie-eetoko.com/photo/7027","li":"三重フォトギャラリー（無料・商用OK）","loc":"shrine"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_city_7029.jpg","t":"尾鷲神社｜青空に向かって咲く河津桜","id":"WEB-243","u":"https://photo.mie-eetoko.com/photo/7029","li":"三重フォトギャラリー（無料・商用OK）","loc":"shrine"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_city_7031.jpg","t":"尾鷲神社｜青空が広がる河津桜の参道","id":"WEB-244","u":"https://photo.mie-eetoko.com/photo/7031","li":"三重フォトギャラリー（無料・商用OK）","loc":"shrine"}],"s":"Instagram #尾鷲神社 (2026-02-24)","su":""},{"id":"OW-656","c":"nature","t":"今回も遠征は、不発で終了😢","x":"今回も遠征は、不発で終了😢\n三重県から和歌山まで色々回った\n尾鷲の漁港で、明確な当たりが、\nあったのに物に出来ず\n5週連続ホゲ中(^^)\n来週は、近場にしとこ\n三重エギングは、春イカでリベンジします。","e":"","tg":["尾鷲漁港","引本浦","島勝浦","白浦漁港","5週連続ホゲってます","エギング","アオリイカ","三重エギング","紀伊長島漁港","孫と遊ぶ"],"im":[],"s":"Instagram #島勝浦 (2025-12-14)","su":""},{"id":"OW-661","c":"nature","t":"三重・島勝浦の愛昌丸でオニカサゴ釣り！👹","x":"三重・島勝浦の愛昌丸でオニカサゴ釣り！👹🐟\n\n水深80〜100m前後のオニカサゴにしては比較的ライトな水深で、40cmオーバーの良型が続々と浮上しました✨ 朝イチのラッシュの後は少し渋くなりましたが、針を小さくしたりエサのシルエットを抑える「引き算の釣り」で攻略成功！🎣最大45cmのビッグサイズが上がりました！\n\n釣った後は、刺身・しゃぶしゃぶ・煮付けのフルコース😋 \n実はオニカサゴはつりそく編集部も大好きな魚でとっても美味！\n市場にはなかなか出ない高級魚の味は、一度知ると病みつきになります。\n穏やかな船長と大型船で、冬の海でもゆったり楽しめる最高の1日でした。🚢\nシーズンはまだまだこれからなので、皆さんもぜひ、行ってみてください。","e":"","tg":["三重釣り","紀北町","愛昌丸","オニカサゴ","イズカサゴ","深場釣り","高級魚","釣りスタグラム","2026釣り","島勝浦"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #島勝浦 (2026-02-14)","su":""},{"id":"OW-669","c":"nature","t":"【三重・志摩〜尾鷲エリア】最新釣果まとめ（3月中旬）","x":"【三重・志摩〜尾鷲エリア】最新釣果まとめ（3月中旬）\n\n【三重・志摩〜南伊勢】\n三吉丸ではノマセ釣りで65cmの特大クロムツ、タイラバ・アマダイ便では50cm超のアマダイや乗っ込みマダイが浮上。大伸丸や光栄丸ではティップランで1kg超のアオリイカが狙えるほか、タイラバやジギングも有望な状況です。\n\n【紀北町・尾鷲】\nエヌテックマリンのレンタルボートでは1.6kgのアオリイカや57cmのマダイ、シロアマダイをキャッチ。筏マルキでは年無しチヌ、愛昌丸ではオニカサゴ等の根魚や五目釣りが楽しめます。真祐丸の半夜便はバチコンやイカメタルで出船中です。\n\n【周辺の磯】\nつりエサ市場の渡船情報では、54cmまでの大型チヌや45cm級のグレ、1.4kgのアオリイカが記録されており、非常に賑わっています。\n\n■浜島の釣り船、渡船\n大伸丸\n■五ヶ所湾・礫浦の釣り船\n三吉丸\n光栄丸\n■引本浦の釣り船、レンタルボート\nエヌテックマリン\n■島勝浦の釣り船、レンタルボート、筏\n愛昌丸（乗合船、仕立船）\n筏マルキ（仕立船、筏、レンタルボート）\n■尾鷲の釣り船\n真祐丸\n■大内山、尾鷲の釣具＆エサ店\nつりエサ市場","e":"","tg":["三重県","志摩","南伊勢","礫浦","浜島","紀北町","引本浦","島勝浦","尾鷲","三吉丸"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #島勝浦 (2026-03-21)","su":""},{"id":"OW-709","c":"culture","t":"【第49回・50回 ゲームミーティング開催！】","x":"【第49回・50回 ゲームミーティング開催！】\n\nみんなで集まって**「スマブラ」**で遊ぼう！\n初心者さんも大歓迎！\n※「スマブラをプレイする方」限定の参加となります🙇‍♂️\n\n💰 参加費について\n活動の継続と機材メンテナンスのため、会費制を導入いたします。\n• 初回の方：無料！\n• 2回目以降の方：500円\n\nモニターやUSBケーブルなどの機材が消耗し、長期的な継続が難しくなってきました。\n参加費は機材購入に充て、充実したゲーム体験やゲームを活用したプログラムを提供します。\n\n📸 お知らせ\n当日の様子を撮影し、後日SNSに掲載させていただきます。あらかじめご了承ください。\n\n世代や地域を越えたつながりを生み出すゲームミーティングを、これからも楽しんでいただけるよう続けていきます。ご理解・ご協力をお願いいたします🙇‍♂️","e":"","tg":["スマブラ","eスポーツ","東紀州","紀北町","地域活性化交流ekgamingclub"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #東紀州 (2026-03-04)","su":""},{"id":"OW-713","c":"tourism","t":"こんにちは、スタッフちゃあ♪です。","x":"こんにちは、スタッフちゃあ♪です。\n今週末14日（土）は、ホワイトデーですね～😉\n\nキャンプinn海山ではこの日限定で、『HAPPY!ホワイトチョコフォンデュ』を開催します。\nご来場の折は是非、召し上がってくださいね！\n\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊\n3月14日（土）14：30～15：00\n料金：無料\n場所：センターハウス\n対象：キャンプinn海山利用者\n※数量限定　無くなり次第終了\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊\nご来場をおまちしております🥰","e":"","tg":["ホワイトデー","ホワイトデイ","HAPPYホワイトチョコフォンデュ","キャンプinn海山","キャンプインミヤマ","紀北町","三重県","東紀州","銚子川"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #東紀州 (2026-03-09)","su":""},{"id":"OW-717","c":"industry","t":"#東紀州の投稿","x":"⁡","e":"","tg":["パシャリとキホク","紀北町","東紀州","釣り⁡"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #東紀州 (2026-03-14)","su":""},{"id":"OW-719","c":"nature","t":"新しいnote記事を公開しました。","x":"📘 新しいnote記事を公開しました。\n\n「レモンが一番好きだったんです。」\n\nそう語るのは、紀北町でマイヤーレモンを育てる 伊勢路レモン農園の代表・氏原翔平さん。\n\n地元に戻り、\n“この町で生きていく”ことを選んだ彼の言葉には、\n静かな覚悟がありました。\n\n🍋 「酸っぱいけど、まろやか！」なマイヤーレモン\n🌱 木を植える＝この土地で生きるという決断\n📚 本とレモンを通じて人がつながる場所づくり\n🎁 ふるさと納税で届く、小さな応援のかたち\n\n一箱のレモンの先にある、\nこの町の物語をぜひご覧ください。\n\n最新の記事はプロフィールのURLから！","e":"","tg":["紀北町","ふるさと納税","三重県","東紀州","レモン","マイヤーレモン","地域の魅力","地方創生"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #東紀州 (2026-03-17)","su":""},{"id":"OW-781","c":"food","t":"紀北町周遊ライド③","x":"紀北町周遊ライド③\n渡利牡蠣（一冨士さん）\n三重県北牟婁郡紀北町相賀\n2026.1.28\n\n少しでも暖かくて、穏やかな海が見れて、\n美味しい海鮮が食べれて、まだ行ったことのない所\n今回は、三重県北牟婁郡紀北町を走ることにしました😄🚴\n\nサイクリングコースは、\n「東紀州サイクリングポータルサイト」に紹介されている\n「紀北町周遊＋須賀利ルート」を参考にしました\n\n「道の駅紀伊長島マンボウ」発着で（前々投稿）、\n海岸線を走って（前投稿）折り返し地点の「相賀（あいが）」へ\n\nここは「幻の渡利牡蠣🦪」で有名なんですね😄\n海水と川の水が混じる汽水湖「白石湖」（pic.1)で育てられる\n「渡利牡蠣」今回はこれを食べたくて走ってきました🚴😅\n\nJR相賀駅の近くで相賀橋を渡ったところにある\n「一冨士」さんで頂きました\n迷わず「牡蠣コース」を注文。カウンター席です\n\nとは言うものの私は生牡蠣はあまり好きではないのです😅\nあの独特の生臭が苦手なんです\n\n汽水湖で育った「渡利牡蠣」は塩分が少なく甘味があると\n書いていたので期待していました\n\nまず「酢牡蠣」食べた瞬間思わず\n「生臭くないですね」と言ってしまいました\n「初めてですか？」とご主人が渡利牡蠣について\n詳しくお話ししてくれました\n周囲約4㎞の小さな「白石湖」で養殖されているので\n生産量が少なく地元以外には出回らないそうです\n「渡利」は白石湖周辺の地名です\n\nその後、「焼き牡蠣」、「牡蠣フライ」、「牡蠣鍋」、\n珍しい「牡蠣寿司」、「牡蠣豆腐」どれも美味しい\nほんと臭みがなく甘味旨味があります\n全部で20粒はあったと思います🦪 pic.2,3\n\n最後のデザート「自家製プリン🍮」これも美味しい\n大満足・満腹🫃の「渡利牡蠣 かきコース」でした😄\nこの時期土日は予約で一杯らしいです\nまた食べに来たいです\n\n食事中にご主人より教えて頂いた相賀に流れる\n「奇跡の清流 銚子川」に立ち寄りました\nNHKスペシャルでも紹介されたそうです\n橋の上からでも透明度が高いのが分かりますpic.4\nまたゆっくりさらに上流までライドしたいです\n\n渡利牡蠣を養殖している「白石湖」を一周して\n「太平洋岸自動車道（国道42号）」を走って\n「道の駅 紀伊長島マンボウ」に戻ります🚴〜\n\n満腹なので走るのがしんどい😂\n\n続く","e":"","tg":["渡利牡蠣","紀北町相賀","牡蠣コース","奇跡の清流銚子川","太平洋岸自動車道","ロードバイクおじさん","ロードバイク他府県遠征"],"im":[],"s":"Instagram #渡利牡蠣 (2026-01-31)","su":""},{"id":"OW-782","c":"food","t":"三重県南部に移住して約1年半。","x":"三重県南部に移住して約1年半。\nようやく幻の牡蠣である、紀北町の白石湖で養殖されている渡利牡蠣を食べる事が出来ました。\n渡利牡蠣は三重県の牡蠣の生産量の1%も無いそうです。\n妻が予約してくれて今回頂くことが出来ました。\n\n今回は、焼き牡蠣と鍋で頂くました。\n小柄な身に旨みがギュッと詰まっており、臭みも殆ど無くめちゃくちゃ美味しかったです。特に醤油バターが罪深いなと思いました。\n.\n.\n.","e":"","tg":["牡蠣","渡利牡蠣","三重県紀北町","海鮮","網焼き"],"im":[],"s":"Instagram #渡利牡蠣 (2026-02-01)","su":""},{"id":"OW-784","c":"food","t":"一富士山さんへ","x":"一富士山さんへ\n牡蠣づくし\n🦪🦪🦪🦪🦪大満足　フルコース❤️\nまた行きたい。11月〜3月までの期間みたいです","e":"","tg":["紀北町","渡利牡蠣","東紀州グルメ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #渡利牡蠣 (2026-02-11)","su":""},{"id":"OW-785","c":"food","t":"こんにちは、スタッフちゃあ♪です！","x":"こんにちは、スタッフちゃあ♪です！\n今週末、お出かけを計画中の方へ…。キャンプinn海山で季節の旬を召し上がるのはいかがですか？\n\n今月2月限定で「渡利牡蠣」を週末のみ予約販売中！生産量が少ないので幻の牡蠣と名高い紀北町名産品！スタッフも大好きな渡利牡蠣。ファンの方は毎年、渡利牡蠣を楽しみにしてくれています♪\n今週末も準備していますよ！是非この機会にご予約下さいね♪\n\n週末の旬の味！2つ目！バレンタインデーにちなんでウェルカムサービス【Happy チョコフォンデュ】で「チョコレートフォンデュ」をお召し上がりいただけます。こちらは予約不要2/14（土）14:30～15:00　センターハウスで行います。串に刺したマシュマロや果物にチョコをつけてお召し上がりいただけます♪\n\n週末はまだまだ、コテージ・キャンプサイト共に空きがあります♪\nご予約・ご来場、お待ちしております！","e":"","tg":["渡利牡蠣","牡蠣","幻の牡蠣","2月週末限定","ソロデュオキャンプキャンペーン","チョコフォンデュ","チョコレートフォンデュ","Happyチョコフォンデュ","キャンプinn海山","キャンプイン海山"],"im":[],"s":"Instagram #渡利牡蠣 (2026-02-12)","su":""},{"id":"OW-787","c":"food","t":"2026.2.14","x":"2026.2.14\n渡利牡蠣を食いに紀北町までひとっ走り。\n世古かき店で牡蠣食べ放題！\n牡蠣ご飯、牡蠣の吸い物、牡蠣の佃煮、カキフライが付いての焼き牡蠣食べ放題。\n1人3,500円\n\n焼き牡蠣も殻を剥いた状態で出してくれるのでものすごく食べやすいわけで。\n\n調味料は持ち込みなので、三酢、ポン酢、醤油、マヨネーズ、タルタルソース、ケチャップ、塩を持参。\n\n個人的に好きな三酢→タルタルソース&ケチャップのダブル→三酢に戻る、の無限ループで60個ほど焼き牡蠣を堪能。\n\n腹一杯食べても、すぐにまた食べたくなってくるぐらい、渡利牡蠣、やっぱり美味い！\n\nまた来年も必ず行くから。","e":"","tg":["三重県","紀北町","世古かき店","渡利牡蠣","食べ放題"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #渡利牡蠣 (2026-02-24)","su":""},{"id":"OW-788","c":"food","t":"地元の幻の渡牡蠣🦪","x":"地元の幻の渡牡蠣🦪\n\n弘法牡蠣🦪\n\nここ奥村牡蠣屋さんが❗️\n俺は1番☝️やな🦪　\n身入りも最高😀\n\n今月で終わりだそうで🦪\nまた来年もよろしくお願いします🦪😊","e":"","tg":["渡利牡蠣","🦪奥村牡蠣屋","紀北町白石湖"],"im":[],"s":"Instagram #渡利牡蠣 (2026-03-14)","su":""},{"id":"OW-790","c":"food","t":"三重県北牟婁郡紀北町の一冨士にて。","x":"三重県北牟婁郡紀北町の一冨士にて。\nかますバッテラと渡利牡蠣のかきフライ\n\n渡利牡蠣のシーズンが終わる前に！と思い、今年も一冨士さんへ。\nかますバッテラは透明感ある見た目で美しく、特にからしをつけるとかますと昆布の旨味が引き立ってとても美味しかったです。\nかきフライは揚げたてで旨味が凝縮されておりとても美味しかったです。\nとても良い雰囲気のお店で、気になるメニューもまだまだあるのでまた行きたい。","e":"","tg":["一冨士","かますバッテラ","渡利牡蠣","かきフライ","紀北町グルメ"],"im":[],"s":"Instagram #渡利牡蠣 (2026-03-22)","su":""},{"id":"OW-805","c":"food","t":"紀北町って知ってますか？（その１）","x":"紀北町って知ってますか？（その１）\n\nご縁をいただいて貴重な体験（モニターツアー）に行ってきました\n\n三重県の名古屋からはVISONの先、伊勢のお隣、尾鷲の手前に紀北町はあります\n\n世界遺産熊野古道伊勢路\n漁師町の海の幸\n尾鷲ひのきと紀州備長炭\nヒノキ職人と箸づくり\n\n今まで知らなかったけど\n素晴らしい場所でした\n\n熊野古道でも紀北町にある馬越峠は\n中でも比較的お気軽に歩けるようです\n以前から行ってみたいと思っていて\n石畳を歩いて　木々の間を歩く\n坂道で結構ハードである\n江戸時代にタイムスリップできる\n\n尾鷲ひのきで建てられた熊野古道センターで\nガイドさんが詳しく教えてくれて\n熊野古道の全容と歴史を知ることができた\n\n米の生育に向かないこの地域には\n尾鷲ひのきと紀州備長炭で年貢を納めるよう\n人工林が幕府の命で作られたそう\n\nお遍路コスプレが体験できて楽しかったし\n着物コスプレも男女共にあるようで\n次回はそれもいいなぁと思ったり\n紀州備長炭を叩いて音を奏でると\n金属のような音がするほど硬くて\n火もちのよい上質な炭であることがわかる\n\nノスタルジックな漁師町\n魚まちを語り部さんにご案内してもらった\n子供の頃によく食べたみりん干しを干してある店先を通り昔ながらの漁港やまちを探索\n実際に歩いてお話を聞く機会はなかなかない\n昔と今を知ることができとても楽しかった\n\n炭焼き職人を訪ねる\n窯出しは２週間に1回\nしかも時間はその時の炭次第\n今回ミラクルなことに立ち会うことができた\n赤く輝く備長炭の美しさに感動\n冷めると黒いダイヤモンド紀州備長炭となる\n\n貴重な炭で焙煎された珈琲は\n格別のお味でした\n\n宿　紀伊の松島さんでは港にあがったとれたての魚介づくしのお料理　はじめて　マンボウを刺身でいただいた　その２につづく〜","e":"","tg":["熊野古道伊勢路","紀北町","魚まち","紀州備長炭","尾鷲ひのき"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #熊野古道伊勢路 (2026-03-08)","su":""},{"id":"OW-828","c":"industry","t":"調査便","x":"調査便\n\n引本広進丸では\n調査便に行きたい方募集しています\n1人でも出船して\n1人　通常価格の半額にて出船しています\n新たな釣りや魚種など調査船で出たい方は\n相談してください\n内容によっては調査便で出せない場合があります\n\n連絡先\n\n引本広進丸　船長　野村　09078539160 まで\n\nお待ちしております🙇‍♂️\n\n実釣報告\n\n最近サルパが多く\n釣りにならない時が多いので\n\n今回は昼イカの調査便\n\nイカが釣れなかった場合の保険に\nノマセする事になり\nとりあえず餌にするアジ釣りに行く事になりました\n\nアジのポイントでサビキと落とし込み仕掛けを\n使ってのアジ釣り\n\nあれれ？\nアジも乗りが悪い……\n\nポイント変えてもイマイチ\n\n計7匹ゲットして本命の昼イカ釣りに\n\nポイントは110m〜130mに絞り魚探での散策\n\n魚探の反応が悪く\n砂地の中に点在するシモリ付近で実釣\n\nしかしアタリ無し\n\nもともと初めての昼イカ釣り🦑\n\n見極め早く\nあかんなって事で\n安定のノマセ釣りに変更\n\nん？\n\nノマセにもアタリが無い\n\n潮が早すぎるせいか？\n\nライト天秤も試してみるが\n潮が早すぎてオモリ100号を使用\nもはやライト天秤超えて普通の天秤釣り\n終盤になって\nやっとまともなアタリ\n\n釣れたのは40cm級のシロアマダイ\n\nこの後\nテップラン調査\nでも\nまたまたサルパの猛攻\n\nラインやガイドにもサルパがまとわり付く始末\n\n活き餌が残っていたので\nワンチャンで\n夕まずめのノマセ釣り\n\nその時\nノマセのアタリに船上がざわめく❣️\n上がって来たのは\nなんと\n外道定番のエソ…………\n\nこれで終了\n\nサルパのせいか\n全体的に渋々でした\n\n釣果\n\nシロアマダイ1匹\nアヤメカサゴ2匹\nエソ1匹でした","e":"","tg":["調査船","尾鷲沖","紀北沖","熊野灘","魚釣り"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_012_tategasaki.jpg","t":"楯ヶ崎（柱状節理）","id":"WEB-362","u":"https://commons.wikimedia.org/wiki/File:Tategasaki.jpg","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_013_tategasaki_panoramio.jpg","t":"楯ヶ崎（全景）","id":"WEB-363","u":"https://commons.wikimedia.org/wiki/File:楯ヶ崎_-_panoramio.jpg","li":"CC BY 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_014_kumanonada.jpg","t":"熊野灘","id":"WEB-364","u":"https://commons.wikimedia.org/wiki/File:熊野灘_-_panoramio_(1).jpg","li":"CC BY 3.0","loc":""}],"s":"Instagram #熊野灘 (2026-03-22)","su":""},{"id":"OW-832","c":"nature","t":"#iphone 風景","x":"#iphone 風景","e":"","tg":["種まき権兵衛の里","写真好き","iphone","風景","桜"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_021_tanemaki_gonbei.jpg","t":"種まき権兵衛の里","id":"WEB-371","u":"https://commons.wikimedia.org/wiki/File:Tanemaki_gonbei_no_sato_01.jpg","li":"Public domain","loc":""}],"s":"Instagram #種まき権兵衛の里 (2026-03-05)","su":""},{"id":"OW-833","c":"nature","t":"桜と一緒に🎵","x":"桜と一緒に🎵\n桜はちょびっとだけど麻衣ちゃんのお耳ぴーんが可愛いから採用🤭\n2026.2.23","e":"","tg":["チワワ","ブランバーズ","麻央麻衣","種まき権兵衛の里","河津桜"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_005_blossoms_toward_blue_sky.jpg","t":"Blossoms Toward Blue Sky","id":"WEB-165","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #種まき権兵衛の里 (2026-03-05)","su":""},{"id":"OW-834","c":"tourism","t":"2026.2.22(日)","x":"2026.2.22(日)\n種まき権兵衛の里\n\n早咲きの河津桜がちょうど見頃を迎えていました。","e":"","tg":["種まき権兵衛の里","銚子川","河津桜","三重県観光","紀北町"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #種まき権兵衛の里 (2026-03-07)","su":""},{"id":"OW-835","c":"culture","t":"種まき権兵衛の里","x":"種まき権兵衛の里\n両親を連れて遠出。\n喜んでもらえました。","e":"","tg":["種まき権兵衛の里"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_021_tanemaki_gonbei.jpg","t":"種まき権兵衛の里","id":"WEB-371","u":"https://commons.wikimedia.org/wiki/File:Tanemaki_gonbei_no_sato_01.jpg","li":"Public domain","loc":""}],"s":"Instagram #種まき権兵衛の里 (2026-03-08)","su":""},{"id":"OW-836","c":"nature","t":"#種まき権兵衛の里の投稿","x":".\n今年最初の桜🌸🌸🌸　\n\n \n今年も開花と天気の良いタイミングでツーリングに行けますように😍","e":"","tg":["河津桜","ducatimonster","桜","種まき権兵衛の里"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_005_blossoms_toward_blue_sky.jpg","t":"Blossoms Toward Blue Sky","id":"WEB-165","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #種まき権兵衛の里 (2026-03-08)","su":""},{"id":"OW-837","c":"nature","t":"#種まき権兵衛の里の投稿","x":".\n.\n.\n.\n2026.2.21 撮影","e":"","tg":["河津桜","種まき権兵衛の里","吊り橋","紀北町"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_021_tanemaki_gonbei.jpg","t":"種まき権兵衛の里","id":"WEB-371","u":"https://commons.wikimedia.org/wiki/File:Tanemaki_gonbei_no_sato_01.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #種まき権兵衛の里 (2026-03-08)","su":""},{"id":"OW-838","c":"nature","t":"#種まき権兵衛の里の投稿","x":".\n.\n.","e":"","tg":["河津桜","種まき権兵衛の里","アップ","春"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_005_blossoms_toward_blue_sky.jpg","t":"Blossoms Toward Blue Sky","id":"WEB-165","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #種まき権兵衛の里 (2026-03-08)","su":""},{"id":"OW-839","c":"nature","t":"#種まき権兵衛の里の投稿","x":"☆\n種まき権兵衛の里🌸","e":"","tg":["種まき権兵衛の里","河津桜","三重","kankomie","visitmie"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_005_blossoms_toward_blue_sky.jpg","t":"Blossoms Toward Blue Sky","id":"WEB-165","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #種まき権兵衛の里 (2026-03-10)","su":""},{"id":"OW-840","c":"nature","t":"春だらけ","x":"春だらけ\n満開の桜トンネル\n三重県紀北町にある「種まき権兵衛の里」\n2026/2/23","e":"","tg":["種まき権兵衛の里","紀北町","河津桜","visitjapan"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_021_tanemaki_gonbei.jpg","t":"種まき権兵衛の里","id":"WEB-371","u":"https://commons.wikimedia.org/wiki/File:Tanemaki_gonbei_no_sato_01.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #種まき権兵衛の里 (2026-03-11)","su":""},{"id":"OW-841","c":"nature","t":"河津桜を撮りに、紀北町にある種まき権兵衛の里へ。","x":"河津桜を撮りに、紀北町にある種まき権兵衛の里へ。\n雨上がりで満開で青空で、朝から気持ちの良いお花見でした。\nこの後は、志摩市にある大慈寺へ移動して河津桜巡り。","e":"","tg":["河津桜","種まき権兵衛の里","写真","私の花の写真"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_005_blossoms_toward_blue_sky.jpg","t":"Blossoms Toward Blue Sky","id":"WEB-165","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #種まき権兵衛の里 (2026-03-13)","su":""},{"id":"OW-842","c":"nature","t":"#種まき権兵衛の里の投稿","x":".\nポカポカ予報の週末..#haveaniceweekend \n.","e":"","tg":["haveaniceweekend","河津桜","種まき権兵衛の里","cherryblossom","写真撮ってる人と繋がりたい","三重桜","team_jp_","retrip_nippon","lovers_nippon","aoj_f1000"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_005_blossoms_toward_blue_sky.jpg","t":"Blossoms Toward Blue Sky","id":"WEB-165","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #種まき権兵衛の里 (2026-03-13)","su":""},{"id":"OW-843","c":"culture","t":"今年最初の桜は銚子川の河津桜です","x":"今年最初の桜は銚子川の河津桜です🌸\n昨年は3月末に足を骨折してしまい、桜の季節が活動出来なかったので今年は例年以上に頑張りたいと思います😊","e":"","tg":["銚子川の河津桜","種まき権兵衛の里","銚子川","三重県","紀北町"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #種まき権兵衛の里 (2026-03-14)","su":""},{"id":"OW-844","c":"nature","t":"#種まき権兵衛の里の投稿","x":"🌸\n\n河津桜はピンク色でとてもキレイ…\n何気ない瞬間を大事にしたい🫧","e":"","tg":["河津桜","桜","cherryblossomtree","子連れ車中泊","種まき権兵衛の里"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_005_blossoms_toward_blue_sky.jpg","t":"Blossoms Toward Blue Sky","id":"WEB-165","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #種まき権兵衛の里 (2026-03-15)","su":""},{"id":"OW-845","c":"nature","t":"先月納車された車で初ドライブの件🚘","x":"先月納車された車で初ドライブの件🚘\nいつもは生活圏のみを走ってます……🤭\n\nさぁ今日は「種まき権兵衛の里」へレッツゴー💨\nスマホ連動のナビに翻弄されながら\n無事に到着。予想はしてたけど\n河津桜は見事に葉桜になっていました🙄\n満開時なら素晴らしい景色だと思います🌸\nわかってたけどチョッピリ残念😅\n\n来年は満開時に来れます様に╰(*´︶`*)╯♡\n\n今日はお天気はいいけど結構風は強め……\n着るものに悩みました😆\n明日も風は強めみたいです‼️","e":"","tg":["新車で初ドライブ","種まき権兵衛の里","河津桜は終わり"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_021_tanemaki_gonbei.jpg","t":"種まき権兵衛の里","id":"WEB-371","u":"https://commons.wikimedia.org/wiki/File:Tanemaki_gonbei_no_sato_01.jpg","li":"Public domain","loc":""}],"s":"Instagram #種まき権兵衛の里 (2026-03-15)","su":""},{"id":"OW-846","c":"nature","t":"#種まき権兵衛の里の投稿","x":".\n『見上げれば』⁡\n⁡.⁡⁡⁡\n⁡実は今年一番最初の花見はここでした🌸⁡\n⁡朝は人も少なくて撮りやすい場所でした！⁡\n⁡上から撮るこの構図がお気に入り‪🫰\n⁡.⁡⁡⁡⁡⁡⁡⁡⁡\n⁡.\n.\n⁡Model ▹▸ \n.⁡⁡⁡⁡⁡⁡⁡⁡⁡⁡⁡\n.\n✄------------------------------------------------------------------✄\nCamera : EOS R5\nLens : Canon EF70-200mm F2.8L IS Ⅱ USM\n✄------------------------------------------------------------------✄\n.\n.\n⁡.⁡⁡⁡ ⁡⁡⁡⁡\n⁡#三重\n⁡#種まき権兵衛の里\n⁡#河津桜\n⁡#東京カメラ部","e":"","tg":["三重","kankomie⁡","種まき権兵衛の里","河津桜","東京カメラ部"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_005_blossoms_toward_blue_sky.jpg","t":"Blossoms Toward Blue Sky","id":"WEB-165","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #種まき権兵衛の里 (2026-03-16)","su":""},{"id":"OW-847","c":"nature","t":"前途多難な孫ポトレ🤣","x":"前途多難な孫ポトレ🤣\n\nあんなの撮りたい\nこんなの撮りたい。色々考えてましたが\n自由過ぎて困った👶笑\n\n一緒に桜が見れただけでよかったよねー🌸\n\n2026.2.22📷","e":"","tg":["河津桜","種まき権兵衛の里","三重県","sakura"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_005_blossoms_toward_blue_sky.jpg","t":"Blossoms Toward Blue Sky","id":"WEB-165","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #種まき権兵衛の里 (2026-03-19)","su":""},{"id":"OW-848","c":"industry","t":"2026年3月23日","x":"2026年3月23日\n\n今日の魚🐟","e":"","tg":["三重県","紀北町","紀伊長島漁港","長島魚市場","今日の魚"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #紀北町 (2026-03-23)","su":""},{"id":"OW-849","c":"food","t":"まだまだ高価ですが、鮮魚売りで残った大きめのアジを開きました‼🤩","x":"まだまだ高価ですが、鮮魚売りで残った大きめのアジを開きました‼️✨🤩\n魚体は細めですが、まあまあ脂のってます🎵\n身が透き通って綺麗です‼️✨😉\n\n#丸富 #干物 #三重 #紀北町 #紀伊長島 東紀州 新鮮 安い きいながしま港市 年末いながしま港市  始神テラス VISON 燦燦朝市 三重の干物","e":"","tg":["丸富","干物","三重","紀北町","紀伊長島"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #紀北町 (2026-03-23)","su":""},{"id":"OW-850","c":"industry","t":"2026時3月23日（月）","x":"2026時3月23日（月）\nこんにちは🌤️\n本日のレンタルボート釣果です🎣\nフカセ釣りは朝の内、潮が動いていて良く当たったそうですが後半は潮も止まり根魚ばかりに🐟\nアオリイカは逆に潮が止まってからの方が当たったそうです🦑\n本日もどうもありがとうございました😊","e":"","tg":["三重県","紀北町","カセ釣り","レンタルボート","石倉渡船"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #紀北町 (2026-03-23)","su":""},{"id":"OW-851","c":"industry","t":"2026年3月23日（月）","x":"2026年3月23日（月）\nこんばんは。\n本日のカセ釣り釣果です🎣\nしんちゃん　キビレ🐟\nエサ　ボイルオキアミ","e":"","tg":["三重県","紀北町","カセ釣り","レンタルボート","石倉渡船"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #紀北町 (2026-03-23)","su":""},{"id":"OW-852","c":"industry","t":"3月23日（月）　水温15.5℃","x":"3月23日（月）　水温15.5℃\n\n⚫︎三谷様\n17時まで\n場所：灯台前\n※ヤエン\n\nアオリイカ　910g頭に2杯\n\n水温少し上がりました！\n平日は空き多数あります！\nご予約お待ちしておりますm(_ _)m\n\n本日もありがとうございました！\n\nご予約・お問い合わせは 090 4199 7518まで\n※お電話は午後9時までにお願いします\n\n2号筏、3号筏に\nトイレ用の囲いの貸し出しをしています\n船頭が設置しますのでお気軽にお申し付けください♪\n\n※強風など天候により設置できない場合があります\nご了承くださいm（_ _）m","e":"","tg":["紀北町","白浦","光丸","光丸渡船","釣り"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #紀北町 (2026-03-23)","su":""},{"id":"OW-853","c":"food","t":"みりん干し用のサバがないので、エビ網で獲れたツバスでみりん干し作りました‼😆","x":"みりん干し用のサバがないので、エビ網で獲れたツバスでみりん干し作りました‼️✨😆\n脂は薄いですが、綺麗に出来ました🎵✨🤩\n\n#丸富 #干物 #三重 #紀北町 #紀伊長島 東紀州 新鮮 安い きいながしま港市 年末いながしま港市  始神テラス VISON 燦燦朝市 三重の干物","e":"","tg":["丸富","干物","三重","紀北町","紀伊長島"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #紀北町 (2026-03-24)","su":""},{"id":"OW-854","c":"food","t":"本日もありがとうございました🎶","x":"本日もありがとうございました🎶\n\n# いちえい #お弁当#紀北町#お昼ごはん #仕出し","e":"","tg":["お弁当","紀北町","お昼ごはん","仕出し"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #紀北町 (2026-03-24)","su":""},{"id":"OW-855","c":"industry","t":"2026年3月24日（火）","x":"2026年3月24日（火）\nこんにちは☀️\n本日のレンタルボート釣果です🎣\nマダイ🐟カワハギ🐟アジ🐟マイワシ🐟など\n本日もどうもありがとうございました😊","e":"","tg":["三重県","紀北町","カセ釣り","レンタルボート","石倉渡船"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #紀北町 (2026-03-24)","su":""},{"id":"OW-856","c":"industry","t":"令和8年3月24日","x":"令和8年3月24日\n名古屋市からお越しの小林さんの引本湾内天びんフカセ釣りでの釣果です❗🎣👍\nシロアマダイやカサゴ等を釣り上げました❗️🎣👍\n本日はどうも有難うございました😊\nお問い合わせ先\n引本港まさ丸(09014124177)にて\nお気軽にご連絡くださいね😊","e":"","tg":["三重県","紀北町","引本港まさ丸","船釣り","シロアマダイ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #紀北町 (2026-03-24)","su":""},{"id":"OW-857","c":"industry","t":"令和8年3月24日","x":"令和8年3月24日\n桑名市からお越しの関口さんの磯釣りでの釣果です❗🎣👍\n船島にて、口太グレ3cmにクロダイ45cmを釣り上げました❗🎣👍\n本日はどうも有難うございました😊\nお問い合わせ先\n引本港まさ丸(09014124177)にて\nお気軽にご連絡くださいね😊","e":"","tg":["三重県","紀北町","引本港まさ丸","磯釣り","口太グレ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #紀北町 (2026-03-24)","su":""},{"id":"OW-859","c":"culture","t":"#象の背の投稿","x":"","e":"","tg":["象の背","紀北町"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #象の背 (2026-03-14)","su":""},{"id":"OW-881","c":"nature","t":"早春#銚子川 #又口川","x":"早春#銚子川 #又口川","e":"","tg":["銚子川","又口川"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #銚子川 (2026-03-13)","su":""},{"id":"OW-882","c":"nature","t":"3／15日の三重県紀北町の銚子川","x":"3／15日の三重県紀北町の銚子川\n\n稚鮎の群れは、見えませんでした。\n早く遡上がないと、また瀬切れ状態になりそうな程の水量です。\n漁協の水量確保策に期待したいです。","e":"","tg":["三重","紀北町","銚子川","稚鮎遡上"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #銚子川 (2026-03-16)","su":""},{"id":"OW-883","c":"nature","t":"3／15日の三重県紀北町の銚子川","x":"3／15日の三重県紀北町の銚子川\n\n稚鮎の群れは、見えませんでした。\n早く遡上がないと、また瀬切れ状態になりそうな程の水量です。\n銚子川漁業協同組合の水量確保策に期待したいです。","e":"","tg":["三重","紀北町","銚子川","稚鮎遡上"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #銚子川 (2026-03-16)","su":""},{"id":"OW-884","c":"food","t":"2026.3.20","x":"2026.3.20\n久々、#紀北町 🥳\n#渡利かき 買って、#おわせ魚市場おとと  でヒルメシ😁","e":"","tg":["紀北町","渡利かき","おわせ魚市場おとと","熊野古道","銚子川"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #銚子川 (2026-03-21)","su":""},{"id":"OW-885","c":"food","t":"2026.3.20","x":"2026.3.20\n久々、#紀北町 🥳\n#渡利かき 買って、#おわせ魚市場おとと  でヒルメシ😁\n渡利かきは…じいちゃんもかつては養殖業やってたからなあ","e":"","tg":["紀北町","渡利かき","おわせ魚市場おとと","熊野古道","銚子川"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #銚子川 (2026-03-21)","su":""},{"id":"OW-886","c":"nature","t":"本日、初エリア 尾鷲 高丸。良い条件で楽しめました。ありがとうございました。","x":"本日、初エリア 尾鷲 高丸。良い条件で楽しめました。ありがとうございました。\nzeoliteGT　753ｍ　67分\n\n#尾鷲 高丸エリア\n#道の駅 海山","e":"","tg":["銚子川","スカイスポーツ","paraglider","尾鷲","尾鷲","道の駅","紀北町海山区","パラグライダー"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #銚子川 (2026-03-21)","su":""},{"id":"OW-887","c":"tourism","t":"桜丘生物部　春合宿　熊野古道と銚子川・紀北町の旅","x":"桜丘生物部　春合宿　熊野古道と銚子川・紀北町の旅\n日本一きれいだと言われる銚子川\n48人みんなで見学に😊","e":"","tg":["銚子川"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #銚子川 (2026-03-22)","su":""},{"id":"OW-888","c":"culture","t":"今年も銚子川アマゴ釣り大会が決定しました。","x":"今年も銚子川アマゴ釣り大会が決定しました。\n4月29日水曜日祭日\n毎度の事ですがゆるゆる大会なので皆さん遊びに来て下さい🙇","e":"","tg":["銚子川","アマゴ釣り","鮎釣り","鮎釣りガール"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #銚子川 (2026-03-23)","su":""},{"id":"OW-912","c":"tourism","t":"１時間早く家を出て、アポ前に大好きな銚子川へ。","x":"１時間早く家を出て、アポ前に大好きな銚子川へ。\n気になってた河津桜がもう少しで満開になりそうなタイミング。\n春ですなあー笑","e":"","tg":["銚子川","海山","河津桜","馬越峠","kankomie"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_004_clear_sky_cherry_path.jpg","t":"Clear Sky Cherry Path","id":"WEB-163","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #馬越峠 (2026-02-17)","su":""},{"id":"OW-913","c":"tourism","t":"行ってみたかった場所…像の背","x":"行ってみたかった場所…像の背\n乗ってきました♪\n昨年悪天候で中止からリベンジ\n次はキャンプもしてみたい🏕️\n銚子川の水が少なくて残念\n2026.2.15","e":"","tg":["便石山像の背","キャンプinn海山","銚子川ブルー","馬越峠","熊野古道"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_029_kumano_kodo_magose_sign.jpg","t":"Kumano Kodo Magose sign","id":"WEB-129","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_045_tengura_mountain.jpg","t":"Mt. Tengura","id":"WEB-145","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"天狗倉山"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/kodo_iseji_001_magose_yonaki_jizo.jpg","t":"夜泣き地蔵","id":"WEB-153","u":"https://www.kodo.pref.mie.lg.jp/course/08.html","li":"三重県公式（熊野古道伊勢路）","loc":"馬越峠"}],"s":"Instagram #馬越峠 (2026-02-18)","su":""},{"id":"OW-916","c":"tourism","t":"2026年2月21日、三重県紀北町に行って来ました。#便石山 山頂の#象の背 （巨大な一枚岩）です。ずっと行ってみ...","x":"2026年2月21日、三重県紀北町に行って来ました。#便石山 山頂の#象の背 （巨大な一枚岩）です。ずっと行ってみたかった場所です。登山ルートは2種類あり、#馬越峠 ルートは#熊野古道の石畳 を3時間半と健脚者向け、私は初心者ルートで2時間で登りました。筋肉痛になりました。","e":"","tg":["便石山","象の背","馬越峠","熊野古道の石畳"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_029_kumano_kodo_magose_sign.jpg","t":"Kumano Kodo Magose sign","id":"WEB-129","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"馬越峠"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/flickr_045_tengura_mountain.jpg","t":"Mt. Tengura","id":"WEB-145","u":"https://openverse.org (Flickr CC)","li":"CC BY 2.0","loc":"天狗倉山"},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/kodo_iseji_001_magose_yonaki_jizo.jpg","t":"夜泣き地蔵","id":"WEB-153","u":"https://www.kodo.pref.mie.lg.jp/course/08.html","li":"三重県公式（熊野古道伊勢路）","loc":"馬越峠"}],"s":"Instagram #馬越峠 (2026-02-23)","su":""},{"id":"OW-936","c":"nature","t":"本日の青木トラベル in South Koreaは、ソウルを離れ、春川市へ。韓国でも有名な氷の渓谷を訪れ、春川市が...","x":"本日の青木トラベル in South Koreaは、ソウルを離れ、春川市へ。韓国でも有名な氷の渓谷を訪れ、春川市が発祥と言われるタッカルビを名店で食します。フェリーに乗って、冬のソナタ（観たことないけど）のロケ地「南怡島」を訪れ、最後にライトアップされた韓国庭園へ向かいました。\n\n本日のスーパー嫁は…、雪が積もった階段に差し掛かり、「気を付けてね」と注意を促すと、「滑ったりしないよ？」と。「あっ、そう」と思った1秒後に、階段から滑り転げました。南怡島では、野生の孔雀（クジャク）に手を差し出して「hey！」と言った瞬間に、翼を広げて飛び掛かってこられ、「ギャーーーー！」と大声出して逃げ惑う。\n\n奇跡的に、全て動画に残っておりますので、必要な方は仰っていただけたら、LINEでお送り致します。","e":"","tg":["韓国","春川市","魚飛渓","タッカルビ","南怡島","冬のソナタ","孔雀","韓国庭園","ライトアップ"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""}],"s":"Instagram #魚飛渓 (2025-03-10)","su":""},{"id":"OW-937","c":"nature","t":"#紀北町 #海山 #銚子川 の #魚飛渓 。#吊り橋 があります。","x":"#紀北町 #海山 #銚子川 の #魚飛渓 。#吊り橋 があります。\n大台ヶ原を源とするこの #渓谷 は本州の河川屈指の透明度があります。いやしかし吊り橋の床まで透明度上げなくてもw グレーチングなので川がよく見えますね。揺れるし。なかなかスリリング。\n\n巨石の感じは、なんか奥三河、東栄あたりのイメージと被りますね。夏は遊ぶのに良さそうだなぁ。","e":"","tg":["紀北町","海山","銚子川","魚飛渓","吊り橋","渓谷"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_018_choshigawa_tengura.jpg","t":"銚子川（天狗倉山から）","id":"WEB-368","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_from_Mount_Tengura.JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #魚飛渓 (2025-03-12)","su":""},{"id":"OW-938","c":"tourism","t":"#魚飛渓 の #銚子川ブルー 。","x":"#魚飛渓 の #銚子川ブルー 。\n水底もしっかり見える。\n少し下流ではカヌー(カナディアン)借りて下れるようだった。昔、本栖湖でカヤックしたことあるが、空中に浮く、あの感じをこの川でも体験できそうな。","e":"","tg":["魚飛渓","銚子川ブルー"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""}],"s":"Instagram #魚飛渓 (2025-03-12)","su":""},{"id":"OW-939","c":"nature","t":"春休み②","x":"🌸春休み②🌸\n\n先週の日曜日☀️\n\n🌅朝日がきれいで✨\n\n🐟川もきれい✨\n\n3枚目 奇跡の清流『銚子川』\n\n上流から海までの透明度が高くて✨\n\n2007年，2011年　河川水質ランキング第1位🥇","e":"","tg":["春休み","朝日","サンライズ","銚子川","魚飛渓","紀北町","サイクリング","cycling","mtb","sun"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #魚飛渓 (2025-03-27)","su":""},{"id":"OW-940","c":"nature","t":"2025/03/01","x":"2025/03/01\n📍魚飛渓\n\n吊橋を渡った先(右手)\n以前は通れたのかな？\n今は立ち入り禁止となってます","e":"","tg":["iphone写真","iphone写真部","魚飛渓","魚飛吊橋","三重県","紀北町"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #魚飛渓 (2025-03-31)","su":""},{"id":"OW-941","c":"nature","t":"2025/03/01","x":"2025/03/01\n📍魚飛吊橋","e":"","tg":["iphone写真","iphone写真部","魚飛渓","魚飛吊橋","三重県","紀北町"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #魚飛渓 (2025-03-31)","su":""},{"id":"OW-942","c":"nature","t":"2025/03/01","x":"2025/03/01\n📍魚飛吊橋\n\n魚飛吊橋から綺麗な川が✨\n\n水が少ない時期でこんなに綺麗なら\nこれから水が多くなったら更に綺麗なんだろうなぁ","e":"","tg":["iphone写真","iphone写真部","魚飛渓","魚飛吊橋","三重県","紀北町"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #魚飛渓 (2025-03-31)","su":""},{"id":"OW-943","c":"nature","t":"還暦オヤジのebike旅","x":"還暦オヤジのebike旅\nday17　三重県南伊勢町　→　熊野市\n銚子川(魚飛渓)の清流と熊野の海岸散策\n\n魚飛渓は今回の旅で絶対行くと決めていた場所のひとつ\n日本でも有数の水の透明度と巨岩が作り出す多様な姿が見ていて飽きない。\n\n時間があったので熊野の海岸をぶらり。\n思ったよりダイナミックな景観です。\n\n今日の走行距離　100km\n累計　1421km","e":"","tg":["ebike","wabashrt","サイクリング","自転車旅","日本一周","銚子川","魚飛渓"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #魚飛渓 (2025-04-09)","su":""},{"id":"OW-944","c":"tourism","t":"桜咲く大台町〜魚飛渓〜船越海岸","x":"桜咲く大台町〜魚飛渓〜船越海岸\n\n今年初めてのツーリングに出かけました。\n三重県は山も海も川もあるので、景色が良く、道も空いてる。\n熊らしきものも出る。\n\nバイク乗りに行くには最高の場所です。","e":"","tg":["三重県","南紀","バイクツーリング","魚飛渓","高見峠","水曜日のツアラー","デザイン住宅","rplushouse"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""}],"s":"Instagram #魚飛渓 (2025-04-18)","su":""},{"id":"OW-945","c":"nature","t":"たまには川も#清流#魚飛渓","x":"たまには川も#清流#魚飛渓","e":"","tg":["清流","魚飛渓"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""}],"s":"Instagram #魚飛渓 (2025-05-29)","su":""},{"id":"OW-946","c":"nature","t":"#魚飛渓の投稿","x":"","e":"","tg":["魚飛渓","大台町","渓谷","吊り橋"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""}],"s":"Instagram #魚飛渓 (2025-06-29)","su":""},{"id":"OW-947","c":"nature","t":"【魚飛渓で、自然と、仲間と、心を育てる1日🌿】","x":"【魚飛渓で、自然と、仲間と、心を育てる1日🌿】\n\nhttps://youtu.be/KoL4fN625vE?si=BiGgaYnsdd5dwRds\n\n快晴の銚子川！\n朝早めの出発で渋滞もなくスムーズに現地へ🚌\n到着した瞬間から、目の前に広がる透明度バツグンの川にテンションMAX！\n\nでも今回は、ただ“自然で遊ぶ”んじゃなくて、“この場所で遊ばせてもらう”という気持ちを大切に🌱\n\n子ども達には、自然の豊かさと同時に、敬意を持って向き合うことを伝えました。\n\n冷たくて心地よい水、澄んだ空気、響く笑い声。\n最高のコンディションの中、午後からはシャワークライミングにもチャレンジ！\nチームで助け合いながら進むことで、仲間との絆がより深まった時間になりました✨\n\nこんな貴重な体験ができたのも、子ども達を送り出してくださる保護者の皆さまのおかげです。本当にありがとうございます☺️\n\n今日の様子はYouTubeにもアップしました📹\n今回は自然の音や子ども達の声を大切にしたくて、音楽は極力使わずに構成しました。\n川のせせらぎや足音、笑い声——現地の空気を感じてもらえるような仕上がりになっています🎒\nぜひご覧ください！","e":"","tg":["SACちびっ子教室","魚飛渓","シャワークライミング","自然体験","仲間と育つ","銚子川","子どもの育ち","アウトドア教育","感謝の気持ちを込めて","自然の音を届けたい"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #魚飛渓 (2025-08-01)","su":""},{"id":"OW-949","c":"nature","t":"夏旅弾丸……","x":"夏旅弾丸……\n.","e":"","tg":["熊野本宮大社","熊野那智大社","熊野速玉大社","七里御浜","鬼ヶ城","銚子川","魚飛渓","夏旅","コミ夏","川遊び"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_015_onigajo.jpg","t":"鬼ヶ城（熊野市）","id":"WEB-365","u":"https://commons.wikimedia.org/wiki/File:Oniga-jo01.JPG","li":"CC BY-SA 3.0","loc":""}],"s":"Instagram #魚飛渓 (2025-08-17)","su":""},{"id":"OW-951","c":"tourism","t":"#魚飛渓の投稿","x":".\n🔻銚子川\n\n日本屈指の透明度を誇り、潜らなくても川の底まで見ることができます。泳いでいる魚の姿もはっきり見え、その透明度の高さから奇跡の川と呼ばれることも。","e":"","tg":["東紀州","紀北町","銚子川","魚飛渓","熊野古道","馬越峠","キャンプinn海山","種まき権兵衛の里"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #魚飛渓 (2025-09-05)","su":""},{"id":"OW-952","c":"nature","t":"〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰","x":"〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️\n三重県紀北町にある、銚子川へDayCampに行ってきました✨\n海山ICから約20分\n水質もよくてトイレやゴミステーション等、完備されてましたよ✨\n今回は暑さもあったのですぐに設営できるFILEDOORさんのタープを設営しました⛺️\nこのテントタープ遮光PUコーティングが、とってもおすすめで遮光率100%でUVカットも99.8%で暑さ対策にも最適です😊\n我が家は2.5m×2.5m【サイドシート2枚】を使ってるよ✨\n※オプションでサイドシートも販売してます。\n〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️","e":"","tg":["filedoor","daycamp","三重県紀北町","魚飛渓","銚子川"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #魚飛渓 (2025-09-16)","su":""},{"id":"OW-953","c":"tourism","t":"お伽噺旅行　Part 3銚子川編(10/29)","x":"お伽噺旅行　Part 3銚子川編(10/29)\n1ヵ月以上経ってしまい💦\n今さら川の思い出も寒く感じますが😅\n記録しておこうと思います🍀\n\n\"奇跡の川\"と言われる銚子川へ\n\nまずは、種蒔き権兵衛の里へ\n権兵衛さんが種蒔きゃカラスがほじくると言う　\nこの地方の民話らしい📕\n\n実は、コギツネモカさんも、\nホリホリ大得意なのよぉ〜😚\n\n②この公園の銚子川❣️\nこの時期で誰もいないと寂しいものですね😅\n\nでも公園は快適で散歩出来ました♪\n\n⑤池で \"崖の上のポニョ\" 状態の鯉🐟\nウジョウジョ🫢\n\n⑥魚飛渓吊り橋\n⑦釣り橋のグレーチングが怖くて\nほふく前進🐾芋虫モカ🐛\nギブアップ🙌\n\n⑧銚子川上流行くも\n熊🐻出るかも看板🪧に\n少し遊んで、退散😨\n\n初めての銚子川でしたが\nやや不完全燃焼気味😕\n\n来年は、もっと探検して見つけて\n遊びましょう🩵","e":"","tg":["銚子川ブルー","銚子川で川遊び","種蒔き権兵衛の里","魚飛渓","コーギーと猫のいる暮らし","コーギー大好き","コーギーと猫とスローライフ","コーギー好きさんと繋がりたい"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""}],"s":"Instagram #魚飛渓 (2025-12-13)","su":""},{"id":"OW-954","c":"tourism","t":"【きほく発見アカデミーin魚飛渓】","x":"【きほく発見アカデミーin魚飛渓】\n\n紀北町の魅力を学ぶイベント「きほく発見アカデミー」\n第5回は魚飛渓を散策します✨\n\n魚飛渓には様々な奇岩や巨岩があり、水の流れによって侵食された部分や、形が変わっている様子を観察することができます🏞️\n\n今回のきほく発見アカデミーでは、川に沿ってE-BIKEで上流に移動しながら、川の様子を観察し、その後、魚飛生活環境保全林を散策していきます🎵\n保全林には、多種多様な植物や樹木が自生しており、その中で森林浴や、ネイチャーゲームなどをお楽しみください♪\n\n日時：2026年2月15日　12:00〜15:30\n\n料金：500円（保険料を含む）※現金のみ、当日お支払いください。\n\nルート：種まき権兵衛の里駐車場→魚飛吊橋（移動にE-BIKEを使います）→魚飛生活環境保全林一種まき権兵衛の里（終了は15：30）\n\n最後にコーヒーブレイクも予定しています。\n\n持ち物：飲み物・動ける服装・靴（保全林の中は寒くなっていますので上着や手袋も必要あればご持参ください）\n\n定員：3名\n\n申込：紀北町観光協会（TEL：0597-46-3555）\n\n※注意事項※\nE-BIKEを安全にご利用いただくため、身長150cm以下の方はお断りする場合がございます。\n\n参加前に必ず、レンタサイクル利用規約をお読みください。","e":"","tg":["きほく発見アカデミー","紀北町","魚飛渓"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","t":"銚子川の河口","id":"WEB-367","u":"https://commons.wikimedia.org/wiki/File:Choshi_River_(river_mouth).JPG","li":"CC BY-SA 4.0","loc":""}],"s":"Instagram #魚飛渓 (2026-01-30)","su":""},{"id":"OW-955","c":"nature","t":"#魚飛渓の投稿","x":"・\nちょっと息抜きで\n・\n種まき権兵衛の里の\n・\n河津桜を見に行ってきました\n・\nそのまま魚飛渓沿い県道760号を\n・\n走って尾鷲まで…\n・\n川の透明度にビックリ\n・\n新たな三重を発見できました\n・","e":"","tg":["銚子川","河津桜","種まき権兵衛の里","又口川","魚飛渓"],"im":[{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","t":"魚飛渓","id":"WEB-369","u":"https://commons.wikimedia.org/wiki/File:Uotobikei01.jpg","li":"CC BY-SA 3.0","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_020_uotobikei2.jpg","t":"魚飛渓（渓流）","id":"WEB-370","u":"https://commons.wikimedia.org/wiki/File:Uotobikei02.jpg","li":"Public domain","loc":""},{"p":"../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_002_kawazu_cherry_from_path.jpg","t":"Kawazu Cherry From Path","id":"WEB-160","u":"https://photo.mie-eetoko.com/city/owase/","li":"三重フォトギャラリー（無料素材）","loc":"尾鷲市"}],"s":"Instagram #魚飛渓 (2026-02-28)","su":""}];
+const HISTORY = [{"id":"HJ-001","era":"jomon","t":"","oc":"尾鷲周辺にも縄文遺跡あり。リアス式海岸の豊かな海産物は縄文人の食を支えた可能性。","x":""},{"id":"HJ-003","era":"yayoi","t":"","oc":"尾鷲は急峻な地形で平地が少なく、稲作には不向き。漁業・林業中心の生活が続いた理由を考える教材になる。","x":""},{"id":"HJ-008","era":"asuka","t":"","oc":"尾鷲沖は熊野灘の荒波で知られ、古来より航海の難所。遣唐使船も熊野灘を通った可能性がある。","x":""},{"id":"HJ-009","era":"nara","t":"","oc":"大仏建立に使われた木材の一部は紀伊半島から運ばれた可能性。尾鷲ヒノキの良材は古くから知られていた。","x":""},{"id":"HJ-012","era":"kamakura","t":"","oc":"九鬼水軍（HJ-047）の海戦能力は元寇の時代にも熊野水軍として活躍。水軍の伝統が戦国時代に花開く前史。","x":""},{"id":"HJ-014","era":"muromachi","t":"","oc":"京都の文化が地方に広がる過程で、熊野地方にも影響。熊野古道（HJ-048）を通じた文化伝播のルート。","x":""},{"id":"HJ-015","era":"sengoku","t":"","oc":"信長と九鬼嘉隆の関係（HJ-047）。信長が九鬼嘉隆を「日本一の水軍の将」と称えたエピソード。","x":""},{"id":"HJ-016","era":"sengoku","t":"","oc":"九鬼嘉隆の鉄甲船（HJ-047）は鉄砲対策の技術革新。鉄砲が海戦にも影響を与えた。","x":""},{"id":"HJ-017","era":"edo","t":"","oc":"尾鷲の林業（HJ-049）も持続可能な森林管理（密植多間伐）という江戸時代からの循環型技術。速水林業のFSC認証（OW-023）。","x":""},{"id":"HJ-018","era":"edo","t":"","oc":"尾鷲にも寺子屋があり、林業・漁業に必要な読み書き計算が教えられていた。紀州藩の教育政策。","x":""},{"id":"HJ-019","era":"edo","t":"","oc":"紀州藩の大名行列は紀伊半島を通過。尾鷲は海路の要所で、千石船の寄港地として栄えた（OW-010）。","x":""},{"id":"HJ-020","era":"edo","t":"","oc":"尾鷲は紀伊半島の海岸沿いに位置し、海上交通の要所。密貿易の可能性や、漂着外国人の記録も。","x":""},{"id":"HJ-022","era":"edo","t":"","oc":"尾鷲も台風・津波の被害を繰り返し受けてきた災害都市（OW-097）。災害と復興の歴史は尾鷲と江戸で共通のテーマ。","x":""},{"id":"HJ-023","era":"azuchi","t":"","oc":"信長に仕えた九鬼嘉隆（HJ-047）は安土城に招かれ信長から盃を受けた。","x":""},{"id":"HJ-024","era":"azuchi","t":"","oc":"秀吉の紀伊国再編で尾鷲は北牟婁郡に移管（OW-009）。秀吉の政策が尾鷲の行政区分を決めた。","x":""},{"id":"HJ-025","era":"edo","t":"","oc":"紀州藩の統治下で尾鷲は260年の安定を享受。林業・漁業が発展した背景（OW-008,010）。","x":""},{"id":"HJ-026","era":"meiji","t":"","oc":"尾鷲も明治の変化を経験。寺子屋から近代学校への移行。林業の近代化（西洋式測量技術の導入）。","x":""},{"id":"HJ-027","era":"meiji","t":"","oc":"尾鷲の林業も明治期に近代化。木材を海路で大都市に運ぶ仕組みは製糸場の生糸輸出と同じ殖産興業の流れ。","x":""},{"id":"HJ-029","era":"showa_pre","t":"","oc":"1944年東南海地震（HJ-050）は戦時下で発生し被害が秘密にされた。戦争が災害対応すら歪めた事例。","x":""},{"id":"HJ-030","era":"showa_pre","t":"","oc":"1944年東南海地震（HJ-050）は終戦の8ヶ月前に発生。戦争と自然災害の二重苦を経験した地域。","x":""},{"id":"HJ-031","era":"showa_post","t":"","oc":"尾鷲も戦後復興を経験。林業・漁業の再建。1944年東南海地震（HJ-050）からの二重復興。","x":""},{"id":"HJ-032","era":"showa_post","t":"","oc":"新幹線は東京-大阪間。尾鷲はまだ高速道路もつながっていない時期。都市と地方の格差が拡大した側面も。","x":""},{"id":"HJ-033","era":"showa_post","t":"","oc":"四日市ぜんそくは三重県四日市市で発生。同じ三重県として身近に感じられるテーマ。尾鷲の自然環境を守る意識との関連。","x":""},{"id":"HJ-034","era":"heisei","t":"","oc":"尾鷲は南海トラフ地震で最大津波高17m想定。片田教授が尾鷲でも防災教育を監修（OW-082）。向井小学校は津波避難場所に指定（OW-058）。","x":""},{"id":"HJ-039","era":"kamakura","t":"","oc":"九鬼氏の祖は鎌倉時代に既に志摩国に勢力を拡大していた（OW-007）。武士の時代の始まりと九鬼氏の台頭。","x":""},{"id":"HJ-040","era":"muromachi","t":"","oc":"熊野古道（HJ-048）の参詣が庶民にも広まった時代。「蟻の熊野詣」は室町時代から。","x":""},{"id":"HJ-042","era":"edo","t":"","oc":"黒船来航の情報は熊野灘の海岸にも伝わり、沿岸防備が議論された。","x":""},{"id":"HJ-043","era":"meiji","t":"","oc":"尾鷲は紀州藩から三重県に編入。行政区分の変更が地域アイデンティティに与えた影響。","x":""},{"id":"HJ-045","era":"taisho","t":"","oc":"関東大震災の復興で尾鷲ヒノキが注目された。尾鷲ヒノキの柱で建てた家が地震に強いと評判に。","x":""},{"id":"HJ-046","era":"sengoku","t":"","oc":"九鬼町は尾鷲市の中心的な歴史遺産（OW-007,080,094）。迷路のような路地は敵の侵入を防ぐ防衛構造の名残。九鬼嘉隆の生涯は尾鷲の誇り。","x":""},{"id":"HJ-047","era":"heian","t":"","oc":"馬越峠・八鬼山越えは尾鷲市内の世界遺産（OW-006,037）。石畳は尾鷲の豪雨に耐える設計。巡礼者の休息地・宿場としての尾鷲の歴史。","x":""},{"id":"HJ-048","era":"edo","t":"","oc":"尾鷲林業は尾鷲のアイデンティティそのもの（OW-008,015-018）。速水林業（OW-023）。向井小学校周辺の山林。","x":""},{"id":"HJ-049","era":"showa_pre","t":"","oc":"震源が尾鷲沖20km。尾鷲市の津波被害記録（OW-081）。南海トラフ地震への備え（OW-058,082,097）。向井小学校の防災教育の原点。","x":""},{"id":"HJ-050","era":"jomon","t":"","oc":"尾鷲の歴史（九鬼水軍・林業・災害）を4つの視点で分析する地域学習。","x":""},{"id":"HJ-051","era":"jomon","t":"","oc":"尾鷲の歴史を「比較」の軸にできる。「尾鷲の林業の400年」を江戸→明治→戦後→現代で比較するローカル通史。","x":""},{"id":"HJ-052","era":"jomon","t":"","oc":"「なぜ尾鷲に水軍が生まれたのか？」「なぜ尾鷲のヒノキは品質が高いのか？」地域の歴史を「なぜ」で掘り下げる。","x":""},{"id":"HJ-053","era":"jomon","t":"","oc":"「尾鷲の歴史が今の尾鷲にどうつながっているか」を考える。九鬼水軍→漁業の伝統、林業400年→FSC認証、東南海地震→防災教育。","x":""},{"id":"HJ-054","era":"jomon","t":"","oc":"尾鷲の歴史資料（九鬼氏家譜・紀州藩の記録・東南海地震の証言）を実際に読む地域学習。","x":""}];
+const CAT_ORDER = ["geography", "nature", "history", "culture", "food", "industry", "tourism", "people", "education", "society", "energy", "disaster", "archive", "modern"];
+const CAT_META = {"geography":{"n":"地理","i":"fa-solid fa-earth-asia","cl":"#5B7DB1","d":"三重県南部、海と山に囲まれたまち"},"nature":{"n":"自然","i":"fa-solid fa-leaf","cl":"#4A7C59","d":"熊野古道、原生林、多様な生態系"},"history":{"n":"歴史","i":"fa-solid fa-scroll","cl":"#8B7355","d":"九鬼水軍、熊野古道、千年の物語"},"culture":{"n":"文化","i":"fa-solid fa-masks-theater","cl":"#B85A7A","d":"尾鷲節、祭り、暮らしの風景"},"food":{"n":"食","i":"fa-solid fa-fish","cl":"#C8934A","d":"ブリ、さんま、ひもの、海の幸山の幸"},"industry":{"n":"産業","i":"fa-solid fa-anchor","cl":"#6B8E7B","d":"漁業、林業、養殖、深層水"},"tourism":{"n":"観光","i":"fa-solid fa-camera","cl":"#5B9BD5","d":"絶景スポット、温泉、トレッキング"},"people":{"n":"人物","i":"fa-solid fa-users","cl":"#7B68A8","d":"尾鷲を支えた人々の記録"},"education":{"n":"教育","i":"fa-solid fa-graduation-cap","cl":"#4A90C8","d":"校外学習、教材、学びの資源"},"society":{"n":"社会","i":"fa-solid fa-city","cl":"#6B7B8D","d":"人口、経済、まちづくり"},"energy":{"n":"エネルギー","i":"fa-solid fa-bolt","cl":"#D4A840","d":"再生可能エネルギー、深層水"},"disaster":{"n":"防災","i":"fa-solid fa-triangle-exclamation","cl":"#C45D5D","d":"東南海地震、津波、防災の知恵"},"archive":{"n":"アーカイブ","i":"fa-solid fa-box-archive","cl":"#8B7B6B","d":"歴史資料、記録写真"},"modern":{"n":"現代","i":"fa-solid fa-microchip","cl":"#5B8FA8","d":"現代産業、技術革新"}};
+const CAT_OVERVIEW = {"nature":{"imgs":["../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg"],"titles":["筏の後はこれ。","#ゆらゆら帯の投稿","奇跡の川 銚子川のゆらゆら帯。大潮のとき海水と真水が重なり合うことで出現する。銚子川の透明度と緩やかな流れが織りなす奇跡","#ゆらゆら帯の投稿","ふらり日帰り旅in三重県"]},"culture":{"imgs":["../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_019_uotobikei.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/kodo_iseji_002_magose_stone_bridge.jpg"],"titles":["撮影日2025.07.26🎇Canon📸R6 MarkⅡ","----","#きほく燈籠祭の投稿","こんにちは。僕の名前は西岡橙李（とうり）です。","秋は歩こう。"]},"food":{"imgs":["../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg"],"titles":["渡利牡蠣 — 白石湖で育つ幻の汽水カキ","紀北町 一冨士の冬期1番人気🦪","🌊⛰🥗⠀","朝4時に起きてお弁当作って","銚子川。ゆらゆら帯を撮影しに。尾鷲港河口の汽水地帯で、海水が下、淡水が上。その境目がユラユラする。"]},"industry":{"imgs":["../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_012_tategasaki.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg"],"titles":["#東紀州の投稿","調査便","2026年3月23日","2026時3月23日（月）","2026年3月23日（月）"]},"tourism":{"imgs":["../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg","../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg"],"titles":["久しぶりに銚子川に潜ってみた🤿","今シーズン４回目のSUPは、前から漕いでみたかった紀北町の赤羽川を海まで。","ゆらゆら帯の宇宙飛行士","校長です👨‍🦳","校長です👨‍🦳"]},"society":{"imgs":["../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg"],"titles":["東紀州の中心地・尾鷲と紀北広域連合 — 1市1町の広域行政"]},"energy":{"imgs":["../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/wikimedia_017_choshigawa_mouth.jpg"],"titles":["又口川旧発電所の歴史 — 尾鷲電気と大正期の水力発電"]}};
+
+// ═══ STATE ═══
+let activeCat = 'all';
+let searchQuery = '';
+let modalImgIdx = 0;
+let modalImgs = [];
+let heroIdx = 0;
+
+// ═══ HERO SLIDESHOW ═══
+const heroImgs = ["../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_052_otyoboiwa.jpg", "../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_052_otyoboiwa.jpg", "../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_001_benzaijima.jpg", "../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_052_otyoboiwa.jpg", "../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_052_otyoboiwa.jpg", "../文章_作業スペース/00_受信箱_Inbox/web_images_owase/images/miephoto_052_otyoboiwa.jpg"];
+if (heroImgs.length > 1) {
+  setInterval(() => {
+    heroIdx = (heroIdx + 1) % heroImgs.length;
+    const bg = document.getElementById('heroBg');
+    bg.style.opacity = '0';
+    setTimeout(() => {
+      bg.style.backgroundImage = `url(${heroImgs[heroIdx]})`;
+      bg.style.opacity = '1';
+    }, 800);
+  }, 6000);
+}
+
+// ═══ THEME ═══
+function toggleTheme() {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('owase-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+}
+if (localStorage.getItem('owase-theme') === 'dark') document.body.classList.add('dark');
+
+// ═══ CATEGORY BAR ═══
+function renderCatBar() {
+  const el = document.getElementById('catBar');
+  const counts = {};
+  DATA.forEach(r => counts[r.c] = (counts[r.c] || 0) + 1);
+  let html = `<button class="cat-pill ${activeCat==='all'?'active':''}" onclick="setCat('all')"><i class="fa-solid fa-grip"></i> すべて <span class="cnt">${DATA.length}</span></button>`;
+  CAT_ORDER.forEach(c => {
+    const m = CAT_META[c];
+    if (!m || !counts[c]) return;
+    html += `<button class="cat-pill ${activeCat===c?'active':''}" onclick="setCat('${c}')" style="${activeCat===c?`background:${m.cl};border-color:${m.cl}`:''}"><i class="${m.i}" style="font-size:12px"></i> ${m.n} <span class="cnt">${counts[c]}</span></button>`;
+  });
+  // History connection tab
+  if (HISTORY.length) {
+    html += `<button class="cat-pill ${activeCat==='history-connection'?'active':''}" onclick="setCat('history-connection')" style="${activeCat==='history-connection'?'background:#8B7355;border-color:#8B7355':''}"><i class="fa-solid fa-link" style="font-size:12px"></i> 歴史接続 <span class="cnt">${HISTORY.length}</span></button>`;
+  }
+  // Map view
+  html += `<button class="cat-pill ${activeCat==='map'?'active':''}" onclick="setCat('map')" style="${activeCat==='map'?'background:#5B7DB1;border-color:#5B7DB1':''}"><i class="fa-solid fa-map-location-dot" style="font-size:12px"></i> 地図</button>`;
+  el.innerHTML = html;
+}
+
+function setCat(c) {
+  activeCat = c;
+  renderCatBar();
+  renderContent();
+  window.scrollTo({top: document.querySelector('.content').offsetTop - 120, behavior: 'smooth'});
+}
+
+// ═══ SEARCH ═══
+function handleSearch(q) {
+  searchQuery = q.toLowerCase();
+  renderContent();
+}
+
+function matchSearch(r) {
+  if (!searchQuery) return true;
+  const hay = (r.t + ' ' + r.x + ' ' + (r.tg||[]).join(' ') + ' ' + r.c).toLowerCase();
+  return searchQuery.split(/\s+/).every(w => hay.includes(w));
+}
+
+// ═══ RENDER ═══
+function renderContent() {
+  const el = document.getElementById('mainContent');
+
+  if (activeCat === 'history-connection') {
+    renderHistoryView(el);
+    return;
+  }
+  if (activeCat === 'map') {
+    renderMapView(el);
+    return;
+  }
+
+  const filtered = DATA.filter(r => {
+    if (activeCat !== 'all' && r.c !== activeCat) return false;
+    return matchSearch(r);
+  });
+
+  document.getElementById('resultCount').textContent = filtered.length < DATA.length ? `${filtered.length}件` : '';
+
+  if (activeCat === 'all' && !searchQuery) {
+    // === OVERVIEW MODE: 館内案内 ===
+    const counts = {};
+    DATA.forEach(r => counts[r.c] = (counts[r.c] || 0) + 1);
+    const totalRecords = DATA.length;
+    const totalWithImg = DATA.filter(r => r.im.length > 0).length;
+
+    let html = `
+      <div class="concierge" id="conciergePanel">
+        <div class="concierge-title"><i class="fa-solid fa-compass" style="color:var(--accent)"></i> 尾鷲コンシェルジュ</div>
+        <div class="concierge-sub">尾鷲について何でも聞いてください。955件の記事から答えを探します。</div>
+        <div class="concierge-input-wrap">
+          <input type="text" class="concierge-input" id="conciergeInput" placeholder="例: 尾鷲で有名な食べ物は？" onkeydown="if(event.key==='Enter')askConcierge()">
+          <button class="concierge-send" onclick="askConcierge()"><i class="fa-solid fa-paper-plane"></i> 聞く</button>
+        </div>
+        <div class="concierge-courses">
+          <button class="concierge-course" onclick="askPreset('intro')"><i class="fa-solid fa-info-circle" style="font-size:12px"></i> 尾鷲ってどんなまち？</button>
+          <button class="concierge-course" onclick="askPreset('food')"><i class="fa-solid fa-utensils" style="font-size:12px"></i> おすすめグルメ</button>
+          <button class="concierge-course" onclick="askPreset('nature')"><i class="fa-solid fa-mountain-sun" style="font-size:12px"></i> 自然を歩く</button>
+          <button class="concierge-course" onclick="askPreset('history')"><i class="fa-solid fa-landmark" style="font-size:12px"></i> 歴史を辿る</button>
+          <button class="concierge-course" onclick="askPreset('disaster')"><i class="fa-solid fa-shield-halved" style="font-size:12px"></i> 防災を学ぶ</button>
+          <button class="concierge-course" onclick="askPreset('kids')"><i class="fa-solid fa-children" style="font-size:12px"></i> 子どもに見せたい</button>
+          <button class="concierge-course" onclick="askPreset('random')"><i class="fa-solid fa-shuffle" style="font-size:12px"></i> 今日のおすすめ</button>
+        </div>
+        <div id="conciergeResponse"></div>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-item"><div class="stat-num">${totalRecords}</div><div class="stat-label">ARTICLES</div></div>
+        <div class="stat-item"><div class="stat-num">${totalWithImg}</div><div class="stat-label">WITH PHOTO</div></div>
+        <div class="stat-item"><div class="stat-num">${CAT_ORDER.length}</div><div class="stat-label">CATEGORIES</div></div>
+        <div class="stat-item"><div class="stat-num">${HISTORY.length}</div><div class="stat-label">HISTORY LINKS</div></div>
+      </div>
+      <div class="overview-section">
+        <div class="overview-heading"><i class="fa-solid fa-map" style="color:var(--accent)"></i> 展示室一覧 <span>- クリックで各展示室へ</span></div>
+        <div class="overview-grid">
+    `;
+
+    // Large cards: food, nature, tourism, culture (top 4 by count)
+    const largeSet = new Set(['food','nature','tourism','culture']);
+
+    CAT_ORDER.forEach((c, idx) => {
+      const m = CAT_META[c];
+      const ov = CAT_OVERVIEW[c];
+      if (!m || !ov) return;
+      const cnt = counts[c] || 0;
+      const isLarge = largeSet.has(c) && idx < 7;
+      const imgs = ov.imgs || [];
+      const titles = ov.titles || [];
+
+      // Photo mosaic
+      let photoClass = 'single';
+      let photoCount = 1;
+      if (isLarge && imgs.length >= 4) { photoClass = 'quad'; photoCount = 4; }
+      else if (isLarge && imgs.length >= 3) { photoClass = 'trio'; photoCount = 3; }
+      else if (imgs.length >= 2) { photoClass = 'duo'; photoCount = 2; }
+
+      let photoHtml = '';
+      if (imgs.length > 0) {
+        photoHtml = `<div class="ov-card-photos ${photoClass}">`;
+        for (let i = 0; i < Math.min(photoCount, imgs.length); i++) {
+          photoHtml += `<img loading="lazy" src="${imgs[i]}" alt="">`;
+        }
+        photoHtml += '</div>';
+      } else {
+        photoHtml = `<div class="ov-card-photos single" style="background:var(--surface-dim);display:flex;align-items:center;justify-content:center"><i class="${m.i}" style="font-size:2.5rem;color:var(--text-dim);opacity:0.2"></i></div>`;
+      }
+
+      const titlesHtml = titles.slice(0, isLarge ? 5 : 3).map(t => `<span>${t}</span>`).join('');
+
+      html += `
+        <div class="ov-card${isLarge ? ' large' : ''}" onclick="setCat('${c}')">
+          ${photoHtml}
+          <div class="ov-card-body">
+            <div class="ov-card-top">
+              <div class="ov-card-icon" style="background:${m.cl}"><i class="${m.i}"></i></div>
+              <div class="ov-card-name">${m.n}</div>
+              <div class="ov-card-count">${cnt}</div>
+            </div>
+            <div class="ov-card-desc">${m.d}</div>
+            <div class="ov-card-titles">${titlesHtml}</div>
+            <div class="ov-card-enter">展示室に入る <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
+          </div>
+        </div>
+      `;
+    });
+
+    // History connection card
+    if (HISTORY.length) {
+      html += `
+        <div class="ov-card" onclick="setCat('history-connection')">
+          <div class="ov-card-photos single" style="background:linear-gradient(135deg,#8B7355 0%,#A0896A 50%,#6B5B4B 100%);display:flex;align-items:center;justify-content:center">
+            <i class="fa-solid fa-link" style="font-size:3rem;color:rgba(255,255,255,0.3)"></i>
+          </div>
+          <div class="ov-card-body">
+            <div class="ov-card-top">
+              <div class="ov-card-icon" style="background:#8B7355"><i class="fa-solid fa-link"></i></div>
+              <div class="ov-card-name">歴史接続</div>
+              <div class="ov-card-count">${HISTORY.length}</div>
+            </div>
+            <div class="ov-card-desc">6年社会科「日本の歴史」×尾鷲のつながり</div>
+            <div class="ov-card-titles">
+              <span>縄文〜現代の各時代と尾鷲の接点</span>
+              <span>九鬼水軍、熊野古道、尾鷲ヒノキ</span>
+            </div>
+            <div class="ov-card-enter">タイムラインを見る <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
+          </div>
+        </div>
+      `;
+    }
+
+    html += '</div></div>';
+    el.innerHTML = html;
+  } else if (activeCat === 'all' && searchQuery) {
+    // Search results flat grid
+    let html = `<div class="card-grid">${filtered.map(r => renderCard(r)).join('')}</div>`;
+    if (!filtered.length) html += `<div style="text-align:center;padding:60px;color:var(--text-dim);font-size:15px">該当する記事がありません</div>`;
+    el.innerHTML = html;
+    lazyLoad();
+  } else {
+    // Flat grid
+    let html = '';
+    if (activeCat !== 'all') {
+      const m = CAT_META[activeCat];
+      html += `<div class="room-header" style="margin-top:0">
+        <div class="room-icon" style="background:${m.cl}"><i class="${m.i}"></i></div>
+        <div class="room-info"><h2>${m.n}</h2><p>${m.d}</p></div>
+        <div class="room-count">${filtered.length}</div>
+      </div>`;
+    }
+    html += `<div class="card-grid">${filtered.map(r => renderCard(r)).join('')}</div>`;
+    if (!filtered.length) html += `<div style="text-align:center;padding:60px;color:var(--text-dim);font-size:15px">該当する記事がありません</div>`;
+    el.innerHTML = html;
+  }
+
+  // Lazy load images
+  lazyLoad();
+}
+
+function renderRoom(cat, meta, items) {
+  const showItems = items.slice(0, 9); // Show first 9
+  const hasMore = items.length > 9;
+  return `
+    <div class="room-header" id="room-${cat}">
+      <div class="room-icon" style="background:${meta.cl}"><i class="${meta.i}"></i></div>
+      <div class="room-info"><h2>${meta.n}</h2><p>${meta.d}</p></div>
+      <div class="room-count">${items.length}</div>
+    </div>
+    <div class="card-grid">${showItems.map(r => renderCard(r)).join('')}</div>
+    ${hasMore ? `<div style="text-align:center;margin:8px 0 24px"><button onclick="setCat('${cat}')" style="padding:8px 24px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--accent);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s" onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background='var(--surface)'">${items.length}件すべて見る <i class="fa-solid fa-arrow-right" style="font-size:12px;margin-left:4px"></i></button></div>` : ''}
+  `;
+}
+
+// Location detection from tags/title
+const LOC_NAMES = ['九鬼','馬越峠','三木里','賀田','弁財島','須賀利','梶賀','曽根','天狗倉山','便石山','八鬼山','向井','三木浦','古江','早田','大曽根浦','行野浦','中村山','熊野古道'];
+function detectLocation(r) {
+  const hay = r.t + ' ' + (r.tg||[]).join(' ');
+  // Check image location first
+  if (r.im.length && r.im[0].loc) return r.im[0].loc;
+  for (const loc of LOC_NAMES) {
+    if (hay.includes(loc)) return loc;
+  }
+  return '';
+}
+
+function renderCard(r) {
+  const m = CAT_META[r.c] || {n:'?',cl:'#888'};
+  const imgHtml = r.im.length
+    ? `<img class="card-img" loading="lazy" data-src="${r.im[0].p}" alt="${r.t}" onerror="this.parentElement.innerHTML='<div class=card-img-placeholder><i class=\'${m.i}\'></i></div>'">`
+    : `<div class="card-img-placeholder"><i class="${m.i}"></i></div>`;
+  const imgCount = r.im.length > 1 ? `<span style="position:absolute;top:8px;right:8px;font-size:11px;background:rgba(0,0,0,0.5);color:#fff;padding:1px 7px;border-radius:4px"><i class="fa-solid fa-images" style="margin-right:3px"></i>${r.im.length}</span>` : '';
+  const loc = detectLocation(r);
+  const locBadge = loc ? `<span style="position:absolute;bottom:8px;left:8px;font-size:10.5px;background:rgba(0,0,0,0.55);color:#fff;padding:2px 8px;border-radius:4px;backdrop-filter:blur(4px);display:flex;align-items:center;gap:3px"><i class="fa-solid fa-map-pin" style="font-size:9px"></i>${loc}</span>` : '';
+  const excerpt = r.x.slice(0, 120) + (r.x.length > 120 ? '...' : '');
+  const tags = (r.tg || []).slice(0, 4).map(t => `<span class="card-tag">${t}</span>`).join('');
+  return `<div class="card" onclick="openModal('${r.id}')">
+    <div style="position:relative">${imgHtml}${imgCount}${locBadge}</div>
+    <div class="card-body">
+      <span class="card-cat" style="background:${m.cl}">${m.n}</span>
+      <div class="card-title">${r.t}</div>
+      <div class="card-excerpt">${excerpt}</div>
+      ${tags ? `<div class="card-tags">${tags}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ═══ HISTORY VIEW ═══
+function renderHistoryView(el) {
+  document.getElementById('resultCount').textContent = '';
+  let html = `
+    <div class="room-header" style="margin-top:0">
+      <div class="room-icon" style="background:#8B7355"><i class="fa-solid fa-link"></i></div>
+      <div class="room-info"><h2>日本史と尾鷲の接続</h2><p>6年社会科「日本の歴史」各時代と尾鷲のつながり</p></div>
+      <div class="room-count">${HISTORY.length}</div>
+    </div>
+    <div class="timeline">`;
+  HISTORY.forEach(h => {
+    html += `<div class="timeline-item">
+      <div class="timeline-era">${h.era || '?'}</div>
+      <div class="timeline-body">
+        <h4>${h.t}</h4>
+        <p style="color:var(--accent);font-weight:600;font-size:13px;margin-bottom:4px">尾鷲との接続</p>
+        <p>${h.oc}</p>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ═══ MODAL ═══
+function openModal(id) {
+  const r = DATA.find(d => d.id === id);
+  if (!r) return;
+  const m = CAT_META[r.c] || {n:'?',cl:'#888'};
+
+  // Gallery
+  modalImgs = r.im;
+  modalImgIdx = 0;
+  renderGallery();
+
+  // Body
+  let bodyHtml = `
+    <span class="modal-cat-badge" style="background:${m.cl}">${m.n}</span>
+    <div class="modal-title">${r.t}</div>
+    <div class="modal-content">${r.x}</div>
+  `;
+
+  if (r.e) {
+    bodyHtml += `<div class="modal-section">
+      <div class="modal-section-title"><i class="fa-solid fa-graduation-cap"></i> 教育活用</div>
+      <div class="modal-edu">${r.e}</div>
+    </div>`;
+  }
+
+  if (r.tg && r.tg.length) {
+    bodyHtml += `<div class="modal-section">
+      <div class="modal-section-title"><i class="fa-solid fa-tags"></i> タグ</div>
+      <div class="modal-tags">${r.tg.map(t => `<span class="modal-tag">${t}</span>`).join('')}</div>
+    </div>`;
+  }
+
+  // Source links section
+  const sourceLinks = [];
+  if (r.su) sourceLinks.push({label: '記事ソース', url: r.su});
+  // Image source links (unique)
+  const seenUrls = new Set(r.su ? [r.su] : []);
+  (r.im || []).forEach(img => {
+    if (img.u && !seenUrls.has(img.u)) {
+      seenUrls.add(img.u);
+      const domain = img.u.split('/')[2] || '';
+      const label = domain.includes('wikimedia') ? 'Wikimedia' : domain.includes('mie-eetoko') ? '三重フォトギャラリー' : domain.includes('flickr') || domain.includes('openverse') ? 'Flickr' : domain.includes('owase.lg.jp') ? '尾鷲市公式' : domain.includes('unsplash') ? 'Unsplash' : domain.includes('youtube') ? 'YouTube' : '外部リンク';
+      sourceLinks.push({label: `${label}: ${img.t || '画像'}`, url: img.u});
+    }
+  });
+  if (sourceLinks.length || r.s) {
+    bodyHtml += `<div class="modal-section">
+      <div class="modal-section-title"><i class="fa-solid fa-arrow-up-right-from-square"></i> ソース・リンク</div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        ${r.s ? `<div style="font-size:12px;color:var(--text-dim);margin-bottom:4px"><i class="fa-solid fa-quote-left" style="margin-right:4px;opacity:0.5"></i>${r.s}</div>` : ''}
+        ${sourceLinks.map(l => `<a href="${l.url}" target="_blank" rel="noopener" style="font-size:13px;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:5px;padding:4px 0;transition:opacity .2s" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px"></i> ${l.label}</a>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('modalBody').innerHTML = bodyHtml;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderGallery() {
+  const el = document.getElementById('modalGallery');
+  if (!modalImgs.length) {
+    el.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface-dim)"><i class="fa-solid fa-image" style="font-size:3rem;color:var(--text-dim);opacity:0.2"></i></div>';
+    return;
+  }
+  const img = modalImgs[modalImgIdx];
+  let html = `<img src="${img.p}" alt="${img.t || ''}" style="width:100%;height:100%;object-fit:contain">`;
+  if (modalImgs.length > 1) {
+    html += `<button class="modal-gallery-nav left" onclick="event.stopPropagation();galleryNav(-1)"><i class="fa-solid fa-chevron-left"></i></button>`;
+    html += `<button class="modal-gallery-nav right" onclick="event.stopPropagation();galleryNav(1)"><i class="fa-solid fa-chevron-right"></i></button>`;
+    html += `<div class="modal-gallery-counter">${modalImgIdx + 1} / ${modalImgs.length}</div>`;
+  }
+  // Caption + source link
+  let captionHtml = '';
+  if (img.t) captionHtml += img.t;
+  if (img.u) {
+    captionHtml += img.t ? ' ' : '';
+    captionHtml += `<a href="${img.u}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:rgba(255,255,255,0.9);text-decoration:underline"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px"></i></a>`;
+  }
+  if (img.li) captionHtml += `<span style="opacity:0.6;margin-left:6px;font-size:10px">${img.li}</span>`;
+  if (captionHtml) {
+    html += `<div style="position:absolute;bottom:8px;left:12px;right:60px;font-size:12px;color:rgba(255,255,255,0.8);background:rgba(0,0,0,0.5);padding:4px 10px;border-radius:4px;backdrop-filter:blur(4px)">${captionHtml}</div>`;
+  }
+  el.innerHTML = html;
+}
+
+function galleryNav(dir) {
+  modalImgIdx = (modalImgIdx + dir + modalImgs.length) % modalImgs.length;
+  renderGallery();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (document.getElementById('modal').classList.contains('open')) {
+    if (e.key === 'ArrowLeft') galleryNav(-1);
+    if (e.key === 'ArrowRight') galleryNav(1);
+  }
+});
+
+// ═══ MAP VIEW ═══
+const LOCATIONS = [
+  {name:'尾鷲市街',lat:34.0699,lng:136.1930,kw:['尾鷲','尾鷲市','尾鷲港','尾鷲湾','尾鷲駅']},
+  {name:'九鬼',lat:34.0438,lng:136.2205,kw:['九鬼','九鬼水軍','九鬼町']},
+  {name:'馬越峠',lat:34.0872,lng:136.1784,kw:['馬越峠','馬越']},
+  {name:'三木里',lat:34.0150,lng:136.1650,kw:['三木里','三木里ビーチ']},
+  {name:'賀田',lat:34.0050,lng:136.1550,kw:['賀田','賀田湾']},
+  {name:'弁財島',lat:34.0710,lng:136.2015,kw:['弁財島']},
+  {name:'須賀利',lat:34.1150,lng:136.2350,kw:['須賀利']},
+  {name:'梶賀',lat:33.9983,lng:136.1433,kw:['梶賀','あぶり']},
+  {name:'曽根',lat:34.0033,lng:136.1383,kw:['曽根','白石湖','渡利牡蠣']},
+  {name:'天狗倉山',lat:34.0833,lng:136.1750,kw:['天狗倉山','天狗倉']},
+  {name:'便石山',lat:34.0750,lng:136.1650,kw:['便石山','象の背']},
+  {name:'八鬼山',lat:34.0550,lng:136.1700,kw:['八鬼山']},
+  {name:'向井',lat:34.0850,lng:136.1850,kw:['向井','向井地区']},
+  {name:'三木浦',lat:34.0100,lng:136.1750,kw:['三木浦']},
+  {name:'古江',lat:34.0067,lng:136.1600,kw:['古江']},
+  {name:'早田',lat:34.0200,lng:136.1900,kw:['早田']},
+  {name:'大曽根浦',lat:34.0600,lng:136.2050,kw:['大曽根浦']},
+  {name:'行野浦',lat:34.0565,lng:136.2100,kw:['行野浦']},
+  {name:'中村山',lat:34.0689,lng:136.1889,kw:['中村山']},
+  {name:'熊野古道センター',lat:34.0725,lng:136.1870,kw:['熊野古道センター','夢古道']},
+];
+
+let mapInstance = null;
+
+function matchLocation(r) {
+  const hay = (r.t + ' ' + (r.tg||[]).join(' ')).toLowerCase();
+  for (const loc of LOCATIONS) {
+    for (const kw of loc.kw) {
+      if (hay.includes(kw.toLowerCase())) return loc;
+    }
+  }
+  return null;
+}
+
+function renderMapView(el) {
+  document.getElementById('resultCount').textContent = '';
+
+  el.innerHTML = `
+    <div class="room-header" style="margin-top:0">
+      <div class="room-icon" style="background:#5B7DB1"><i class="fa-solid fa-map-location-dot"></i></div>
+      <div class="room-info"><h2>尾鷲マップ</h2><p>地名をクリックすると関連記事が表示されます</p></div>
+    </div>
+    <div style="position:relative">
+      <div id="leafletMap" class="map-container"></div>
+      <div class="map-sidebar" id="mapSidebar" style="display:none"></div>
+    </div>
+  `;
+
+  // Destroy old map
+  if (mapInstance) { mapInstance.remove(); mapInstance = null; }
+
+  // Create map
+  const map = L.map('leafletMap', {zoomControl: true}).setView([34.05, 136.18], 12);
+  mapInstance = map;
+
+  // Tile layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(map);
+
+  // Group records by location
+  const locGroups = {};
+  DATA.forEach(r => {
+    const loc = matchLocation(r);
+    if (loc) {
+      const key = loc.name;
+      if (!locGroups[key]) locGroups[key] = {loc, records: []};
+      locGroups[key].records.push(r);
+    }
+  });
+
+  // Add markers
+  const markers = [];
+  Object.values(locGroups).forEach(g => {
+    const cnt = g.records.length;
+    const marker = L.marker([g.loc.lat, g.loc.lng]).addTo(map);
+    marker.bindTooltip(`${g.loc.name} (${cnt})`, {direction: 'top', offset: [0, -8]});
+    marker.on('click', () => showMapSidebar(g.loc.name, g.records));
+    markers.push(marker);
+  });
+
+  // Fit bounds
+  if (markers.length) {
+    const group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.1));
+  }
+
+  // Show summary
+  const totalMapped = Object.values(locGroups).reduce((s,g) => s + g.records.length, 0);
+  const unmapped = DATA.length - totalMapped;
+}
+
+function showMapSidebar(name, records) {
+  const sb = document.getElementById('mapSidebar');
+  sb.style.display = 'block';
+
+  let html = `<div class="map-sidebar-header"><i class="fa-solid fa-map-pin" style="color:var(--accent)"></i> ${name} <span style="font-weight:400;color:var(--text-dim);font-size:12px;margin-left:auto">${records.length}件</span></div>`;
+  html += '<div class="map-sidebar-list">';
+  records.slice(0, 20).forEach(r => {
+    const m = CAT_META[r.c] || {n:'?',cl:'#888'};
+    const imgHtml = r.im.length ? `<img src="${r.im[0].p}" alt="">` : '';
+    html += `<div class="map-sidebar-item" onclick="openModal('${r.id}')">
+      ${imgHtml}
+      <div class="map-sidebar-item-body">
+        <div class="map-sidebar-item-title">${r.t}</div>
+        <span class="map-sidebar-item-cat" style="background:${m.cl}">${m.n}</span>
+      </div>
+    </div>`;
+  });
+  if (records.length > 20) {
+    html += `<div style="padding:10px 14px;font-size:12px;color:var(--text-dim);text-align:center">...他${records.length - 20}件</div>`;
+  }
+  html += '</div>';
+  sb.innerHTML = html;
+}
+
+// ═══ CONCIERGE ═══
+const KEYWORD_MAP = {
+  '食': ['food'], 'グルメ': ['food'], '食べ物': ['food'], 'ご飯': ['food'], '料理': ['food'],
+  'ブリ': ['food','industry'], 'さんま': ['food'], 'ひもの': ['food'], '寿司': ['food'],
+  'カツオ': ['food'], 'イセエビ': ['food'], '弁当': ['food'], 'めはり': ['food'],
+  '自然': ['nature'], '森': ['nature'], '山': ['nature'], '木': ['nature','industry'],
+  '海': ['nature','geography'], '花': ['nature'], '動物': ['nature'], '生態系': ['nature'],
+  '歴史': ['history','archive'], '水軍': ['history'], '九鬼': ['history','culture'],
+  '古道': ['history','tourism'], '熊野': ['history','tourism','nature'],
+  '文化': ['culture'], '祭り': ['culture'], '祭': ['culture'], '民謡': ['culture'],
+  '尾鷲節': ['culture'], 'わっぱ': ['culture','food'], '伝統': ['culture'],
+  '観光': ['tourism'], 'スポット': ['tourism'], 'ビーチ': ['tourism'],
+  '温泉': ['tourism'], 'トレッキング': ['tourism'], '絶景': ['tourism'],
+  '産業': ['industry'], '漁業': ['industry'], '林業': ['industry'], '養殖': ['industry'],
+  'ヒノキ': ['industry'], '深層水': ['industry','energy'],
+  '防災': ['disaster','society'], '地震': ['disaster'], '津波': ['disaster'],
+  '東南海': ['disaster','archive'], 'ハザード': ['disaster'],
+  '教育': ['education'], '学校': ['education'], '授業': ['education'], '校外学習': ['education'],
+  '人口': ['society'], 'まちづくり': ['society'], '過疎': ['society'], '移住': ['modern','society'],
+  'エネルギー': ['energy'], '水力': ['energy'], '発電': ['energy'],
+  '写真': ['archive'], 'アーカイブ': ['archive'],
+  '子ども': ['education','tourism'], '小学生': ['education'],
+};
+
+const PRESET_QUERIES = {
+  intro: {
+    q: '尾鷲の基本',
+    answer: '尾鷲市は<strong>三重県南部</strong>の人口約1.6万人のまち。面積の90%が山林、年間降水量4,000mm（日本有数）、リアス式海岸に10の漁港。<strong>海と山と雨</strong>が織りなす、どこにもない風景があります。',
+    cats: ['geography'],
+    sort: 'id',
+  },
+  food: {
+    q: '尾鷲のグルメ',
+    answer: '尾鷲の食の主役は<strong>黒潮が運ぶ海の幸</strong>。ブリ・カツオ・さんま・イセエビ、そして漁師町の保存食「梶賀のあぶり」。山の幸では尾鷲わっぱに詰めるお弁当文化も。<strong>272件</strong>の食の記事からおすすめを紹介します。',
+    cats: ['food'],
+    sort: 'random',
+  },
+  nature: {
+    q: '尾鷲の自然',
+    answer: '市域の<strong>90%が山林</strong>。世界遺産・熊野古道の石畳、国指定天然記念物の暖地性シダ群落、黒潮が育む豊かな海。日本有数の多雨が生み出す<strong>緑のダム</strong>と清流。',
+    cats: ['nature','geography'],
+    sort: 'random',
+  },
+  history: {
+    q: '尾鷲の歴史',
+    answer: '縄文の貝塚から<strong>九鬼水軍</strong>の鉄甲船、世界遺産・<strong>熊野古道</strong>、400年続く尾鷲林業まで。小さなまちに千年の物語が詰まっています。',
+    cats: ['history','archive'],
+    sort: 'id',
+  },
+  disaster: {
+    q: '尾鷲の防災',
+    answer: '1944年の<strong>昭和東南海地震</strong>では津波が尾鷲を襲いました。南海トラフ地震の想定は津波最大17m・到達15分。<strong>過去に学び、未来に備える</strong>尾鷲の防災を紹介します。',
+    cats: ['disaster','archive'],
+    sort: 'id',
+  },
+  kids: {
+    q: '子どもに見せたい',
+    answer: '<strong>教科書に出てくるテーマ</strong>が尾鷲にはたくさん。リアス式海岸、林業、気候、熊野古道。校外学習や総合の時間で使える資料を集めました。',
+    cats: ['education','tourism','nature','geography'],
+    sort: 'edu',
+  },
+  random: {
+    q: '今日のおすすめ',
+    answer: '955件の中から<strong>今日のおすすめ</strong>をランダムに選びました。思わぬ発見があるかもしれません。',
+    cats: null,
+    sort: 'random',
+  },
+};
+
+function askConcierge() {
+  const input = document.getElementById('conciergeInput');
+  const q = input.value.trim();
+  if (!q) return;
+  showConciergeResponse(q);
+}
+
+function askPreset(key) {
+  const preset = PRESET_QUERIES[key];
+  if (!preset) return;
+  const input = document.getElementById('conciergeInput');
+  input.value = preset.q;
+  showConciergeResponse(preset.q, preset);
+}
+
+function showConciergeResponse(query, preset) {
+  const el = document.getElementById('conciergeResponse');
+
+  // Show typing
+  el.innerHTML = '<div class="concierge-response"><div class="concierge-typing"><span></span><span></span><span></span></div></div>';
+
+  setTimeout(() => {
+    let results = [];
+    let answerText = '';
+
+    if (preset) {
+      answerText = preset.answer;
+      if (preset.cats) {
+        results = DATA.filter(r => preset.cats.includes(r.c));
+      } else {
+        results = [...DATA];
+      }
+      if (preset.sort === 'random') {
+        // Seeded by date for "today's" picks
+        const seed = new Date().toDateString();
+        results = shuffleSeeded(results, seed);
+      } else if (preset.sort === 'edu') {
+        results = results.filter(r => r.e).sort((a,b) => b.e.length - a.e.length);
+      }
+    } else {
+      // Free-form query: score records
+      const scored = scoreRecords(query);
+      results = scored.map(s => s.r);
+      const topCats = getTopCats(scored.slice(0, 10));
+      const n = scored.length;
+      if (n === 0) {
+        answerText = `「${query}」に一致する記事は見つかりませんでした。別のキーワードで試してみてください。`;
+      } else if (n <= 5) {
+        answerText = `「<strong>${query}</strong>」に関連する記事が<strong>${n}件</strong>見つかりました。`;
+      } else {
+        answerText = `「<strong>${query}</strong>」に関連する記事が<strong>${n}件</strong>見つかりました。${topCats}の分野に多くヒットしています。`;
+      }
+    }
+
+    const picks = results.slice(0, 6);
+    let html = '<div class="concierge-response">';
+    html += `<div class="concierge-answer">${answerText}</div>`;
+
+    if (picks.length) {
+      html += '<div class="concierge-picks">';
+      picks.forEach(r => {
+        const m = CAT_META[r.c] || {n:'?',cl:'#888'};
+        const imgHtml = r.im.length ? `<img class="concierge-pick-img" src="${r.im[0].p}" alt="">` : `<div class="concierge-pick-img" style="display:flex;align-items:center;justify-content:center"><i class="${m.i}" style="color:var(--text-dim);opacity:0.3"></i></div>`;
+        const excerpt = r.x.slice(0, 80) + (r.x.length > 80 ? '...' : '');
+        html += `<div class="concierge-pick" onclick="openModal('${r.id}')">
+          ${imgHtml}
+          <div class="concierge-pick-body">
+            <span class="concierge-pick-cat" style="background:${m.cl}">${m.n}</span>
+            <div class="concierge-pick-title">${r.t}</div>
+            <div class="concierge-pick-excerpt">${excerpt}</div>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+    }
+
+    if (results.length > 6) {
+      html += `<div style="text-align:center;margin-top:12px"><button onclick="searchFromConcierge()" style="padding:6px 18px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--accent);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s" onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background='var(--surface)'">${results.length}件すべて見る <i class="fa-solid fa-arrow-right" style="font-size:11px"></i></button></div>`;
+    }
+
+    html += '</div>';
+    el.innerHTML = html;
+  }, 600);
+}
+
+function scoreRecords(query) {
+  const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+  const catBoost = new Set();
+  words.forEach(w => {
+    Object.entries(KEYWORD_MAP).forEach(([k, cats]) => {
+      if (w.includes(k.toLowerCase()) || k.toLowerCase().includes(w)) {
+        cats.forEach(c => catBoost.add(c));
+      }
+    });
+  });
+
+  const scored = [];
+  DATA.forEach(r => {
+    let score = 0;
+    const hay = (r.t + ' ' + r.x + ' ' + (r.tg||[]).join(' ') + ' ' + r.e).toLowerCase();
+
+    words.forEach(w => {
+      // Title match (high weight)
+      if (r.t.toLowerCase().includes(w)) score += 10;
+      // Tag match
+      if ((r.tg||[]).some(t => t.toLowerCase().includes(w))) score += 7;
+      // Content match
+      const contentMatches = (hay.match(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi')) || []).length;
+      score += Math.min(contentMatches * 2, 10);
+      // Edu use match
+      if (r.e.toLowerCase().includes(w)) score += 3;
+    });
+
+    // Category boost from keyword map
+    if (catBoost.has(r.c)) score += 5;
+
+    // Bonus for having images
+    if (r.im.length > 0) score += 1;
+
+    if (score > 0) scored.push({r, score});
+  });
+
+  scored.sort((a,b) => b.score - a.score);
+  return scored;
+}
+
+function getTopCats(scored) {
+  const catCount = {};
+  scored.forEach(s => catCount[s.r.c] = (catCount[s.r.c]||0) + 1);
+  const top = Object.entries(catCount).sort((a,b) => b[1] - a[1]).slice(0, 2);
+  return top.map(([c]) => `<strong>${(CAT_META[c]||{n:c}).n}</strong>`).join('・');
+}
+
+function shuffleSeeded(arr, seed) {
+  const a = [...arr];
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
+  for (let i = a.length - 1; i > 0; i--) {
+    h = (h * 16807 + 1) & 0x7fffffff;
+    const j = h % (i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function searchFromConcierge() {
+  const q = document.getElementById('conciergeInput').value.trim();
+  if (q) {
+    document.getElementById('searchBox').value = q;
+    handleSearch(q);
+    window.scrollTo({top: document.querySelector('.topbar').offsetTop, behavior: 'smooth'});
+  }
+}
+
+// ═══ LAZY LOAD ═══
+function lazyLoad() {
+  const imgs = document.querySelectorAll('img[data-src]');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.src = e.target.dataset.src;
+        e.target.removeAttribute('data-src');
+        obs.unobserve(e.target);
+      }
+    });
+  }, {rootMargin: '200px'});
+  imgs.forEach(img => obs.observe(img));
+}
+
+// ═══ SCROLL TOP ═══
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 600);
+});
+
+// ═══ INIT ═══
+renderCatBar();
+renderContent();
+</script>
+</body>
+</html>
