@@ -774,9 +774,49 @@ details[open] .remaining-summary svg {
     .remaining-content { grid-template-columns: 1fr; }
     .header-meta { gap: 8px; }
 }
+
+/* ===== Embed mode (when loaded via #embed in dashboard iframe) ===== */
+.embed-mode,
+.embed-mode body {
+    background: transparent !important;
+}
+.embed-mode .header {
+    position: static;
+    padding: 8px 16px;
+    border-bottom: none;
+    background: transparent;
+}
+.embed-mode .header-inner {
+    max-width: none;
+}
+.embed-mode .header-title {
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+.embed-mode .header-meta {
+    gap: 8px;
+}
+.embed-mode .meta-chip {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+}
+.embed-mode .header-actions {
+    display: none;
+}
+.embed-mode .container {
+    max-width: none;
+    padding: 4px 16px 32px;
+}
+.embed-mode .section-header {
+    padding: 8px 0;
+    margin-bottom: 12px;
+}
 </style>
 </head>
 <body>
+<script>
+if(location.hash==='#embed')document.documentElement.classList.add('embed-mode');
+</script>
 
 <div class="header">
     <div class="header-inner">
