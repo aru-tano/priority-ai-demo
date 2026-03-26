@@ -1062,6 +1062,53 @@ if(location.hash==='#embed')document.documentElement.classList.add('embed-mode')
         </div>
     </div>
 
+    <!-- ===== 今日の声かけ ===== -->
+    <div class="section" id="sec-voice">
+        <div class="section-header" onclick="toggleSection('sec-voice')">
+            <span class="chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="section-title">今日の声かけ</span>
+        </div>
+        <div class="section-body">
+            <div style="display:grid;grid-template-columns:1fr;gap:8px">
+                <div style="padding:12px 16px;background:#fff5f5;border-radius:8px;border-left:3px solid #dc2626">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span style="font-size:11px;font-weight:700;background:#dc2626;color:#fff;padding:2px 8px;border-radius:4px">最優先</span>
+                        <span style="font-size:13px;font-weight:600">川端さん・京呂平さん・庄司さんに真っ先に挨拶</span>
+                    </div>
+                    <div style="font-size:12.5px;color:#64748b">教員以外の職員は「管理職は自分たちを軽く見ている」と感じやすい。初日に自ら出向くことで敬意が伝わる</div>
+                </div>
+                <div style="padding:12px 16px;background:#eff6ff;border-radius:8px;border-left:3px solid #3b82f6">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span style="font-size:11px;font-weight:700;background:#3b82f6;color:#fff;padding:2px 8px;border-radius:4px">校長</span>
+                        <span style="font-size:13px;font-weight:600">「校長先生、教頭もご経験されているので心強いです。いろいろ教えてください」</span>
+                    </div>
+                    <div style="font-size:12.5px;color:#64748b">自然な敬意。経歴を把握していることが伝わる</div>
+                </div>
+                <div style="padding:12px 16px;background:var(--surface-dim,#f5f3f0);border-radius:8px;border-left:3px solid #6b7280">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span style="font-size:11px;font-weight:700;background:#6b7280;color:#fff;padding:2px 8px;border-radius:4px">新転入</span>
+                        <span style="font-size:13px;font-weight:600">脇先生・上ノ坊先生・東先生に「一緒に校内を見て回りましょう」</span>
+                    </div>
+                    <div style="font-size:12.5px;color:#64748b">新転入者も教頭も同じ「初日」。一緒に見て回ることで同じ目線に立てる</div>
+                </div>
+                <div style="padding:12px 16px;background:var(--surface-dim,#f5f3f0);border-radius:8px;border-left:3px solid #6b7280">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span style="font-size:11px;font-weight:700;background:#6b7280;color:#fff;padding:2px 8px;border-radius:4px">継続</span>
+                        <span style="font-size:13px;font-weight:600">内山先生に「向井小のこと、いろいろ教えていただけると助かります」</span>
+                    </div>
+                    <div style="font-size:12.5px;color:#64748b">唯一の継続教諭。知恵を借りる姿勢を最初に見せる</div>
+                </div>
+                <div style="padding:12px 16px;background:var(--surface-dim,#f5f3f0);border-radius:8px;border-left:3px solid #6b7280">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span style="font-size:11px;font-weight:700;background:#6b7280;color:#fff;padding:2px 8px;border-radius:4px">講師</span>
+                        <span style="font-size:13px;font-weight:600">米倉先生に「時間割の原案、ありがとうございます。おかげで助かります」</span>
+                    </div>
+                    <div style="font-size:12.5px;color:#64748b">非常勤は孤立しがち。具体的な仕事への感謝が一番伝わる</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== 赴任初日チェックリスト ===== -->
     <div class="section" id="sec-checklist">
         <div class="section-header" onclick="toggleSection('sec-checklist')">
