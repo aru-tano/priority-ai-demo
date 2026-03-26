@@ -952,6 +952,62 @@ if(location.hash==='#embed')document.documentElement.classList.add('embed-mode')
         </div>
     </div>
 
+    <!-- ===== 落とし穴アラート ===== -->
+    <div class="section" id="sec-pitfall">
+        <div class="section-header" onclick="toggleSection('sec-pitfall')">
+            <span class="chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="section-title">落とし穴アラート</span>
+        </div>
+        <div class="section-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div style="padding:12px 16px;background:#fef2f2;border-radius:8px;border-left:3px solid #dc2626">
+                    <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:4px">校長も新任</div>
+                    <div style="font-size:13px;color:#1e293b">二人とも初日。判断に迷ったら「安全に関わることは即判断、それ以外は校長に確認して折り返し」</div>
+                </div>
+                <div style="padding:12px 16px;background:#fef2f2;border-radius:8px;border-left:3px solid #dc2626">
+                    <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:4px">午後は教頭一人になる時間帯</div>
+                    <div style="font-size:13px;color:#1e293b">校長13:30〜市校長会、川端事務14:30〜共同事務室。来客・電話は教頭が対応</div>
+                </div>
+                <div style="padding:12px 16px;background:#fffbeb;border-radius:8px;border-left:3px solid #f59e0b">
+                    <div style="font-size:12px;font-weight:700;color:#d97706;margin-bottom:4px">庄司さんは7時前に来る</div>
+                    <div style="font-size:13px;color:#1e293b">マスターキーを持っていないので、教頭が先に解錠する。待たせても気にしなくてよい（前任校長の言葉）</div>
+                </div>
+                <div style="padding:12px 16px;background:#fffbeb;border-radius:8px;border-left:3px solid #f59e0b">
+                    <div style="font-size:12px;font-weight:700;color:#d97706;margin-bottom:4px">管理職届は本日締切</div>
+                    <div style="font-size:13px;color:#1e293b">管理職届・教職員届は当日提出。FAXまたは持参。後回しにしない</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 判断ルール ===== -->
+    <div class="section" id="sec-rules">
+        <div class="section-header" onclick="toggleSection('sec-rules')">
+            <span class="chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="section-title">判断ルール</span>
+        </div>
+        <div class="section-body">
+            <div style="display:grid;grid-template-columns:1fr;gap:8px">
+                <div style="padding:10px 16px;background:var(--surface-dim,#f5f3f0);border-radius:8px;display:flex;gap:12px;align-items:baseline">
+                    <span style="font-size:12px;font-weight:700;color:#dc2626;white-space:nowrap">保護者から電話</span>
+                    <span style="font-size:13px">まず傾聴。事実確認前に判断を出さない。当日中に担任からも聞く</span>
+                </div>
+                <div style="padding:10px 16px;background:var(--surface-dim,#f5f3f0);border-radius:8px;display:flex;gap:12px;align-items:baseline">
+                    <span style="font-size:12px;font-weight:700;color:#f59e0b;white-space:nowrap">校長不在で判断を求められた</span>
+                    <span style="font-size:13px">安全に関わることは即判断。それ以外は「校長に確認して折り返します」</span>
+                </div>
+                <div style="padding:10px 16px;background:var(--surface-dim,#f5f3f0);border-radius:8px;display:flex;gap:12px;align-items:baseline">
+                    <span style="font-size:12px;font-weight:700;color:#3b82f6;white-space:nowrap">提出書類の締切が重なった</span>
+                    <span style="font-size:13px">教委への提出は絶対遅れない。校内は1日遅れても調整可能</span>
+                </div>
+                <div style="padding:10px 16px;background:var(--surface-dim,#f5f3f0);border-radius:8px;display:flex;gap:12px;align-items:baseline">
+                    <span style="font-size:12px;font-weight:700;color:#6b7280;white-space:nowrap">報告すべきか迷った</span>
+                    <span style="font-size:13px">迷ったら報告する。口頭で、教頭→校長のルートで一本化</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== 提出物カウントダウン ===== -->
     <div class="section" id="sec-deadlines">
         <div class="section-header" onclick="toggleSection('sec-deadlines')">
@@ -1000,6 +1056,42 @@ if(location.hash==='#embed')document.documentElement.classList.add('embed-mode')
                         8:30〜 会場設営・式次第確認<br>
                         呼名リハーサル（新入生2名・女子）<br>
                         来賓への最終連絡確認
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 赴任初日チェックリスト ===== -->
+    <div class="section" id="sec-checklist">
+        <div class="section-header" onclick="toggleSection('sec-checklist')">
+            <span class="chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="section-title">赴任初日チェックリスト</span>
+        </div>
+        <div class="section-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div>
+                    <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:8px">施設</div>
+                    <div class="checklist">
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>玄関・職員室の鍵を開けた</span></label>
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>AEDの場所を確認した</span></label>
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>放送設備・マイクを確認した</span></label>
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>避難経路を歩いた</span></label>
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>防災備蓄（2F）の位置を見た</span></label>
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>体育館・プール門の施錠を確認した</span></label>
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>消火器の位置を確認した</span></label>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size:12px;font-weight:700;color:#3b82f6;margin-bottom:8px">事務・提出</div>
+                    <div class="checklist">
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>管理職届・教職員届を提出した</span></label>
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>校長と打合せをした</span></label>
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>第1回職員会議の司会を終えた</span></label>
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>新転任者3名に提出書類を配布した</span></label>
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>挨拶回りに行った</span></label>
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>日程黒板を記入した（今日+明日）</span></label>
+                        <label class="checklist-item"><input type="checkbox" onchange="saveCheckState(this)"><span>退校時の施錠確認をした</span></label>
                     </div>
                 </div>
             </div>
