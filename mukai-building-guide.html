@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校舎巡回ガイド — 向井小学校</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{
+  --bg:#FAF9F6;--surface:#fff;--border:#e5e2dd;
+  --text:#1a1a1a;--text-dim:#6b7280;--text-light:#9ca3af;
+  --accent:#2563eb;--accent-light:#dbeafe;
+  --red:#dc2626;--red-light:#fee2e2;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --green:#16a34a;--green-light:#dcfce7;
+  --purple:#7c3aed;--purple-light:#ede9fe;
+  --radius:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;padding:20px}
+.container{max-width:960px;margin:0 auto}
+header{text-align:center;margin-bottom:32px;padding:24px 0}
+header h1{font-size:22px;font-weight:800;letter-spacing:1px}
+header .subtitle{color:var(--text-dim);font-size:13px;margin-top:6px}
+header .source{display:inline-block;margin-top:10px;background:var(--accent-light);color:var(--accent);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px}
+
+/* Daily pair — 朝と夕方を横並び */
+.daily-pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+@media(max-width:700px){.daily-pair{grid-template-columns:1fr}}
+.daily-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;font-size:13px}
+.daily-col h3{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.daily-col ul{padding-left:18px;margin:0}
+.daily-col li{margin-bottom:4px}
+
+/* Floor nav */
+.floor-nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:28px;position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:10;border-bottom:1px solid var(--border)}
+.floor-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;transition:.2s;text-decoration:none}
+.floor-btn:hover{border-color:var(--accent);color:var(--accent)}
+.floor-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Accordion */
+.accordion{margin-bottom:10px}
+.accordion-toggle{width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:0;font:inherit;display:flex;align-items:center;gap:8px}
+.accordion-toggle .chevron{transition:transform .2s;font-size:10px;color:var(--text-dim)}
+.accordion-toggle[aria-expanded="true"] .chevron{transform:rotate(90deg)}
+.accordion-body{display:none;padding-top:10px}
+.accordion-body.open{display:block}
+
+/* Section */
+.section{margin-bottom:28px}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+.section-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0}
+.section-header h2{font-size:16px;font-weight:700}
+
+/* Card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.card-title{font-size:14px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card-body{font-size:13px;color:var(--text);line-height:1.8}
+.card-body li{margin-bottom:4px}
+.card-body ul{padding-left:18px}
+.card-body strong{color:var(--text)}
+
+/* Tags */
+.tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:12px;margin-left:4px}
+.tag-warn{background:var(--red-light);color:var(--red)}
+.tag-note{background:var(--amber-light);color:var(--amber)}
+.tag-tip{background:var(--green-light);color:var(--green)}
+.tag-person{background:var(--purple-light);color:var(--purple)}
+
+/* Alert */
+.alert{border-left:3px solid var(--red);background:var(--red-light);padding:12px 16px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:10px;font-size:13px}
+.alert i{color:var(--red);margin-right:6px}
+
+/* Quote */
+.quote{background:#f0f0ec;border-left:3px solid var(--text-light);padding:10px 14px;border-radius:0 var(--radius) var(--radius) 0;font-size:12px;color:var(--text-dim);font-style:italic;margin:8px 0}
+
+/* Checklist */
+.checklist{list-style:none;padding:0}
+.checklist li{padding:6px 0;font-size:13px;display:flex;align-items:flex-start;gap:8px}
+.checklist li::before{content:'\f0c8';font-family:'Font Awesome 6 Free';font-weight:400;color:var(--accent);font-size:12px;margin-top:3px;flex-shrink:0}
+
+/* Person card */
+.person-card{display:flex;gap:14px;align-items:flex-start}
+.person-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0}
+.person-info{flex:1}
+.person-name{font-weight:700;font-size:14px}
+.person-role{font-size:11px;color:var(--text-dim)}
+.person-desc{font-size:13px;margin-top:4px;line-height:1.7}
+
+/* Print */
+@media print{
+  body{background:#fff;padding:10px}
+  .floor-nav{display:none}
+  .card{break-inside:avoid;box-shadow:none;border:1px solid #ddd}
+  .section{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1><i class="fa-solid fa-school" style="color:var(--accent)"></i> 向井小学校 校舎巡回ガイド</h1>
+  <div class="subtitle">R8年度 教頭業務引き継ぎ — 校舎を歩きながら確認するポイント集</div>
+  <div class="source"><i class="fa-solid fa-microphone"></i> 植松校長の校舎案内（2026-03-26）文字起こしから抽出</div>
+</header>
+
+<!-- ===== 毎日の朝・夕チェック（2カラム、常に表示） ===== -->
+<div style="margin-bottom:24px">
+  <div style="font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;text-align:center"><i class="fa-solid fa-clock"></i> 毎日の朝・夕チェック</div>
+  <div class="daily-pair">
+    <div class="daily-col" style="border-top:3px solid var(--amber)">
+      <h3><i class="fa-solid fa-sun" style="color:var(--amber)"></i> 朝 — 出勤したら</h3>
+      <ul>
+        <li><strong>玄関の鍵</strong>を開ける（庄司さんが先に来ているがマスターキーなし）</li>
+        <li><strong>職員室の鍵</strong>を開ける</li>
+        <li><strong>1階廊下の窓 1カ所</strong>を開けて換気</li>
+        <li><strong>職員室の窓 1カ所</strong>を開けて換気</li>
+        <li>門は閉めない（R6年度から）</li>
+      </ul>
+    </div>
+    <div class="daily-col" style="border-top:3px solid var(--red)">
+      <h3><i class="fa-solid fa-moon" style="color:var(--red)"></i> 夕方 — 退校チェック5箇所</h3>
+      <ol style="padding-left:18px;margin:0">
+        <li><strong>渡り廊下の風戸</strong> — 盲点。誰かが開けて閉め忘れる</li>
+        <li><strong>1階の外に出る扉</strong> — 校長も閉め忘れた経験あり</li>
+        <li><strong>体育館トイレの窓と電気</strong></li>
+        <li><strong>バックネット裏の外トイレの電気</strong></li>
+        <li><strong>校舎内の電気消し忘れ</strong>全般</li>
+      </ol>
+      <div style="margin-top:8px;font-size:12px;color:var(--text-dim)">庄司さん休み（水曜・月2回）は特に意識的にチェック</div>
+    </div>
+  </div>
+</div>
+
+<nav class="floor-nav">
+  <a class="floor-btn" href="#morning">朝の詳細</a>
+  <a class="floor-btn" href="#floor1">1階</a>
+  <a class="floor-btn" href="#watari">渡り廊下</a>
+  <a class="floor-btn" href="#floor2">2階</a>
+  <a class="floor-btn" href="#floor3">3階</a>
+  <a class="floor-btn" href="#gym">体育館</a>
+  <a class="floor-btn" href="#outside">外回り</a>
+  <a class="floor-btn" href="#evening">退校の詳細</a>
+  <a class="floor-btn" href="#chime">チャイム</a>
+  <a class="floor-btn" href="#pool">プール</a>
+  <a class="floor-btn" href="#people">キーパーソン</a>
+</nav>
+
+<!-- ===== 朝 ===== -->
+<div class="section" id="morning">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--amber)"><i class="fa-solid fa-sun"></i></div>
+    <h2>朝 — 出勤してまずやること（詳細）</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-door-open" style="color:var(--accent)"></i> 玄関</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>玄関の鍵を開ける</strong>。庄司さんが7時前から来ているが、マスターキーは持っていない（本人希望）。玄関前か車の中で待っている</li>
+      </ul>
+      <div class="quote">「待ってもらっても悪いとは思わないで」（植松校長）</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-key" style="color:var(--accent)"></i> 職員室</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>職員室の鍵を開ける</strong></li>
+        <li><strong>外からの入り方</strong>: 玄関の横に通路があり、そこから職員室に入れる。2カ所の扉を順番に開ける</li>
+        <li><strong>鍵の見分け方</strong>: 鍵が<strong>縦になっているときは「開いている」</strong>状態</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-wind" style="color:var(--green)"></i> 換気（毎朝） <span class="tag tag-tip">日課</span></div>
+    <div class="card-body">
+      <ul>
+        <li><strong>職員室前の1階廊下の窓</strong> — 1カ所開ける</li>
+        <li><strong>職員室の窓</strong> — 1カ所開ける</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-road-barrier" style="color:var(--text-dim)"></i> 門</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>通用門・駐車場前の門は閉めない</strong>（R6年度から）。門が重すぎて危険。過去に職員が肩を痛めた</li>
+        <li>監査時には警察・税務署・海上保安庁の人も来て車の往来が多い</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 1階 ===== -->
+<div class="section" id="floor1">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--accent)"><i class="fa-solid fa-1"></i></div>
+    <h2>1階 — 各部屋</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-calculator" style="color:var(--accent)"></i> 事務室 <span class="tag tag-person">川端さん</span></div>
+    <div class="card-body">
+      <ul>
+        <li>PTA会計や超過勤務報告など、本来教頭の仕事を多く引き受けてくれていた</li>
+        <li><strong>何でも聞けば教えてくれる</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-crown" style="color:var(--amber)"></i> 校長室</div>
+    <div class="card-body">
+      <ul>
+        <li>PTA役員会は<strong>19:00〜校長室</strong>。司会は教頭</li>
+        <li>役員会の時は<strong>玄関にスリッパを並べておく</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-couch" style="color:var(--purple)"></i> 和室 <span class="tag tag-person">庄司さん休憩場所</span></div>
+    <div class="card-body">
+      <ul>
+        <li><strong>庄司さんの昼休憩場所</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-boxes-stacked" style="color:var(--text-dim)"></i> 西側倉庫（非常出口そば）</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>運動会で使う道具</strong></li>
+        <li><strong>万国旗</strong>: 新品購入済み（去年濡らして色落ち）。ロープに旗をつける作業が未完了 → 運動会（10月下旬）前に早めに準備</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-fire-burner" style="color:var(--red)"></i> 旧給食室</div>
+    <div class="card-body">
+      <ul>
+        <li>給食はセンター方式。給食室機能は不要だが<strong>水が出る機能は残してある</strong></li>
+        <li><strong>古いボイラー</strong>でお湯が出せる — 餅つき大会の洗い物で使用</li>
+        <li>ボイラーの付け方: <strong>京呂平さんが詳しい</strong>。一緒にやって覚える</li>
+        <li>時期が近づいたら試運転。別の時期にも一度つけて確かめる</li>
+        <li><strong>休憩室としても使用</strong></li>
+      </ul>
+      <div class="quote">「京呂平さんがよく分かっているので、一緒にやって覚えてください。そんな難しいことはない」</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-chalkboard" style="color:var(--text-dim)"></i> 特別支援教室だった部屋</div>
+    <div class="card-body">
+      <ul><li>現在は在籍児童なし。<strong>取り出し指導に使用</strong></li></ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 渡り廊下 ===== -->
+<div class="section" id="watari">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--amber)"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+    <h2>渡り廊下</h2>
+  </div>
+
+  <div class="alert">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <strong>風戸（扉）— 退校時の盲点</strong>: 帰る時に必ず渡り廊下の向こう側を確認する。庄司さんが閉めた後に誰かが開けて閉め忘れることがある
+  </div>
+  <div class="quote">「玄関の横の通路があって、渡り廊下のところに扉があるんやけど、帰り絶対見るんやで」（植松校長）</div>
+</div>
+
+<!-- ===== 2階 ===== -->
+<div class="section" id="floor2">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--accent)"><i class="fa-solid fa-2"></i></div>
+    <h2>2階</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-kit-medical" style="color:var(--red)"></i> 防災備蓄室</div>
+    <div class="card-body">
+      <ul>
+        <li>学校は<strong>向井地区の避難場所</strong>。防災用品の備蓄あり</li>
+        <li>パーテーションあり。子どもたちが泊まり体験学習をしたことも</li>
+        <li>尾鷲市防災危機管理課・地区担当者が定期チェック → <strong>教頭が立ち会う</strong></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 3階 ===== -->
+<div class="section" id="floor3">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--accent)"><i class="fa-solid fa-3"></i></div>
+    <h2>3階 — 教室</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-chalkboard-user" style="color:var(--accent)"></i> 教室配置</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>1・2年教室、3・4年教室、5・6年教室</strong>の3つ</li>
+        <li>R8年度はこの3教室を主に使用</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-right-left" style="color:var(--green)"></i> 3階学習室</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>複式の片方が移動して学習する部屋</strong></li>
+        <li>理科や社会など単式化する時に、片方のグループがここで勉強する</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <strong>非常階段 — 使用禁止</strong>: 耐震工事がこの非常階段だけきちんとされていない。基本使わない。避難訓練でもこのルートは不使用。安全点検で毎回指摘。外からの侵入経路にもなりうる。
+  </div>
+  <div class="quote">「かなりやばい。しかも外っぽく見えない。弱々しい。抜本的に解体してもらった方がいい」（植松校長）</div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-person-falling" style="color:var(--amber)"></i> 脱出用器具 <span class="tag tag-warn">要確認</span></div>
+    <div class="card-body">
+      <ul>
+        <li>窓から降りるタイプの器具がある</li>
+        <li>ただし<strong>下に固定する場所が見当たらない</strong>。点検時に「使えない」と判断</li>
+        <li>「次回ロープを持ってきて本格的に探してみよう」</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 体育館 ===== -->
+<div class="section" id="gym">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--green)"><i class="fa-solid fa-volleyball"></i></div>
+    <h2>体育館</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-lock" style="color:var(--accent)"></i> 施錠</div>
+    <div class="card-body">
+      <ul><li>退校時に<strong>体育館の施錠を確認する</strong></li></ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-restroom" style="color:var(--amber)"></i> トイレ <span class="tag tag-warn">閉め忘れ注意</span></div>
+    <div class="card-body">
+      <ul>
+        <li><strong>窓の閉め忘れ注意</strong></li>
+        <li><strong>電気の消し忘れ注意</strong></li>
+        <li>トイレは和式から改修された</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-dove" style="color:var(--text-dim)"></i> 鳥が入ってくる</div>
+    <div class="card-body">
+      <ul><li>上の窓を開けた時にたまに鳥が入る。大体そのうち出ていく</li></ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-people-group" style="color:var(--text-dim)"></i> スポーツ団体使用</div>
+    <div class="card-body">
+      <ul>
+        <li>定期利用なし。不定期でバレーボール等の希望あり</li>
+        <li>使用停止の連絡 → 1ヶ月前に<strong>市の生涯学習課スポーツ振興係（23-8299）</strong></li>
+        <li>卒業式→入学式の期間は事前に「使えない」と連絡</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 外回り ===== -->
+<div class="section" id="outside">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--green)"><i class="fa-solid fa-tree"></i></div>
+    <h2>外回り</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-compass" style="color:var(--red)"></i> 方角の注意 <span class="tag tag-warn">混乱しやすい</span></div>
+    <div class="card-body">
+      <ul>
+        <li><strong>「北側」と書いてあるのは体育館側</strong></li>
+        <li>校舎は真南ではなくやや東寄り。イメージと実際の方角にずれがある</li>
+      </ul>
+      <div class="quote">「こっち側が実は西なんさ」「あっち側が実は北で」（植松校長、運動場を指しながら）</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-warehouse" style="color:var(--text-dim)"></i> バックネット裏 体育倉庫</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>シャッター式、鍵あり</strong>。普段は閉め、使うときに開ける</li>
+        <li>運動会の準備物、体育道具</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-lines-leaning" style="color:var(--text-dim)"></i> 石灰倉庫（体育倉庫の横）</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>鍵が壊れて「開かずの扉」が一つ</strong>。もう一つは施錠不要で常時使える</li>
+        <li>ラインカー、石灰のストック。<strong>5袋常備</strong>が目安</li>
+        <li>なくなったら事務さんに伝える → スポーツ店が車で配達してくれる</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-lightbulb" style="color:var(--amber)"></i> バックネット裏の外トイレ <span class="tag tag-warn">消し忘れ注意</span></div>
+    <div class="card-body">
+      <ul><li><strong>電気の消し忘れ注意</strong></li></ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-tractor" style="color:var(--green)"></i> グラウンド</div>
+    <div class="card-body">
+      <ul><li>軽トラの後ろにレーキをつけて引っ張る整備道具あり。<strong>京呂平さんが担当</strong></li></ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-toolbox" style="color:var(--text-dim)"></i> 北側外倉庫（焼却炉付近）</div>
+    <div class="card-body">
+      <ul>
+        <li>草刈機、作業道具、<strong>耕運機</strong>（ガソリン。他の機械は混合だが、耕運機だけは純粋なガソリン）</li>
+        <li>焼き芋・飯盒炊飯用の<strong>薪が大量にある</strong></li>
+      </ul>
+      <div class="alert" style="margin-top:8px">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <strong>まむし等の毒へびが潜んでいる可能性あり</strong>。行くときは注意
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-rabbit" style="color:var(--text-dim)"></i> うさぎ小屋（校長駐車場そば）</div>
+    <div class="card-body">
+      <ul><li>元うさぎ小屋。今は<strong>畑作業の道具、培養土</strong>を保管</li></ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-seedling" style="color:var(--green)"></i> 土手の花壇（体育館側）</div>
+    <div class="card-body">
+      <ul>
+        <li>いろんな花が植えてある。園芸委員会がないので、何もしないと何もなくなる</li>
+        <li><strong>花の苗予算</strong>: 福祉協力校（約4.5万円）、ふるさと教育消耗品費、緑の募金（約1万円）</li>
+        <li>1年間で計画的に使う</li>
+      </ul>
+      <div class="quote">「終わり頃に余って慌てて土を買った」（植松校長の反省）</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-fence" style="color:var(--text-dim)"></i> 校舎フェンスの向こう</div>
+    <div class="card-body">
+      <ul><li>夏に草が大変な状態に。地域の協力者1名が秋に手伝ってくれた</li></ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 退校チェック ===== -->
+<div class="section" id="evening">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--red)"><i class="fa-solid fa-clipboard-check"></i></div>
+    <h2>退校時のチェック</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-shield-halved" style="color:var(--purple)"></i> 庄司さんの戸締まり <span class="tag tag-person">配慮事項</span></div>
+    <div class="card-body">
+      <ul>
+        <li>施錠確認をとても丁寧にしてくださっている → セキュリティはバッチリ</li>
+        <li>声かけ: <strong>「ほどほどでいいで」はOK</strong>。<strong>「もうええんちゃうわ」はNG</strong></li>
+        <li><strong>庄司さん休みの日（水曜、月2回ほど）</strong>はセキュリティが甘くなる → 教頭が意識的にチェック</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-list-check" style="color:var(--red)"></i> 教頭が確認すべき5ポイント</div>
+    <div class="card-body">
+      <ol class="checklist">
+        <li><strong>渡り廊下の風戸</strong> — 盲点。誰かが開けて閉め忘ける</li>
+        <li><strong>1階の外に出るところの扉</strong> — 植松校長も何回か閉め忘れた</li>
+        <li><strong>体育館のトイレの窓と電気</strong></li>
+        <li><strong>バックネット裏の外トイレの電気</strong></li>
+        <li><strong>校舎内の電気の消し忘れ全般</strong></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-video" style="color:var(--green)"></i> 防犯カメラ</div>
+    <div class="card-body">
+      <ul><li>設置済み、全箇所ロック、録画あり。「泥棒に入られたことはない」</li></ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== チャイム ===== -->
+<div class="section" id="chime">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--amber)"><i class="fa-solid fa-bell"></i></div>
+    <h2>チャイム</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <ul>
+        <li><strong>水曜日</strong>: 鳴り方が違う切り替えが必要</li>
+        <li><strong>金曜日（委員会のある日）</strong>: 水曜日と同じ切り替え</li>
+        <li><strong>祝日の前日</strong>: スイッチを切っておく。連休明けの朝に入れ直す</li>
+        <li><strong>京呂平さんが熟知</strong>。いるときはやってもらえる</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== プール ===== -->
+<div class="section" id="pool">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--accent)"><i class="fa-solid fa-water-ladder"></i></div>
+    <h2>プール（6月〜夏）</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <ul>
+        <li>6月に市教委から連絡 → <strong>湯浅ポンプさん</strong>に機械室のポンプチェック依頼（090-7856-5386）</li>
+        <li>植松校長が今年度はプール機械・薬剤投入を担当 → 場所を確認しておく</li>
+        <li><strong>バルブ</strong>: 京呂平さんが詳しい</li>
+        <li><strong>プール出入り口の門は必ず施錠</strong></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== キーパーソン ===== -->
+<div class="section" id="people">
+  <div class="section-header">
+    <div class="section-icon" style="background:var(--purple)"><i class="fa-solid fa-users"></i></div>
+    <h2>頼りになる人</h2>
+  </div>
+
+  <div class="card">
+    <div class="person-card">
+      <div class="person-avatar" style="background:var(--green)"><i class="fa-solid fa-wrench"></i></div>
+      <div class="person-info">
+        <div class="person-name">京呂平 紀身さん <span class="person-role">用務員・SSS</span></div>
+        <div class="person-desc">
+          校舎のことは何でも知っている。チャイム切り替え、ボイラー、バルブ、鍵の場所、ゴミ出し書類、グラウンド整備、学校だより配布先、草刈機の使い方...
+        </div>
+        <div class="quote" style="margin-top:6px">「この先生はほんまにあらゆることを知っとる。すごく仕事がしやすくなる」「1年かけて覚えてください」</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="person-card">
+      <div class="person-avatar" style="background:var(--purple)"><i class="fa-solid fa-heart"></i></div>
+      <div class="person-info">
+        <div class="person-name">庄司 光寿さん <span class="person-role">業務支援員</span></div>
+        <div class="person-desc">
+          7時前から来ている。一生懸命何でもしてくれる。真夏でも草刈り。力仕事もOK。<br>
+          施錠確認をとても丁寧にしてくださる。<strong>声かけに配慮</strong>。<br>
+          和室で昼休憩。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="person-card">
+      <div class="person-avatar" style="background:var(--accent)"><i class="fa-solid fa-file-invoice"></i></div>
+      <div class="person-info">
+        <div class="person-name">川端 昌さん <span class="person-role">事務職員</span></div>
+        <div class="person-desc">
+          何でも聞けば教えてくれる。PTA会計、SSS報告、超過勤務報告 → 新年度から教頭が引き継ぐ。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 関連資料 -->
+<div style="margin:28px 0;padding:16px;background:var(--accent-light);border-radius:var(--radius);font-size:13px">
+  <div style="font-weight:700;margin-bottom:8px"><i class="fa-solid fa-link" style="color:var(--accent)"></i> 関連資料</div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">
+    <a href="kyoto-dashboard-improved.html" style="padding:4px 12px;background:var(--surface);border-radius:16px;text-decoration:none;color:var(--accent);font-size:12px;font-weight:600;border:1px solid var(--border)"><i class="fa-solid fa-gauge-high"></i> 教頭ダッシュボード</a>
+    <a href="kyoto-april-practice-docs.html" style="padding:4px 12px;background:var(--surface);border-radius:16px;text-decoration:none;color:var(--accent);font-size:12px;font-weight:600;border:1px solid var(--border)"><i class="fa-solid fa-calendar-days"></i> 4月実践資料</a>
+    <a href="kyoto-briefing-2026-04-01.html" style="padding:4px 12px;background:var(--surface);border-radius:16px;text-decoration:none;color:var(--accent);font-size:12px;font-weight:600;border:1px solid var(--border)"><i class="fa-solid fa-sun"></i> 赴任初日ブリーフィング</a>
+    <a href="../文章_作業スペース/05_仕事_Work/向井小学校/業務引き継ぎ_令和8年度_統合版.md" style="padding:4px 12px;background:var(--surface);border-radius:16px;text-decoration:none;color:var(--accent);font-size:12px;font-weight:600;border:1px solid var(--border)"><i class="fa-solid fa-file-lines"></i> 業務引き継ぎ統合版</a>
+  </div>
+</div>
+
+<footer style="text-align:center;padding:24px 0;color:var(--text-light);font-size:11px">
+  向井小学校 校舎巡回ガイド — 植松校長の校舎案内 文字起こし（2026-03-26）より自動生成<br>
+  PLAUD 4本 + YY文字起こし 3本のトランスクリプトから抽出
+</footer>
+
+<script>
+// Floor nav scroll highlight
+document.querySelectorAll('.floor-btn').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    document.querySelectorAll('.floor-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+// Intersection observer for active nav
+const sections=document.querySelectorAll('.section');
+const navBtns=document.querySelectorAll('.floor-btn');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navBtns.forEach(b=>{
+        b.classList.toggle('active',b.getAttribute('href')==='#'+e.target.id);
+      });
+    }
+  });
+},{threshold:0.3,rootMargin:'-60px 0px -60% 0px'});
+sections.forEach(s=>obs.observe(s));
+</script>
+
+</div>
+</body>
+</html>
