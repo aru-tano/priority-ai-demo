@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4月1〜3日 タイムライン — R8年度 向井小学校 教頭用</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    color: #2d2621;
+    background: #FAF9F6;
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  /* ===== Print Optimization ===== */
+  @media print {
+    body { background: white; font-size: 11px; line-height: 1.45; }
+    .day-section { page-break-after: always; padding: 8mm; margin: 0; border: none; box-shadow: none; }
+    .day-section:last-child { page-break-after: avoid; }
+    .screen-nav { display: none; }
+    .no-print { display: none; }
+    h1 { font-size: 16px; }
+    h2 { font-size: 13px; }
+    h3 { font-size: 12px; }
+    .time-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .task-item { break-inside: avoid; }
+    .summary-section { page-break-before: always; }
+    input[type="checkbox"] { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @page { size: A4; margin: 10mm; }
+
+  /* ===== Screen Layout ===== */
+  .screen-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    padding: 12px 24px;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  }
+  .screen-nav a {
+    text-decoration: none; color: #4A7C59; font-weight: 600; font-size: 13px;
+    padding: 6px 14px; border-radius: 8px; transition: background 0.2s;
+  }
+  .screen-nav a:hover { background: rgba(74,124,89,0.08); }
+  .screen-nav .title-badge {
+    font-size: 11px; color: #6b6560; border-right: 1px solid #ddd;
+    padding-right: 12px; margin-right: 4px;
+  }
+
+  .day-section {
+    max-width: 800px; margin: 24px auto; padding: 32px;
+    background: white; border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+
+  /* ===== Day Header ===== */
+  .day-header {
+    display: flex; align-items: flex-start; gap: 16px;
+    border-bottom: 2px solid #4A7C59; padding-bottom: 12px; margin-bottom: 24px;
+  }
+  .day-badge {
+    flex-shrink: 0; background: #4A7C59; color: white;
+    border-radius: 12px; padding: 8px 16px; text-align: center;
+  }
+  .day-badge .date { font-size: 20px; font-weight: 700; line-height: 1; }
+  .day-badge .dow { font-size: 11px; margin-top: 2px; }
+  .day-title { flex: 1; }
+  .day-title h1 { font-size: 18px; font-weight: 700; color: #2d2621; border: none; padding: 0; margin: 0; }
+  .day-title .summary { font-size: 12px; color: #6b6560; margin-top: 4px; }
+
+  /* ===== Timeline ===== */
+  .timeline { position: relative; }
+  .timeline::before {
+    content: ''; position: absolute; left: 48px; top: 0; bottom: 0;
+    width: 2px; background: #e8e4e0;
+  }
+
+  .time-block { margin-bottom: 8px; }
+
+  .time-block-header {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 4px 0;
+  }
+
+  .time-col {
+    flex-shrink: 0; width: 96px; text-align: right;
+    position: relative; padding-right: 20px;
+  }
+  .time-col::after {
+    content: ''; position: absolute; right: -5px; top: 8px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: white; border: 2px solid #4A7C59;
+    z-index: 1;
+  }
+  .time-col.critical::after { background: #C45D5D; border-color: #C45D5D; }
+  .time-col.high::after { background: #E8930A; border-color: #E8930A; }
+  .time-col.info::after { background: #4A7C59; border-color: #4A7C59; }
+
+  .time-label {
+    font-size: 12px; font-weight: 700; color: #4A7C59;
+    display: inline-block; padding: 2px 6px; border-radius: 4px;
+    background: #E8F5E9;
+  }
+  .time-label.critical { color: white; background: #C45D5D; }
+  .time-label.high { color: white; background: #E8930A; }
+
+  .task-block {
+    flex: 1; background: white; border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 10px 14px; margin-bottom: 4px;
+  }
+  .task-block.critical { border-left: 3px solid #C45D5D; background: #FFFBFB; }
+  .task-block.high { border-left: 3px solid #E8930A; background: #FFFDF7; }
+  .task-block.info { border-left: 3px solid #4A7C59; background: #F8FCF9; }
+  .task-block.plain { border-left: 3px solid #d0cac5; }
+
+  .task-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .task-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .task-check {
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .task-check input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: #4A7C59; cursor: pointer;
+  }
+
+  .task-content { flex: 1; }
+  .task-main { font-size: 13px; font-weight: 600; color: #2d2621; }
+  .task-sub {
+    font-size: 11px; color: #6b6560; margin-top: 2px;
+    padding-left: 8px; border-left: 2px solid #e0dbd7;
+  }
+
+  /* ===== Role Tags ===== */
+  .role-tag {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 1px 6px; border-radius: 3px; margin-left: 4px; vertical-align: middle;
+  }
+  .role-tag.kyoto { background: #E8F5E9; color: #2E7D32; }
+  .role-tag.principal { background: #FFF3E0; color: #E65100; }
+  .role-tag.staff { background: #E3F2FD; color: #1565C0; }
+
+  /* ===== Memo Box ===== */
+  .memo-box {
+    background: #FFFBF0; border-radius: 8px; border-left: 3px solid #D4A017;
+    padding: 10px 14px; margin: 8px 0 16px 108px;
+    font-size: 12px; line-height: 1.7;
+  }
+  .memo-box::before {
+    content: '教頭メモ'; display: block;
+    font-size: 10px; font-weight: 700; color: #B8860B; margin-bottom: 4px;
+  }
+  .memo-box ul { padding-left: 16px; margin: 0; }
+  .memo-box li { margin: 2px 0; }
+
+  /* ===== Section Headers ===== */
+  h2 {
+    font-size: 13px; font-weight: 700; color: #4A7C59;
+    margin: 20px 0 12px; padding-left: 10px;
+    border-left: 3px solid #4A7C59;
+  }
+
+  /* ===== Summary Section ===== */
+  .summary-section {
+    max-width: 800px; margin: 24px auto; padding: 32px;
+    background: white; border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  .summary-section h1 {
+    font-size: 18px; font-weight: 700; color: #2d2621;
+    border-bottom: 2px solid #4A7C59; padding-bottom: 8px; margin-bottom: 20px;
+  }
+
+  .deadline-table {
+    width: 100%; border-collapse: collapse; margin: 10px 0;
+    font-size: 13px;
+  }
+  .deadline-table th {
+    background: #4A7C59; color: white; padding: 8px 12px;
+    text-align: left; font-weight: 600; font-size: 12px;
+  }
+  .deadline-table td { padding: 8px 12px; border-bottom: 1px solid #f0ece8; }
+  .deadline-table tr:nth-child(even) td { background: #FAFAF8; }
+  .deadline-badge {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 1px 6px; border-radius: 3px;
+    background: #C45D5D; color: white;
+  }
+
+  .checklist-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0;
+  }
+  @media (max-width: 600px) { .checklist-grid { grid-template-columns: 1fr; } }
+
+  .check-group {
+    background: #FAFAF8; border-radius: 8px; padding: 12px 14px;
+    border: 1px solid #f0ece8;
+  }
+  .check-group h3 { font-size: 12px; font-weight: 700; color: #4A7C59; margin-bottom: 8px; }
+  .check-group ul { list-style: none; padding: 0; }
+  .check-group li {
+    font-size: 12px; padding: 3px 0;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .check-group li input[type="checkbox"] {
+    flex-shrink: 0; margin-top: 2px;
+    width: 14px; height: 14px; accent-color: #4A7C59;
+  }
+
+  .doctor-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0;
+  }
+  .doctor-card {
+    background: #F0F7F2; border-radius: 8px; padding: 10px 12px;
+    font-size: 12px; border-left: 3px solid #4A7C59;
+  }
+  .doctor-card .label { font-size: 10px; color: #4A7C59; font-weight: 700; margin-bottom: 2px; }
+  .doctor-card .name { font-weight: 600; font-size: 13px; }
+
+  .highlight-box {
+    background: #F0F7F2; border-radius: 8px; padding: 12px 16px; margin: 12px 0;
+    font-size: 13px;
+  }
+  .highlight-box.caution { background: #FFF3E0; border-left: 3px solid #FF9800; }
+  .highlight-box.warn { background: #FFF8F8; border-left: 3px solid #C45D5D; }
+
+  .footer-note {
+    margin-top: 20px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.06);
+    font-size: 11px; color: #a8a29e; text-align: right;
+  }
+
+  /* ===== Legend ===== */
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    margin-bottom: 20px; padding: 10px 14px;
+    background: #FAFAF8; border-radius: 8px; font-size: 11px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    display: inline-block; flex-shrink: 0;
+  }
+  .legend-dot.critical { background: #C45D5D; }
+  .legend-dot.high { background: #E8930A; }
+  .legend-dot.info { background: #4A7C59; }
+</style>
+</head>
+<body>
+
+<!-- ===== Screen Navigation ===== -->
+<nav class="screen-nav no-print">
+  <span class="title-badge">R8 教頭 3日間タイムライン</span>
+  <a href="#day1">4/1（水）</a>
+  <a href="#day2">4/2（木）</a>
+  <a href="#day3">4/3（金）</a>
+  <a href="#summary">提出物・持ち物</a>
+  <a href="javascript:window.print()">印刷</a>
+</nav>
+
+<!-- ========================================================
+     4月1日（水）
+     ======================================================== -->
+<section class="day-section" id="day1">
+
+  <div class="day-header">
+    <div class="day-badge">
+      <div class="date">4/1</div>
+      <div class="dow">水曜日</div>
+    </div>
+    <div class="day-title">
+      <h1>辞令交付式・第1回職員会議・挨拶回り</h1>
+      <div class="summary">新年度初日。校長・教頭ともに初任。終日フル稼働の1日。</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot critical"></span>最重要（時刻厳守・絶対に忘れない）</div>
+    <div class="legend-item"><span class="legend-dot high"></span>高優先（当日中に対応）</div>
+    <div class="legend-item"><span class="legend-dot info"></span>確認・準備事項</div>
+  </div>
+
+  <div class="timeline">
+
+    <!-- 06:45 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col critical">
+          <span class="time-label critical">06:45</span>
+        </div>
+        <div class="task-block critical">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">出勤・セキュリティ解除・第1回巡視</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">玄関・職員室の解錠</div>
+              <div class="task-sub">庄司さんが7時前に来ている。鍵は持っていないため、必ず先に教頭が開ける</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">職員室前廊下の窓・職員室の窓を1カ所ずつ開けて換気</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-box">
+        鍵の場所を前日（3/31）に必ず確認しておく。「玄関＋職員室」の2カ所が最低限。<br>
+        門の開閉は不要（R6から廃止。重すぎて危険）。
+      </div>
+    </div>
+
+    <!-- 07:10 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col high">
+          <span class="time-label high">07:10</span>
+        </div>
+        <div class="task-block high">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">職員室黒板に本日・明日の日程を記入</div>
+              <div class="task-sub">本日：辞令交付式8:00、第1回職員会議8:20〜、挨拶回り11:00〜、校長会13:30（校長）、事務室出張14:30（川端）</div>
+              <div class="task-sub">明日：第2回職員会議8:20〜、事務室出張14:30（川端）</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">メール確認（教委・市校長会からの連絡がないか）</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-box">
+        黒板は「本日」と「翌日」の2日分を書く習慣。5分以内でサッと書けるよう昨夜のうちに内容を頭に入れておく。
+      </div>
+    </div>
+
+    <!-- 07:30 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col info">
+          <span class="time-label">07:30</span>
+        </div>
+        <div class="task-block info">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">職員の到着を迎える・第1日目の挨拶</div>
+              <div class="task-sub">今日が初顔合わせの職員が多い。丁寧に迎える</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">渡邉校長の到着を確認・挨拶・短い打ち合わせ</div>
+              <div class="task-sub">「今日の段取りを確認させてください」と声かけ。辞令交付式の流れ確認</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07:50 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col info">
+          <span class="time-label">07:50</span>
+        </div>
+        <div class="task-block info">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">会議資料の最終確認・印刷物の準備</div>
+              <div class="task-sub">校務分掌（赤字変更版）、4月行事予定、年間行事計画、日課表、時間割、入学式実施計画案 など</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 08:00 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col critical">
+          <span class="time-label critical">08:00</span>
+        </div>
+        <div class="task-block critical">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">辞令交付式 <span class="role-tag principal">全員参加</span></div>
+              <div class="task-sub">市教育委員会から辞令が交付される。服装・姿勢に注意</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 08:20 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col critical">
+          <span class="time-label critical">08:20</span>
+        </div>
+        <div class="task-block critical">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">第1回職員会議 開会（〜9:00頃）<span class="role-tag kyoto">教頭が司会</span><span class="role-tag staff">記録：川端</span></div>
+              <div class="task-sub">約40分。台本は kyoto-april-practice-docs.html 参照</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">① 学校長より挨拶・着任職員紹介（各自自己紹介）</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">② 本日の日程・週の見通しを教頭から説明</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">③ 学級担任発表 <span class="role-tag principal">校長</span></div>
+              <div class="task-sub">1・2年複式 / 3・4年複式 / 5・6年複式</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">④ 校務分掌（赤字版）配布・話し合いを会議後に依頼</div>
+              <div class="task-sub">正式確定は4/3の第2回職員会議。「まとまったら教頭まで」と伝える</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">⑤ 別紙配布（学校行事担当者、日課表、時間割、4月行事、年間行事）</div>
+              <div class="task-sub">時間割は米倉先生の原案ベースであることを伝える</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">⑥ 身体測定・健康診断の日程案 <span class="role-tag staff">東先生</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">⑦ 入学式について（4/6実施、前日準備4/3）教頭から説明</div>
+              <div class="task-sub">新入生2名（女子）。実施計画案を別紙配布。係分担確認</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">⑧ 明日以降の予定を教頭から説明して閉会</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-box">
+        <ul>
+          <li>R7は教頭不在で校長・教員が司会。R8から教頭が司会に戻る。「何かあれば教頭まで」を自然に伝える</li>
+          <li>議事録は川端さんが記録。第1〜3回の形式は植松校長が作成済み→それを参考に</li>
+          <li>「校務分掌は今日中に話し合ってもらい、確定は4/3」というスケジュールを明確に</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 09:00 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col high">
+          <span class="time-label high">09:00</span>
+        </div>
+        <div class="task-block high">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">先生方の校務分掌話し合いを見守り・調整 <span class="role-tag staff">先生方</span></div>
+              <div class="task-sub">教頭は質問・相談を受けながら他の作業を並行する</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">施設確認・安全点検の開始</div>
+              <div class="task-sub">各棟・校庭・体育館の破損や危険箇所を確認。プール機械室の場所を早めに把握する</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">鍵の保管場所・種類の確認（全マスターキーの棚卸し）</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">渡邉校長との打ち合わせ（初日の確認事項）</div>
+              <div class="task-sub">管理職届・教職員届の提出分担を確認する</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-box">
+        施設確認は「プールの機械室・薬剤置き場」「北側外倉庫（草刈り道具）」「バックネット裏体育倉庫」「1F西側倉庫（運動会用具）」「焼却炉付近（薪）」の場所を押さえておく。<br>
+        チャイム切り替えは京呂平さんが詳しいので早めに聞く。
+      </div>
+    </div>
+
+    <!-- 11:00 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col high">
+          <span class="time-label high">11:00</span>
+        </div>
+        <div class="task-block high">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">挨拶回りの出発</div>
+              <div class="task-sub">引き継ぎ文書の配布先一覧（地区区長・スクールガード・学校運営協議会委員等）を持参して各所を回る</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-box">
+        学校だよりは京呂平さんが知っている配布先を確認しておく。<br>
+        挨拶先は南靖久さん（スクールガード・市議）、西倫生さん（区長）、岩﨑壽一さん（区長）、山本拡志さん（芳向会会長）、学校運営協議会委員各位など。
+      </div>
+    </div>
+
+    <!-- 13:00 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col info">
+          <span class="time-label">13:00</span>
+        </div>
+        <div class="task-block info">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">渡邉校長 市校長会（尾鷲市教育委員会）13:30〜 出発 <span class="role-tag principal">校長</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">川端さん 共同学校事務室（尾鷲小学校）14:30〜 出発 <span class="role-tag staff">川端</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">管理職届・教職員届を教育委員会に提出</div>
+              <div class="task-sub">締切：4/1。校長と分担を確認しておく</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13:30〜 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col high">
+          <span class="time-label high">13:30</span>
+        </div>
+        <div class="task-block high">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">職員室・教室の机移動（校長・川端が不在の間）</div>
+              <div class="task-sub">先生方と協力して進める。新転入3名分の机・PCのセットアップも</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">新転入者3名（脇先生・上ノ坊先生・東先生）の受入準備</div>
+              <div class="task-sub">机の位置、PC、引き出しの鍵、駐車場の割り当て、校内地図を用意する</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">タイムカード用PCの時間確認（ずれていたら修正を検討）</div>
+              <div class="task-sub">インターネット未接続のため時計がずれる現象あり。川端さんに確認</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">共有フォルダの構成確認（R8年度フォルダの整備）</div>
+              <div class="task-sub">植松校長が★マークで区別していた仕事、提出物フォルダの場所を把握する</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-box">
+        新転入者は「向井小に来たばかりで何もわからない」状態。机とPCが使えるようにしておくだけでも安心感が大きく違う。<br>
+        PTA書記・会計業務はR7まで川端さんが対応してくれていた。R8からは教頭が担当。書類の場所を川端さんに教えてもらう。
+      </div>
+    </div>
+
+    <!-- 退勤前 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col info">
+          <span class="time-label">18:00</span>
+        </div>
+        <div class="task-block plain">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">翌日（4/2）の準備確認・黒板を書き換えておく</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">施錠巡回（校舎全館・体育館）</div>
+              <div class="task-sub">渡り廊下の風戸も確認する。電気の消し忘れチェック（体育館トイレ・外トイレ）</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">勤怠管理PCのモニター電源を切って退勤</div>
+              <div class="task-sub">最後に退勤するのが教頭</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+
+  <div class="highlight-box caution">
+    <strong>4/1 の提出物（締切今日）</strong><br>
+    管理職届・教職員届 → 教育委員会
+  </div>
+
+  <div class="footer-note">4/1 タイムライン / R8 教頭（田上良）用</div>
+</section>
+
+<!-- ========================================================
+     4月2日（木）
+     ======================================================== -->
+<section class="day-section" id="day2">
+
+  <div class="day-header">
+    <div class="day-badge">
+      <div class="date">4/2</div>
+      <div class="dow">木曜日</div>
+    </div>
+    <div class="day-title">
+      <h1>職員打ち合わせ・新転入者オリエンテーション・教育課程届着手</h1>
+      <div class="summary">新転入者3名が校内に慣れる日。午後は教頭がメインで動く。</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot critical"></span>最重要</div>
+    <div class="legend-item"><span class="legend-dot high"></span>高優先</div>
+    <div class="legend-item"><span class="legend-dot info"></span>確認・準備</div>
+  </div>
+
+  <div class="timeline">
+
+    <!-- 06:45 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col critical">
+          <span class="time-label critical">06:45</span>
+        </div>
+        <div class="task-block critical">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">出勤・玄関・職員室の解錠</div>
+              <div class="task-sub">庄司さんが7時前に来ている。今日も必ず先に開ける</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">職員室黒板に本日・明日の日程を記入</div>
+              <div class="task-sub">本日：打ち合わせ8:00〜、川端さん共同学校事務室14:30〜<br>明日（4/3）：第2回職員会議8:20〜、入学式前日準備8:30〜、共同学校事務室13:30〜</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 08:00 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col high">
+          <span class="time-label high">08:00</span>
+        </div>
+        <div class="task-block high">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">職員打ち合わせ（5分）<span class="role-tag kyoto">教頭が司会</span></div>
+              <div class="task-sub">今日の予定・明日の入学式前日準備の確認。校務分掌話し合いの続き状況を確認</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 08:20〜 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col high">
+          <span class="time-label high">08:20</span>
+        </div>
+        <div class="task-block high">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">教育課程届の作成開始（締切4/10）</div>
+              <div class="task-sub">共有フォルダの提出物フォルダ・前年度の文書を参考に。前年度比較で学級数・担任名の変更箇所を確認</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">諸表簿の点検・準備（出席簿・健康観察簿 等）</div>
+              <div class="task-sub">3複式学級に対応した表簿の枚数・様式を確認する</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">校務分掌話し合いの結果を先生方から収集・まとめる</div>
+              <div class="task-sub">4/3の第2回職員会議で確定するための準備</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">学校経営案の作成準備（共有フォルダ「議事12」確認）</div>
+              <div class="task-sub">植松校長が修正したものが入っている。渡邉校長と方向性を相談しておく</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-box">
+        <ul>
+          <li>4月当初は提出物が多い。類例を見て「できるだけ早く送る」が植松校長の教え</li>
+          <li>報告文書は必ず校長の確認をとってから送る</li>
+          <li>毎月提出するもの（問題行動月報等）と年に数回の調査はメールで来る。確認を怠らない</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 10:00〜 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col high">
+          <span class="time-label high">10:00</span>
+        </div>
+        <div class="task-block high">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">新転入者3名のオリエンテーション（校内案内）<span class="role-tag kyoto">教頭が案内</span></div>
+              <div class="task-sub">脇先生・上ノ坊先生・東先生に校内の主要場所を案内する</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-box">
+        案内ルートの目安：<br>
+        職員室→各教室→体育館→プール（機械室の場所も）→北側外倉庫→バックネット裏体育倉庫→1F西側倉庫→2階防災備蓄エリア<br>
+        「校舎の方角のずれ」に注意（「北側」と呼ばれるのが実際は体育館側）。新転入者が迷いやすいので早めに伝える。
+      </div>
+    </div>
+
+    <!-- 13:00〜 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col info">
+          <span class="time-label">13:00</span>
+        </div>
+        <div class="task-block info">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">学級開きの準備を先生方が進める時間を確保・サポート <span class="role-tag staff">担任3名</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">入学式前日準備の最終確認・役割分担リストの整理</div>
+              <div class="task-sub">4/3は8:30から5・6年生登校。式場設営・1年教室飾りつけ・机椅子移動・体育館周辺清掃の担当を明確にする</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 14:30 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col info">
+          <span class="time-label">14:30</span>
+        </div>
+        <div class="task-block info">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">川端さん 共同学校事務室（尾鷲小学校）出発 <span class="role-tag staff">川端</span></div>
+              <div class="task-sub">川端さんが不在の間、教頭が電話・来客対応をカバーする</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 16:00〜 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col info">
+          <span class="time-label">16:00</span>
+        </div>
+        <div class="task-block plain">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">新転入者との個別相談・困りごとがないか確認</div>
+              <div class="task-sub">着任初日・2日目は疲れとわからないことが重なりやすい。短時間でも声かけを</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">翌日（4/3）の第2回職員会議資料の確認・印刷</div>
+              <div class="task-sub">校務分掌確定版、入学式前日準備の役割分担表 など</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 退勤 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col info">
+          <span class="time-label">18:00</span>
+        </div>
+        <div class="task-block plain">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">施錠巡回・退勤</div>
+              <div class="task-sub">渡り廊下の風戸確認。勤怠PCモニター電源OFF</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+
+  <div class="footer-note">4/2 タイムライン / R8 教頭（田上良）用</div>
+</section>
+
+<!-- ========================================================
+     4月3日（金）
+     ======================================================== -->
+<section class="day-section" id="day3">
+
+  <div class="day-header">
+    <div class="day-badge">
+      <div class="date">4/3</div>
+      <div class="dow">金曜日</div>
+    </div>
+    <div class="day-title">
+      <h1>第2回職員会議・入学式前日準備（5・6年登校）</h1>
+      <div class="summary">午前に職員会議→午後は入学式前日準備。明日の本番に備える。</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot critical"></span>最重要</div>
+    <div class="legend-item"><span class="legend-dot high"></span>高優先</div>
+    <div class="legend-item"><span class="legend-dot info"></span>確認・準備</div>
+  </div>
+
+  <div class="timeline">
+
+    <!-- 06:45 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col critical">
+          <span class="time-label critical">06:45</span>
+        </div>
+        <div class="task-block critical">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">出勤・玄関・職員室の解錠</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">職員室黒板に本日・翌日（4/6）の日程を記入</div>
+              <div class="task-sub">本日：第2回職員会議8:20〜、入学式前日準備8:30〜（5・6年登校）、共同学校事務室13:30（教頭）<br>4/6（月）：着任式8:15〜、始業式8:20〜、入学式9:30開式</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 08:00 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col high">
+          <span class="time-label high">08:00</span>
+        </div>
+        <div class="task-block high">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">職員打ち合わせ（5分）<span class="role-tag kyoto">教頭が司会</span></div>
+              <div class="task-sub">今日の流れ（会議→前日準備）の確認。5・6年生が8:30に登校することを周知</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 08:20 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col critical">
+          <span class="time-label critical">08:20</span>
+        </div>
+        <div class="task-block critical">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">第2回職員会議（〜8:30頃）7議題 <span class="role-tag staff">1年担任が司会・次の担任が記録（持ち回り開始）</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">① 校務分掌の正式確定 <span class="role-tag kyoto">教頭</span></div>
+              <div class="task-sub">4/1話し合い結果を確認。R7→R8でPTA書記・会計を教頭が担当することも確認</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">② 掃除区域と縦割り班 <span class="role-tag staff">担当者</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">③ 保健室からの確認事項 <span class="role-tag staff">東先生</span></div>
+              <div class="task-sub">給食のきまり・食器の片付け方・児童保健情報の共有</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">④ 児童会選挙について <span class="role-tag staff">担当者</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">⑤ 家庭環境調査票について <span class="role-tag kyoto">教頭</span></div>
+              <div class="task-sub">昨年度分の返却・新たに記入（提出目安4/11）</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">⑥ 校内文書整理 <span class="role-tag staff">川端</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">⑦ 学校経営担当者確認 <span class="role-tag kyoto">教頭</span></div>
+              <div class="task-sub">共有フォルダ「議事12」の資料確認。各担当者を確認、提案は第3回（4/6）・第4回（4/16）</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-box">
+        第2回から持ち回り司会が始まる。教頭は議事の流れをサポートしながら全体を把握する。<br>
+        R7では事項書に「教頭」とあった議題を校長が担当していた例がある。R8からは教頭が担当することを自然に行動で示す。
+      </div>
+    </div>
+
+    <!-- 08:30 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col critical">
+          <span class="time-label critical">08:30</span>
+        </div>
+        <div class="task-block critical">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">新5・6年生 登校（入学式前日準備の開始）</div>
+              <div class="task-sub">児童を迎えて役割を伝える。職員会議と並行するため教頭は会議を優先しつつ担当教員に任せる</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 09:00〜 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col critical">
+          <span class="time-label critical">09:00</span>
+        </div>
+        <div class="task-block critical">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">入学式前日準備 全体指揮 <span class="role-tag kyoto">教頭</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">式場設営：体育館清掃・机椅子並べ・舞台準備・看板・生花</div>
+              <div class="task-sub">教頭＋教職員＋5年生が担当。R1反省より「前日準備は6年生と職員で行う」を今年度も参考に</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">1年教室：飾りつけ・名札貼り</div>
+              <div class="task-sub">新1年担任＋6年生が担当</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">各教室の机・椅子の数調整</div>
+              <div class="task-sub">内山先生・川端さん＋5年生が担当</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">体育館周辺清掃（玄関前・駐車場・渡り廊下）</div>
+              <div class="task-sub">京呂平さん・庄司さん＋5年生が担当</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-box">
+        <ul>
+          <li>来賓の誘導係を必ずつける（R1反省より）</li>
+          <li>ワイヤレスマイクの準備・動作確認を忘れずに（R1反省より）</li>
+          <li>入学式関連書類（来賓案内状・席張り紙・実施計画案・PTA会長案内等）は作成済みなので場所を確認しておく</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 10:00〜 並行作業 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col high">
+          <span class="time-label high">10:00</span>
+        </div>
+        <div class="task-block high">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">着任式・始業式の式次第作成（4/6用）</div>
+              <div class="task-sub">着任式8:15〜、始業式8:20〜。式次第の原稿を整える。R7の事項書を参考に</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">入学式会場設営計画の最終確認（設営中に気になった点を修正）</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">時間割の最終確定（米倉先生と確認）</div>
+              <div class="task-sub">教頭の授業コマ（書写・理科）の時間帯を米倉先生の案ベースで最終調整</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">学級編制届の準備（締切4/7）</div>
+              <div class="task-sub">様式・記載内容を確認。4/6の入学式後に提出できるよう下書きを作っておく</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13:30 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col high">
+          <span class="time-label high">13:30</span>
+        </div>
+        <div class="task-block high">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">教頭 共同学校事務室（尾鷲小学校）出発 <span class="role-tag kyoto">教頭</span></div>
+              <div class="task-sub">不在中の対応を渡邉校長・京呂平さんに引き継いでから出発する</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 放送・マイクテスト -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col high">
+          <span class="time-label high">帰校後</span>
+        </div>
+        <div class="task-block high">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">放送設備・マイクテスト（入学式用）</div>
+              <div class="task-sub">体育館のマイク（ワイヤレス含む）・放送機器の動作確認。不具合は今日中に解決する</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">来賓名簿の読み練習</div>
+              <div class="task-sub">入学式の来賓紹介・祝電披露で読み上げる名前を声に出して練習する</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">座席の張り紙・プログラムの最終確認</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="memo-box">
+        <ul>
+          <li>ワイヤレスマイクの電池残量を確認する</li>
+          <li>来賓名の読み方は引き継ぎ文書・来賓名簿に読み仮名が記載されている。本番前に最低2回は声に出して読む</li>
+          <li>新入生は2名（女子）。入場・退場の動線を確認しておく</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 退勤 -->
+    <div class="time-block">
+      <div class="time-block-header">
+        <div class="time-col info">
+          <span class="time-label">18:00</span>
+        </div>
+        <div class="task-block plain">
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">体育館・式場の最終確認（設営が完成しているか）</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">明日（4/6）の持ち物・台本・名簿の最終確認</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"><input type="checkbox"></div>
+            <div class="task-content">
+              <div class="task-main">施錠巡回・退勤</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+
+  <div class="highlight-box warn">
+    <strong>4/3 翌日（4/4・4/5）は学年始休業・土日。月曜4/6に全てが本番。</strong><br>
+    今日中に式場・マイク・台本・名簿を完成形にする。
+  </div>
+
+  <div class="footer-note">4/3 タイムライン / R8 教頭（田上良）用</div>
+</section>
+
+<!-- ========================================================
+     3日間まとめ（提出物・持ち物・緊急連絡先）
+     ======================================================== -->
+<section class="summary-section" id="summary">
+
+  <h1>3日間 まとめ</h1>
+
+  <!-- ===== 提出物まとめ ===== -->
+  <h2>4月前半の提出物一覧</h2>
+
+  <table class="deadline-table">
+    <tr>
+      <th>締切</th>
+      <th>提出物</th>
+      <th>提出先</th>
+    </tr>
+    <tr>
+      <td><span class="deadline-badge">4/1</span></td>
+      <td>管理職届・教職員届</td>
+      <td>教育委員会</td>
+    </tr>
+    <tr>
+      <td><span class="deadline-badge">4/7</span></td>
+      <td>学級編制届</td>
+      <td>教育委員会</td>
+    </tr>
+    <tr>
+      <td><span class="deadline-badge">4/10</span></td>
+      <td>教育課程届</td>
+      <td>教育委員会</td>
+    </tr>
+    <tr>
+      <td><span class="deadline-badge">4/10</span></td>
+      <td>在籍児童数報告</td>
+      <td>教育委員会</td>
+    </tr>
+    <tr>
+      <td>4/11</td>
+      <td>校内研修指導主事要請</td>
+      <td>教育委員会</td>
+    </tr>
+    <tr>
+      <td>4/11</td>
+      <td>外国語教育研修参加希望</td>
+      <td>教育委員会</td>
+    </tr>
+    <tr>
+      <td>4/14</td>
+      <td>年間行事予定表（確定版）</td>
+      <td>教育委員会・保護者</td>
+    </tr>
+    <tr>
+      <td>4/15</td>
+      <td>学校経営案 / 防火管理者変更届</td>
+      <td>教育委員会 / 消防署</td>
+    </tr>
+  </table>
+
+  <!-- ===== 持ち物チェックリスト ===== -->
+  <h2 style="margin-top: 24px;">持ち物チェックリスト（4月1日出勤時）</h2>
+
+  <div class="checklist-grid">
+    <div class="check-group">
+      <h3>書類・印刷物</h3>
+      <ul>
+        <li><input type="checkbox"> 認印（シャチハタでない実印）</li>
+        <li><input type="checkbox"> 名刺（学校用・新刷）</li>
+        <li><input type="checkbox"> メモ帳・筆記具</li>
+        <li><input type="checkbox"> 入学式台本（kyoto-april-practice-docs.html 印刷版）</li>
+        <li><input type="checkbox"> 着任式・始業式式次第（印刷版）</li>
+        <li><input type="checkbox"> 来賓名簿（読み仮名付き）</li>
+        <li><input type="checkbox"> 3日間タイムライン（このシート）</li>
+      </ul>
+    </div>
+    <div class="check-group">
+      <h3>ID・鍵・設定</h3>
+      <ul>
+        <li><input type="checkbox"> 学校マスターキーの場所を確認済み</li>
+        <li><input type="checkbox"> マチコミ管理ログイン情報の確認</li>
+        <li><input type="checkbox"> 教頭PC のパスワード確認済み</li>
+        <li><input type="checkbox"> 共有フォルダのパス・構成確認済み</li>
+      </ul>
+    </div>
+    <div class="check-group">
+      <h3>服装・身だしなみ</h3>
+      <ul>
+        <li><input type="checkbox"> スーツ（辞令交付式あり）</li>
+        <li><input type="checkbox"> 名札（学校名入り）</li>
+        <li><input type="checkbox"> 予備のワイシャツ（挨拶回りで汗をかく場合）</li>
+      </ul>
+    </div>
+    <div class="check-group">
+      <h3>事前確認（前日3/31）</h3>
+      <ul>
+        <li><input type="checkbox"> 玄関・職員室の鍵の場所</li>
+        <li><input type="checkbox"> 辞令交付式の会場・時刻</li>
+        <li><input type="checkbox"> 職員会議の配布資料の印刷完了</li>
+        <li><input type="checkbox"> 挨拶回りの訪問先リスト</li>
+        <li><input type="checkbox"> プール機械室の場所の下調べ</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 学校三師 ===== -->
+  <h2 style="margin-top: 24px;">学校三師（緊急時の連絡先名）</h2>
+
+  <div class="doctor-grid">
+    <div class="doctor-card">
+      <div class="label">学校医</div>
+      <div class="name">木場 藤一郎 先生</div>
+    </div>
+    <div class="doctor-card">
+      <div class="label">歯科医</div>
+      <div class="name">加藤 久善 先生</div>
+    </div>
+    <div class="doctor-card">
+      <div class="label">薬剤師</div>
+      <div class="name">吉川 眞穂 先生</div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top: 16px;">
+    <strong>4月最初の3日間を乗り切るコツ</strong>
+    <ul style="margin-top: 6px; padding-left: 18px; font-size: 13px; line-height: 2;">
+      <li>「できることは早め早めに。後回しにして失敗した経験がある」（植松校長の教え）</li>
+      <li>報告文書は必ず校長の確認をとってから送る</li>
+      <li>わからないことは川端さんに聞く。引き継ぎを丁寧にしてくださっている</li>
+      <li>連絡・相談は教頭経由が基本。「何かあれば教頭まで」を初日から自然に伝える</li>
+      <li>施錠の最終確認は教頭の役割。退勤前に必ず一巡する</li>
+    </ul>
+  </div>
+
+  <div class="footer-note">
+    3日間まとめ / R8 教頭（田上良）用 / 向井小学校<br>
+    ※このシートは教頭個人の使用のみ。校内で配布しない。
+  </div>
+
+</section>
+
+</body>
+</html>
