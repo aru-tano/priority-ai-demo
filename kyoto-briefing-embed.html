@@ -1109,6 +1109,36 @@ if(location.hash==='#embed')document.documentElement.classList.add('embed-mode')
         </div>
     </div>
 
+    <!-- ===== 雑談ネタ ===== -->
+    <div class="section" id="sec-chat">
+        <div class="section-header" onclick="toggleSection('sec-chat')">
+            <span class="chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="section-title">雑談ネタ（今日のトピック）</span>
+        </div>
+        <div class="section-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+                <div style="padding:10px 14px;background:var(--surface-dim,#f5f3f0);border-radius:8px;font-size:13px">「向井小の周りで美味しいお店ってありますか？」<span style="display:block;font-size:11px;color:#94a3b8;margin-top:4px">→ 地域の話が広がる</span></div>
+                <div style="padding:10px 14px;background:var(--surface-dim,#f5f3f0);border-radius:8px;font-size:13px">「今年はどんな学年にしたいですか？」<span style="display:block;font-size:11px;color:#94a3b8;margin-top:4px">→ 担任の先生に（発表後）</span></div>
+                <div style="padding:10px 14px;background:var(--surface-dim,#f5f3f0);border-radius:8px;font-size:13px">「校庭の桜、もう咲いてますか？」<span style="display:block;font-size:11px;color:#94a3b8;margin-top:4px">→ 継続職員に。季節の話は無難</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 人間関係構築（初日） ===== -->
+    <div class="section" id="sec-hr">
+        <div class="section-header" onclick="toggleSection('sec-hr')">
+            <span class="chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="section-title">人間関係構築（初日）</span>
+        </div>
+        <div class="section-body">
+            <div style="display:grid;grid-template-columns:1fr;gap:8px">
+                <div style="padding:10px 16px;background:var(--surface-dim,#f5f3f0);border-radius:8px;font-size:13px"><strong>10人全員と1対1で話す時間を作る。</strong>職員会議の合間、机移動の時、休憩時間。5分でいい</div>
+                <div style="padding:10px 16px;background:var(--surface-dim,#f5f3f0);border-radius:8px;font-size:13px">聞く質問: <strong>「前の学校ではどんなことをされていたんですか」</strong>。相手の話を聞く側に回る</div>
+                <div style="padding:10px 16px;background:var(--surface-dim,#f5f3f0);border-radius:8px;font-size:13px">教員以外の職員（川端さん・京呂平さん・庄司さん・米倉先生）を後回しにしない。<strong>むしろ先に声をかける</strong></div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== 赴任初日チェックリスト ===== -->
     <div class="section" id="sec-checklist">
         <div class="section-header" onclick="toggleSection('sec-checklist')">
@@ -1182,11 +1212,18 @@ function loadCheckStates() {
 }
 document.addEventListener('DOMContentLoaded', function() {
     loadCheckStates();
-    document.querySelectorAll('.section-body').forEach(function(body) {
-        body.style.maxHeight = body.scrollHeight + 'px';
-    });
-    document.querySelectorAll('.chevron').forEach(function(c) {
-        c.style.transform = 'rotate(90deg)';
+    // 前半セクションは開く、後半は折りたたむ
+    var openSections = ['sec-timeline', 'sec-top', 'sec-people', 'sec-pitfall', 'sec-rules', 'sec-deadlines'];
+    document.querySelectorAll('.section').forEach(function(sec) {
+        var body = sec.querySelector('.section-body');
+        var chev = sec.querySelector('.chevron');
+        if (openSections.indexOf(sec.id) !== -1) {
+            body.style.maxHeight = body.scrollHeight + 'px';
+            if (chev) chev.style.transform = 'rotate(90deg)';
+        } else {
+            body.style.maxHeight = '0px';
+            if (chev) chev.style.transform = 'rotate(0deg)';
+        }
     });
 });
 </script>
