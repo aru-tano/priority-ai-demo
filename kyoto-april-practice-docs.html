@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4月実践資料 — R8年度 向井小学校 教頭用</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    color: #2d2621;
+    background: #FAF9F6;
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  /* ===== Print Optimization ===== */
+  @media print {
+    body { background: white; font-size: 11px; line-height: 1.45; }
+    .doc-section { page-break-after: always; padding: 8mm; margin: 0; border: none; box-shadow: none; }
+    .doc-section:last-child { page-break-after: avoid; }
+    .screen-nav { display: none; }
+    .no-print { display: none; }
+    .serif-line { border-left-color: #333 !important; }
+    h1 { font-size: 16px; }
+    h2 { font-size: 13px; }
+    h3 { font-size: 12px; }
+    .time-badge { background: #eee !important; color: #333 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .highlight-box { background: #f5f5f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .role-tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @page { size: A4; margin: 10mm; }
+
+  /* ===== Screen Layout ===== */
+  .screen-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    padding: 12px 24px;
+    display: flex; gap: 12px; align-items: center;
+  }
+  .screen-nav a {
+    text-decoration: none; color: #4A7C59; font-weight: 600; font-size: 13px;
+    padding: 6px 14px; border-radius: 8px; transition: background 0.2s;
+  }
+  .screen-nav a:hover { background: rgba(74,124,89,0.08); }
+  .screen-nav .title-badge {
+    font-size: 11px; color: #6b6560; border-right: 1px solid #ddd; padding-right: 12px; margin-right: 4px;
+  }
+
+  .doc-section {
+    max-width: 800px; margin: 24px auto; padding: 32px;
+    background: white; border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+
+  h1 {
+    font-size: 20px; font-weight: 700; color: #2d2621;
+    border-bottom: 2px solid #4A7C59; padding-bottom: 8px; margin-bottom: 20px;
+  }
+  h1 .sub { font-size: 12px; font-weight: 500; color: #6b6560; display: block; margin-top: 2px; }
+
+  h2 {
+    font-size: 15px; font-weight: 700; color: #4A7C59;
+    margin: 20px 0 10px; padding-left: 10px;
+    border-left: 3px solid #4A7C59;
+  }
+
+  h3 { font-size: 13px; font-weight: 600; margin: 14px 0 6px; color: #3a3530; }
+
+  /* ===== Components ===== */
+  .time-badge {
+    display: inline-block; background: #4A7C59; color: white;
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+    margin-right: 6px; vertical-align: middle;
+  }
+
+  .role-tag {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 1px 6px; border-radius: 3px; margin-left: 4px; vertical-align: middle;
+  }
+  .role-tag.kyoto { background: #E8F5E9; color: #2E7D32; }
+  .role-tag.principal { background: #FFF3E0; color: #E65100; }
+  .role-tag.staff { background: #E3F2FD; color: #1565C0; }
+
+  .serif-line {
+    border-left: 3px solid #C45D5D;
+    padding: 8px 12px; margin: 8px 0;
+    background: #FFFBF5; border-radius: 0 8px 8px 0;
+    font-size: 13px;
+  }
+  .serif-line::before {
+    content: ''; font-size: 10px; color: #C45D5D; font-weight: 600;
+    display: block; margin-bottom: 2px;
+  }
+  .serif-line.mc::before { content: '教頭セリフ'; }
+  .serif-line.note::before { content: 'メモ'; color: #6b6560; }
+  .serif-line.action::before { content: '動き'; color: #4A7C59; }
+
+  .highlight-box {
+    background: #F0F7F2; border-radius: 8px; padding: 12px 16px; margin: 10px 0;
+  }
+  .highlight-box.warm { background: #FFF8E1; }
+  .highlight-box.caution { background: #FFF3E0; border-left: 3px solid #FF9800; }
+
+  .agenda-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .agenda-num {
+    flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+    background: #4A7C59; color: white; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .agenda-content { flex: 1; font-size: 13px; }
+  .agenda-content .presenter { font-size: 11px; color: #6b6560; }
+
+  .intro-card {
+    background: white; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px;
+    padding: 16px; margin: 10px 0;
+  }
+  .intro-card .label { font-size: 11px; font-weight: 600; color: #4A7C59; margin-bottom: 4px; }
+  .intro-card .duration { font-size: 10px; color: #6b6560; float: right; }
+  .intro-card .text { font-size: 14px; line-height: 1.8; }
+  .intro-card .pause { color: #C45D5D; font-size: 11px; font-weight: 600; }
+
+  .ceremony-flow {
+    display: grid; gap: 2px; margin: 10px 0;
+  }
+  .ceremony-step {
+    display: grid; grid-template-columns: 28px 1fr; gap: 8px;
+    padding: 6px 8px; border-radius: 6px; font-size: 13px;
+  }
+  .ceremony-step:nth-child(odd) { background: #FAFAF8; }
+  .ceremony-step .step-num {
+    font-size: 11px; font-weight: 700; color: #4A7C59;
+    text-align: center; padding-top: 1px;
+  }
+
+  .staff-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0;
+  }
+  .staff-card {
+    padding: 6px 10px; border-radius: 6px; background: #FAFAF8;
+    font-size: 12px; border-left: 3px solid #4A7C59;
+  }
+  .staff-card .name { font-weight: 600; }
+  .staff-card .role { font-size: 11px; color: #6b6560; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+  ul { padding-left: 18px; margin: 4px 0; }
+  li { font-size: 13px; margin: 3px 0; }
+
+  .footer-note {
+    margin-top: 20px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.06);
+    font-size: 11px; color: #a8a29e; text-align: right;
+  }
+
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { padding: 3px 0; font-size: 13px; }
+  .checklist li::before { content: ''; display: inline-block; width: 14px; height: 14px; border: 1.5px solid #4A7C59; border-radius: 3px; margin-right: 8px; vertical-align: -2px; }
+</style>
+</head>
+<body>
+
+<!-- ===== Screen Navigation ===== -->
+<nav class="screen-nav no-print">
+  <span class="title-badge">R8 教頭実践資料</span>
+  <a href="#doc1">1. 第1回職員会議</a>
+  <a href="#doc1b">2. 第2回職員会議</a>
+  <a href="#doc1c">3. 第3回職員会議</a>
+  <a href="#doc2">4. 自己紹介</a>
+  <a href="#doc3">5. 入学式台本</a>
+  <a href="javascript:window.print()">印刷</a>
+</nav>
+
+<!-- ========================================================
+     DOC 1: 第1回職員会議 司会台本（8:20〜9:00）
+     R7実物事項書ベース＋教頭復帰の調整
+     ======================================================== -->
+<section class="doc-section" id="doc1">
+  <h1>
+    第1回職員会議 司会台本
+    <span class="sub">令和8年4月1日（水）8:20〜9:00頃 / 司会：教頭（田上） / 記録：川端</span>
+  </h1>
+
+  <div class="highlight-box">
+    <strong>R7との違い</strong>: R7は教頭不在で教員が司会（西川→内山の持ち回り）だった。<br>
+    R8は教頭が復帰。<strong>第1回は教頭が司会、記録は川端さん。</strong><br>
+    <strong>約40分で終わる。</strong>議題は事項書に載っているが、多くは「別紙参照」で配るだけ。<br>
+    校務分掌・時間割は<strong>会議後に先生方で話し合い</strong> → 結果を教頭に報告。
+  </div>
+
+  <!-- 開会 -->
+  <h2>開会</h2>
+  <div class="serif-line mc">
+    令和8年度、第1回職員会議を始めます。<br>
+    記録は川端さん、よろしくお願いいたします。<br>
+    司会を務めます、教頭の田上です。よろしくお願いいたします。
+  </div>
+
+  <!-- 学校長より -->
+  <h2>1. 学校長より</h2>
+  <div class="serif-line mc">
+    はじめに、渡邉校長先生よりお願いいたします。
+  </div>
+  <div class="serif-line note">
+    R7: 校長挨拶のあと別紙（「向井小学校 令和7年度のスタートにあたって」）を配布していた。<br>
+    R8: 渡邉校長の挨拶 → 着任職員紹介（各自自己紹介）→ 継続職員紹介。
+  </div>
+
+  <h3>着任職員（5名・各自自己紹介）</h3>
+  <div class="staff-grid">
+    <div class="staff-card"><div class="name">1. 渡邉 史次 校長</div><div class="role">ご着任</div></div>
+    <div class="staff-card"><div class="name">2. 田上 良 教頭</div><div class="role">紀北教育研究所より</div></div>
+    <div class="staff-card"><div class="name">3. 脇 奈緒子 先生</div><div class="role">教諭としてご着任</div></div>
+    <div class="staff-card"><div class="name">4. 上ノ坊 拓人 先生</div><div class="role">教諭としてご着任</div></div>
+    <div class="staff-card"><div class="name">5. 東 利香 先生</div><div class="role">養護助教諭としてご着任</div></div>
+  </div>
+
+  <h3>継続職員（5名）</h3>
+  <div class="staff-grid">
+    <div class="staff-card"><div class="name">内山 真穂 先生</div><div class="role">教諭</div></div>
+    <div class="staff-card"><div class="name">米倉 すが 先生</div><div class="role">非常勤講師(8h+9h)</div></div>
+    <div class="staff-card"><div class="name">京呂平 紀身 さん</div><div class="role">用務員・SSS</div></div>
+    <div class="staff-card"><div class="name">庄司 光寿 さん</div><div class="role">業務支援員</div></div>
+    <div class="staff-card"><div class="name">川端 昌 さん</div><div class="role">事務職員</div></div>
+  </div>
+  <div class="serif-line note">SCは未定。</div>
+
+  <!-- 議事：本日の日程 -->
+  <h2>2. 議事</h2>
+
+  <h3>(1) 本日の日程について <span class="role-tag kyoto">教頭</span></h3>
+  <div class="serif-line mc">
+    本日の日程をお伝えします。<br>
+    辞令交付式のあと、この職員会議を9時頃まで。<br>
+    そのあと先生方で校務分掌と時間割の話し合いをお願いします。<br>
+    11時から新年度の挨拶回りに出ます。<br>
+    午後は、校長先生が市校長会（13:30〜）、川端さんが共同学校事務室（14:30〜）です。<br>
+    残った先生方で職員室・教室の机移動をお願いします。
+  </div>
+
+  <h3>(2) R8年度学級担任について <span class="role-tag principal">校長</span></h3>
+  <div class="serif-line mc">
+    学級担任について、校長先生よりお願いいたします。
+  </div>
+  <div class="serif-line note">
+    1・2年複式、3・4年複式、5・6年複式の3学級。担任名は校長が発表。<br>
+    R7は2学級（2・3年:内山、5・6年:西川）だった。R8は3学級に増。
+  </div>
+
+  <h3>(3) 校務分掌について <span class="role-tag kyoto">教頭</span></h3>
+  <div class="serif-line mc">
+    校務分掌については、昨年度のものに赤字で変更点を入れた資料をお配りします。<br>
+    このあと先生方で話し合っていただいて、まとまりましたら教えてください。<br>
+    正式な確定は明後日の第2回職員会議で行います。
+  </div>
+  <div class="serif-line note">
+    <strong>分掌項目</strong>（R7事項書より）:<br>
+    学校運営協議会(校長)、保幼小連絡会(1年担任)、人権教育推進委員、くろしお教研、保健主事、学校図書館、道徳教育推進教員、生徒指導・いじめ問題、情報教育、ALT・外国語教育、小中連絡会(6年担任)、給食担当、特別支援教育、PTA書記・会計(教頭)、研修・学力向上<br>
+    <strong>R7→R8変更点</strong>: PTA書記・会計は教頭に戻す（R7は川端さんが肩代わり）。
+  </div>
+
+  <h3>(4)〜(8) 別紙配布 <span class="role-tag kyoto">教頭</span></h3>
+  <div class="serif-line mc">
+    学校行事の担当者、日課表、時間割、4月行事予定、年間行事計画については、<br>
+    別紙をお配りしますのでご確認ください。<br>
+    時間割は米倉先生の原案をベースにお願いします。
+  </div>
+  <div class="serif-line note">
+    R7事項書でもこれらは「別紙参照」。詳細説明はせず、配布して読んでもらう。<br>
+    時間割はR7で「C案」を採用。R8も米倉先生の原案がベース。
+  </div>
+
+  <h3>(9) 身体測定・健康診断 <span class="role-tag staff">東</span></h3>
+  <div class="serif-line mc">
+    身体測定と健康診断について、東先生お願いいたします。
+  </div>
+  <div class="serif-line note">内科検診5/20(火)13:30全校。心臓検診は1年・4年。他は日程未定。</div>
+
+  <h3>(10) 入学式について <span class="role-tag kyoto">教頭</span></h3>
+  <div class="serif-line mc">
+    入学式は4月6日月曜日、新入生2名です。<br>
+    実施計画案を別紙でお配りしますので、係分担をご確認ください。<br>
+    前日準備は4月3日金曜日、新5・6年生にも登校してもらいます。
+  </div>
+  <div class="serif-line note">
+    R7は入学児童ゼロで「(提案なし)」だった。R8は2年ぶりの入学式。<br>
+    R1反省（渡邉教頭当時）: 保護者の誘導係をつける、ワイヤレスマイクの準備。
+  </div>
+
+  <h3>(11)(12) 家庭訪問・学校経営 <span class="role-tag kyoto">教頭</span></h3>
+  <div class="serif-line note">
+    家庭訪問は4/13〜の週。学校経営は共有フォルダ「議事12」に資料あり。<br>
+    提案は第3回(4/6)・第4回(4/16)で。いずれも「別紙参照」で配布のみ。
+  </div>
+
+  <h3>(13) 明日以降の予定 <span class="role-tag kyoto">教頭</span></h3>
+  <div class="serif-line mc">
+    明日以降の予定です。<br>
+    <strong>4/2（木）</strong>: 先生方で学校経営の準備、学級開きの準備。<br>
+    <strong>4/3（金）</strong>: 第2回職員会議 8:20〜（校務分掌確定ほか）。入学式前日準備 8:30〜。<br>
+    <strong>4/6（月）</strong>: 着任式(8:15)・始業式(8:20)・入学式(9:30開式)。午後に第3回職員会議。
+  </div>
+
+  <!-- 閉会 -->
+  <h2>閉会</h2>
+  <div class="serif-line mc">
+    何かご質問はありますか。<br>
+    <span style="color:#6b6560;">（質疑応答）</span><br>
+    ありがとうございます。<br>
+    では、このあと先生方で校務分掌の話し合いをお願いいたします。<br>
+    何かあれば教頭までお声がけください。<br>
+    以上で第1回職員会議を閉じます。
+  </div>
+
+  <div class="highlight-box caution">
+    <strong>教頭の窓口宣言（会議中か会議後に伝える）</strong><br>
+    R7は教頭不在で校長や先生方が直接やり取りしていた。R8からは<strong>連絡・相談は教頭経由</strong>に戻す。<br>
+    「何かあればまず私（教頭）に声をかけてください」を自然に伝える。
+  </div>
+
+  <div class="footer-note">
+    第1回職員会議 司会台本 / R8.4.1 / 教頭用<br>
+    ※R7事項書（植松校長作成）を基に、教頭復帰に合わせて調整
+  </div>
+</section>
+
+<!-- ========================================================
+     DOC 1b: 第2回職員会議（4/3）
+     R7実物: 4/3(木) 事項書ベース
+     ======================================================== -->
+<section class="doc-section" id="doc1b">
+  <h1>
+    第2回職員会議 事項メモ
+    <span class="sub">令和8年4月3日（金）8:20〜 / 持ち回り開始（1年担任→司会、次の担任→記録）</span>
+  </h1>
+
+  <div class="highlight-box">
+    <strong>ゴール</strong>: 校務分掌の正式確定＋各担当からの実務確認。<br>
+    R7: 4/3に第2回。司会は山川（養護）、記録は内山。R8は1年担任から順に持ち回り。<br>
+    <strong>この日の午後は入学式前日準備（8:30〜、新5・6年生登校）。</strong>
+  </div>
+
+  <h2>議事（7項目）</h2>
+
+  <div class="agenda-item">
+    <div class="agenda-num">1</div>
+    <div class="agenda-content">
+      <strong>校務分掌について（確定）</strong> <span class="role-tag kyoto">教頭</span>
+      <div class="presenter">4/1の話し合い結果を確認し、正式決定。<br>
+      R7記録: 事項書では（教頭）となっていたが実際は（校長）が説明。R8は教頭が行う。</div>
+    </div>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-num">2</div>
+    <div class="agenda-content">
+      <strong>掃除区域と縦割り班について</strong> <span class="role-tag staff">担当者</span>
+      <div class="presenter">R7: 山川先生。R8の新担当者から提案。</div>
+    </div>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-num">3</div>
+    <div class="agenda-content">
+      <strong>保健室からの確認事項</strong> <span class="role-tag staff">東</span>
+      <div class="presenter">給食のきまり・食器の片付け方・児童の保健関係情報の共有。<br>
+      R7: 山川先生が説明。R8は東先生（新任）なので、引き継ぎ資料をベースに。</div>
+    </div>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-num">4</div>
+    <div class="agenda-content">
+      <strong>児童会選挙について</strong> <span class="role-tag staff">担当者</span>
+      <div class="presenter">R7: 西川先生（転出）。R8の新担当者から。</div>
+    </div>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-num">5</div>
+    <div class="agenda-content">
+      <strong>家庭環境調査票について</strong> <span class="role-tag kyoto">教頭</span>
+      <div class="presenter">昨年度分を返却、新たに書き直し（提出4/11目安）。<br>
+      R7記録: 事項書では（教頭）だが実際は（校長）。R8は教頭が行う。</div>
+    </div>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-num">6</div>
+    <div class="agenda-content">
+      <strong>校内文書整理について</strong> <span class="role-tag staff">川端</span>
+      <div class="presenter">共有フォルダの整理ルール・文書管理。川端さんが詳しい。</div>
+    </div>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-num">7</div>
+    <div class="agenda-content">
+      <strong>学校経営の担当者確認</strong> <span class="role-tag kyoto">教頭</span>
+      <div class="presenter">共有フォルダ「議事12」に資料。各担当者を確認、提案は第3回・第4回で。</div>
+    </div>
+  </div>
+
+  <div class="highlight-box caution">
+    <strong>入学式前日準備（午後）</strong>
+    <ul>
+      <li>式場設営: 体育館清掃、机・椅子並べ、舞台準備、看板、生花（教頭＋教職員＋5年生）</li>
+      <li>1年教室: 飾りつけ、名札貼り（新1年担任＋6年生）</li>
+      <li>各教室の机・椅子の数調整（内山＋川端＋5年生）</li>
+      <li>体育館周辺の清掃: 玄関前、駐車場、渡り廊下（庄司・京呂平＋5年生）</li>
+      <li>R1反省: 前日準備は6年生と職員で行う（渡邉教頭当時のコメント）</li>
+    </ul>
+  </div>
+
+  <div class="footer-note">
+    第2回職員会議 事項メモ / R8.4.3 / 教頭用<br>
+    ※R7第2回事項書（4/3）を基に調整。R7では(教頭)の項目を(校長)が実施していた点に注意
+  </div>
+</section>
+
+<!-- ========================================================
+     DOC 1c: 第3回職員会議（4/6 午後）
+     R7実物: 4/7(月) 第3回 13:30〜 ベース
+     ======================================================== -->
+<section class="doc-section" id="doc1c">
+  <h1>
+    第3回職員会議 事項メモ
+    <span class="sub">令和8年4月6日（月）13:30〜 / 入学式・10:30下校後の午後</span>
+  </h1>
+
+  <div class="highlight-box">
+    <strong>ゴール</strong>: 入学式を終えて、翌日からの通常日課に向けた実務確認。<br>
+    R7: 4/7(月) 第3回 13:30〜 と同構成。
+  </div>
+
+  <h2>この日の教頭の全体フロー</h2>
+  <div class="ceremony-flow">
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">8:15</span></div><div><strong>着任式</strong> 教頭が司会（→別紙「着任式台本」）</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">8:20</span></div><div><strong>始業式</strong> 教頭が進行。校歌→校長の話→連絡</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">8:30</span></div><div>学級指導 → 式・歌の練習</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">9:00</span></div><div>受付開始（川端さん）</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">9:30</span></div><div><strong>入学式</strong> 教頭が司会（→別紙「入学式台本」）</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">10:00</span></div><div>記念写真・懇談会（1年教室）</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">10:30</span></div><div>児童下校</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">13:30</span></div><div><strong>第3回職員会議</strong></div></div>
+  </div>
+
+  <h2>議事（4項目）</h2>
+
+  <div class="agenda-item">
+    <div class="agenda-num">1</div>
+    <div class="agenda-content">
+      <strong>生徒指導のきまり</strong> <span class="role-tag staff">担当者</span>
+      <div class="presenter">R7: 西川先生（転出）。R8の新担当者から提案。</div>
+    </div>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-num">2</div>
+    <div class="agenda-content">
+      <strong>PTA交通安全街頭指導番表</strong> <span class="role-tag kyoto">教頭</span>
+      <div class="presenter">保護者の番表を配布。R7: 街頭指導は教頭が六地蔵に立つ予定だったが実施せず。</div>
+    </div>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-num">3</div>
+    <div class="agenda-content">
+      <strong>学校経営の検討</strong> <span class="role-tag kyoto">教頭</span>
+      <div class="presenter">各担当者からの提案を受けて検討。確定は第4回(4/16)。</div>
+    </div>
+  </div>
+
+  <div class="agenda-item">
+    <div class="agenda-num">4</div>
+    <div class="agenda-content">
+      <strong>春の遠足・第1回避難訓練</strong> <span class="role-tag staff">内山</span>
+      <div class="presenter">遠足4/24(金)、避難訓練4/22(水)。内山先生から提案。</div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>この週の提出物</strong>
+    <ul>
+      <li>管理職届・教職員届 → 4/1（済のはず）</li>
+      <li>学級編制届 → 4/7</li>
+      <li>在籍児童数報告 → 4/10</li>
+      <li>教育課程届 → 4/10</li>
+    </ul>
+  </div>
+
+  <div class="footer-note">
+    第3回職員会議 事項メモ / R8.4.6 / 教頭用<br>
+    ※R7第3回（4/7 13:30〜）と同構成
+  </div>
+</section>
+
+<!-- ========================================================
+     DOC 2: 教頭の自己紹介（1分版・30秒版）
+     ======================================================== -->
+<section class="doc-section" id="doc2">
+  <h1>
+    教頭 自己紹介
+    <span class="sub">第1回職員会議 着任挨拶 / 1分版・30秒版</span>
+  </h1>
+
+  <h2>1分版（職員会議・丁寧に話す場面）</h2>
+  <div class="intro-card">
+    <div class="label">着任挨拶</div>
+    <div class="duration">約1分</div>
+    <div class="text">
+      このたび、紀北教育研究所から参りました、田上 良と申します。<br><br>
+      研究所では、先生方の研修や授業づくりのお手伝いをしてきましたが、<br>
+      やはり子どもたちの声が聞こえる学校が好きだなと、ずっと思っておりました。<br><br>
+      <span class="pause">（間）</span><br><br>
+      向井小学校のことは、自然に囲まれた温かい学校だと聞いています。<br>
+      15人の子どもたち一人ひとりの顔と名前を早く覚えて、<br>
+      先生方と一緒にこの学校を盛り上げていきたいと思っています。<br><br>
+      教頭として至らないところも多いと思いますが、<br>
+      いろいろ教えていただきながら、精一杯やってまいります。<br>
+      どうぞよろしくお願いいたします。
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>ポイント</strong>
+    <ul>
+      <li>「研究所」は簡潔に。自慢にならないように</li>
+      <li>「学校が好き」「子どもが好き」の気持ちを素直に</li>
+      <li>「教えていただきながら」— 継続の先生方への敬意</li>
+      <li>人数（15人）を具体的に言う → 「ちゃんと把握している」が伝わる</li>
+    </ul>
+  </div>
+
+  <h2>30秒版（着任式・挨拶回りなど短い場面）</h2>
+  <div class="intro-card">
+    <div class="label">短縮版</div>
+    <div class="duration">約30秒</div>
+    <div class="text">
+      紀北教育研究所から参りました、田上 良です。<br><br>
+      子どもたちの声が聞こえる学校で働けることを、とても楽しみにしています。<br>
+      先生方にいろいろ教えていただきながら、<br>
+      一緒にいい学校をつくっていきたいと思います。<br>
+      よろしくお願いいたします。
+    </div>
+  </div>
+
+  <h2>挨拶回り用（対外向け・さらに短く）</h2>
+  <div class="intro-card">
+    <div class="label">挨拶回り</div>
+    <div class="duration">約15秒</div>
+    <div class="text">
+      本年度より向井小学校の教頭を務めます、田上 良です。<br>
+      地域の皆様にはお世話になります。どうぞよろしくお願いいたします。
+    </div>
+  </div>
+
+  <div class="highlight-box warm">
+    <strong>心がけ</strong>
+    <ul>
+      <li>声のトーンはやや低め、ゆっくり。落ち着いた印象を</li>
+      <li>目線は全員に行き渡るように。特定の人だけ見ない</li>
+      <li>お辞儀は深すぎず浅すぎず。言い終わってから一拍置いて礼</li>
+      <li>校長先生の挨拶の後なので、長くしない。校長より短く</li>
+    </ul>
+  </div>
+
+  <div class="footer-note">
+    教頭自己紹介 / R8.4.1 / 教頭用
+  </div>
+</section>
+
+<!-- ========================================================
+     DOC 3: 入学式 司会台本
+     R2シナリオ（賀田小・渡邉教頭時代）＋R8実施計画案ベース
+     R1入学式反省の改善点を反映
+     ======================================================== -->
+<section class="doc-section" id="doc3">
+  <h1>
+    入学式 司会台本
+    <span class="sub">令和8年4月6日（月）開式9:30 / 進行：教頭 / 呼名：新1年担任 / 受付：川端</span>
+  </h1>
+
+  <div class="highlight-box">
+    <strong>典拠</strong>: R2賀田小入学式シナリオ（渡邉教頭が司会した実物）をベースに、R8向井小に調整。<br>
+    <strong>準備物</strong>: 教科書（校長が授与）、校歌CD、入退場曲「さんぽ」CD、マイク2本（有線＋ワイヤレス）
+  </div>
+
+  <div class="highlight-box caution">
+    <strong>事前チェック</strong>
+    <ul class="checklist">
+      <li>マイク2本テスト（R1反省: 校長の話と司会でマイクがぶつかった→ワイヤレス追加）</li>
+      <li>入退場曲「さんぽ」CD再生確認。放送担当: （　　　）</li>
+      <li>来賓名簿（読み仮名つき）を手元に。前日に声に出して練習</li>
+      <li>祝電・祝詞の掲示確認（式場後方）</li>
+      <li>保護者の誘導係を決める（R1反省: 誘導がなく入場タイミングが遅れた）</li>
+      <li>新入生名簿（担任に確認済みか）</li>
+      <li>写真撮影: 職員が撮る。新入生分・担任分・校長分・学校保存分＝計4枚</li>
+    </ul>
+  </div>
+
+  <h2>タイムライン</h2>
+  <div class="ceremony-flow">
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">8:15</span></div><div><strong>着任式</strong>（教頭が司会）</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">8:20</span></div><div><strong>始業式</strong>（教頭が進行: 校歌→校長の話→連絡）</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">8:30</span></div><div>学級指導 → 式・歌練習</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">9:00</span></div><div>受付開始（川端さん / 保護者は体育館へ誘導）</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">9:20</span></div><div>2〜6年入場・保護者入場</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">9:25</span></div><div>来賓入場</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">9:30</span></div><div><strong>新1年生入場</strong>（「さんぽ」＋拍手）</div></div>
+    <div class="ceremony-step"><div class="step-num"><span class="time-badge">10:00</span></div><div>閉式 → 記念写真 → 懇談会</div></div>
+  </div>
+
+  <!-- ===== 5分前アナウンス ===== -->
+  <h2>式次第 — 番号つきセリフ台本</h2>
+  <div class="serif-line note">
+    以下の番号はR2シナリオと対応。1年生に向けた言い方（「立ちましょう」「すわりましょう」）が入る。
+  </div>
+
+  <h3>【5分前】開式前アナウンス</h3>
+  <div class="serif-line mc">
+    皆様、本日はご出席を賜り、ありがとうございます。<br>
+    開式に先立ちましてお願いがあります。<br>
+    携帯電話をお持ちの方は、電源をお切りになるか、マナーモードにしていただくようお願いします。<br>
+    時間まで、もうしばらくお待ちください。
+  </div>
+
+  <!-- ① 新入生入場 -->
+  <h3>① 新1年生入場</h3>
+  <div class="serif-line action">1年生の入場準備ができたら、担任から合図。扉を開ける係（養護）に合図。</div>
+  <div class="serif-line mc">
+    1年生が入場します。大きな拍手でお迎えください。
+  </div>
+  <div class="serif-line note">CD「さんぽ」再生。先導は1年担任。着席を待つ。</div>
+
+  <!-- ② 一同礼 -->
+  <h3>② 一同 礼</h3>
+  <div class="serif-line mc">
+    一同起立。<br>
+    <span style="color:#6b6560;">（1年生には）</span>1年生の人も立ちましょう。<br>
+    礼。
+  </div>
+
+  <!-- ③ 開式の言葉 -->
+  <h3>③ 1. 開式の言葉</h3>
+  <div class="serif-line mc">
+    ただいまより、令和8年度 尾鷲市立向井小学校 入学式を行います。
+  </div>
+
+  <!-- ④ 国歌斉唱 -->
+  <h3>④ 2. 国歌斉唱</h3>
+  <div class="serif-line mc">
+    国歌の斉唱を行います。
+  </div>
+  <div class="serif-line note">伴奏（CD）。</div>
+
+  <!-- ⑤ 校歌斉唱 -->
+  <h3>⑤ 3. 校歌斉唱</h3>
+  <div class="serif-line mc">
+    続いて、校歌を斉唱します。
+  </div>
+  <div class="serif-line note">伴奏（CD）。終わったら：</div>
+  <div class="serif-line mc">
+    ⑥ みなさん、おすわりください。
+  </div>
+
+  <!-- ⑦ 児童呼名 -->
+  <h3>⑦ 4. 児童呼名</h3>
+  <div class="serif-line mc">
+    1年生のみなさん、担任の先生が名前を呼びますから、<br>
+    大きな声で返事をして立ちましょう。
+  </div>
+  <div class="serif-line note">
+    呼名は1年担任。すべて「さん」づけ。<br>
+    <strong>新入生（要記入）:</strong><br>
+    1. ○○ ○○ さん<br>
+    2. ○○ ○○ さん
+  </div>
+
+  <!-- ⑧ 学校長式辞 -->
+  <h3>⑧ 5. 学校長の言葉</h3>
+  <div class="serif-line action">校長がマイク位置に着くのを待つ。マイク2本（司会用＋校長用）を確認。</div>
+  <div class="serif-line mc">
+    校長先生のお話がありますから、1年生は立ちましょう。<br>
+    礼。
+  </div>
+  <div class="serif-line note">式辞中、適宜「立ちましょう」「すわりましょう」を入れる。</div>
+
+  <!-- ⑨ 教科書授与 -->
+  <h3>⑨ 教科書授与（校長式辞後）</h3>
+  <div class="serif-line mc">
+    校長先生から、教科書をいただきますから、もらってください。
+  </div>
+  <div class="serif-line note">校長が1年生に教科書を手渡す。終わったら着席させる。</div>
+
+  <!-- ⑩⑪⑫ 来賓祝辞 -->
+  <h3>⑩ 6. 来賓祝辞（PTA会長）</h3>
+  <div class="serif-line mc">
+    続きまして、PTA会長様よりご祝辞をいただきます。<br>
+    PTA会長、○○ ○○（ふりがな）様、よろしくお願いします。
+  </div>
+  <div class="serif-line mc">
+    ⑪ 1年生は立ちましょう。礼。<span style="color:#6b6560;">（様子を見て「すわりましょう」）</span>
+  </div>
+  <div class="serif-line note">会長挨拶終了後:</div>
+  <div class="serif-line mc">
+    ⑫ 1年生は立ちましょう。礼。すわりましょう。
+  </div>
+
+  <!-- ⑬⑭ 来賓紹介 -->
+  <h3>⑬ 7. 来賓紹介</h3>
+  <div class="serif-line mc">
+    ご来賓の方々より、お言葉を頂きますのが本意でございますが、<br>
+    時間の都合上、ご紹介にとどめさせていただきます。
+  </div>
+  <div class="serif-line note">
+    <strong>来賓名簿の順に読み上げる。</strong>肩書き＋氏名（ふりがな）。<br>
+    名前を呼んだら来賓が立って会釈。一人ずつ間を置く。<br>
+    ※来賓名簿は別紙（R8入学式来賓名簿）。前日に声に出して練習必須。
+  </div>
+  <div class="serif-line mc">
+    ⑭ お忙しい中、ご臨席ありがとうございました。
+  </div>
+
+  <!-- ⑮⑯⑰⑱ 祝詞披露 -->
+  <h3>⑮ 8. 祝詞披露</h3>
+  <div class="serif-line mc">
+    続きまして、メッセージのご披露をします。
+  </div>
+  <div class="serif-line note">掲示されている祝電を指し示しながら:</div>
+  <div class="serif-line mc">
+    ⑯ ○○様よりのメッセージです。<br>
+    <span style="color:#6b6560;">（主要なものを1〜2通読み上げ）</span><br><br>
+    ⑰ 他にも、以下の方々からメッセージが届いております。<br>
+    <span style="color:#6b6560;">（送り主名を列挙）</span><br><br>
+    ⑱ 以上です。ありがとうございました。<br>
+    メッセージは、式場の後ろに掲示してございますので、後ほどご覧ください。
+  </div>
+
+  <!-- ⑲ 在校生歓迎の言葉 -->
+  <h3>⑲ 9. 在校生代表 歓迎の言葉</h3>
+  <div class="serif-line mc">
+    歓迎の言葉。<br>
+    1年生、在校生、立ちましょう。<br>
+    在校生代表、6年生 西村えまり依莉さん、北村春花さん。
+  </div>
+  <div class="serif-line note">挨拶が終わったら拍手。</div>
+
+  <!-- ⑳ 歓迎の歌 -->
+  <h3>⑳ 10. 歓迎の歌「1年生になったら」</h3>
+  <div class="serif-line mc">
+    続きまして、歓迎の歌を歌います。<br>
+    1年生もいっしょに歌いましょう。
+  </div>
+  <div class="serif-line note">伴奏（CD）。終わったら:</div>
+  <div class="serif-line mc">
+    ㉑ すわりましょう。
+  </div>
+
+  <!-- ㉒ 職員紹介 -->
+  <h3>㉒ 11. 職員紹介</h3>
+  <div class="serif-line mc">
+    それでは、学校長より、職員の紹介をいたします。
+  </div>
+  <div class="serif-line note">
+    R2: 校長の紹介により一礼、着席。R8も同じ形式。<br>
+    校長が一人ずつ名前と役割を紹介 → 呼ばれた人が立って会釈。
+  </div>
+  <div class="staff-grid">
+    <div class="staff-card"><div class="name">渡邉 史次</div><div class="role">校長</div></div>
+    <div class="staff-card"><div class="name">田上 良</div><div class="role">教頭</div></div>
+    <div class="staff-card"><div class="name">○○ 先生</div><div class="role">1・2年担任</div></div>
+    <div class="staff-card"><div class="name">○○ 先生</div><div class="role">3・4年担任</div></div>
+    <div class="staff-card"><div class="name">○○ 先生</div><div class="role">5・6年担任</div></div>
+    <div class="staff-card"><div class="name">東 利香</div><div class="role">養護助教諭</div></div>
+    <div class="staff-card"><div class="name">川端 昌</div><div class="role">事務</div></div>
+    <div class="staff-card"><div class="name">米倉 すが</div><div class="role">講師</div></div>
+    <div class="staff-card"><div class="name">京呂平 紀身</div><div class="role">用務員</div></div>
+    <div class="staff-card"><div class="name">庄司 光寿</div><div class="role">業務支援員</div></div>
+  </div>
+  <div class="serif-line note">担任名は4/1確定後に記入。</div>
+
+  <!-- ㉓㉔ 閉式 -->
+  <h3>㉓ 12. 閉式の言葉</h3>
+  <div class="serif-line mc">
+    一同起立。1年生も立ちましょう。
+  </div>
+  <div class="serif-line mc">
+    ㉔ 以上をもちまして、令和8年度 入学式を終了いたします。礼。
+  </div>
+
+  <!-- ㉕㉖ 退場 -->
+  <h3>㉕ 新1年生退場</h3>
+  <div class="serif-line mc">
+    おすわりください。
+  </div>
+  <div class="serif-line action">扉を開ける（養護）。</div>
+  <div class="serif-line mc">
+    ㉖ 1年生が退場します。
+  </div>
+  <div class="serif-line note">CD「さんぽ」＋手拍子。</div>
+
+  <!-- ㉗㉘ 式後案内 -->
+  <h3>㉗ 式後案内</h3>
+  <div class="serif-line mc">
+    来賓の皆様、本日はありがとうございました。
+  </div>
+  <div class="serif-line note">校長が先導して来賓退場。</div>
+  <div class="serif-line mc">
+    ㉘ 1年生の保護者の方は、1年教室へお入りください。<br>
+    5・6年生は、片付けをしましょう。
+  </div>
+
+  <!-- 式後チェック -->
+  <h2>式後の段取り</h2>
+  <div class="highlight-box">
+    <strong>式後チェック</strong>
+    <ul class="checklist">
+      <li>記念写真撮影（運動場 / 雨天→体育館）: 新入生分・担任分・校長分・学校保存分＝計4枚</li>
+      <li>クラス写真も撮る</li>
+      <li>懇談会（1年教室）: 担任＋養護（東先生）＋保護者</li>
+      <li>懇談内容: 入学後の諸連絡(担任)、マチコミ登録(教頭)、通学路・PTA・防災(教頭)、保健・スポ振(東)</li>
+      <li>2年生は3・4年と合流（3・4年担任が対応）</li>
+      <li>5・6年生は体育館片付け</li>
+      <li>入学式で使用した花→後日マグノリア・聖光園・向井農園・コミュニティセンターへ寄贈</li>
+      <li>10:30 下校 → 13:30 第3回職員会議</li>
+    </ul>
+  </div>
+
+  <div class="highlight-box warm">
+    <strong>心得（R2シナリオ＋R1反省から）</strong>
+    <ul>
+      <li>1年生には「立ちましょう」「すわりましょう」。大人言葉（ご起立）は使わない</li>
+      <li>来賓の名前は前日に声に出して練習。読み間違いは致命的</li>
+      <li>マイク2本体制（R1反省: 1本だと校長の話と司会がぶつかる）</li>
+      <li>保護者の誘導係を事前に決めておく（R1反省: 入場タイミングが遅れた）</li>
+      <li>新入生2名。温かく、アットホームに</li>
+    </ul>
+  </div>
+
+  <div class="footer-note">
+    入学式 司会台本 / R8.4.6 / 教頭用<br>
+    ※典拠: R2賀田小入学式シナリオ＋R8向井小実施計画案＋R1入学式反省<br>
+    ※○○＝要記入（新入生氏名・PTA会長名・担任名・放送担当）
+  </div>
+</section>
+
+</body>
+</html>
