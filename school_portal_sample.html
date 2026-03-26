@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校内資料ポータル</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=Shippori+Mincho:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Inter','Noto Sans JP',sans-serif;background:#F8FAFC;color:#1e293b;min-height:100vh}
+
+/* Header */
+.hdr{background:#fff;border-bottom:1px solid #e2e8f0;padding:1.5rem 2rem}
+.hdr-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:1rem}
+.hdr-icon{width:48px;height:48px;background:linear-gradient(135deg,#2563eb,#60a5fa);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;flex-shrink:0}
+.hdr-title{font-family:'Shippori Mincho',serif;font-size:1.5rem;font-weight:700}
+.hdr-sub{font-size:.78rem;color:#64748b;margin-top:.15rem}
+
+/* Sticky search */
+.sticky{position:sticky;top:0;z-index:100;background:rgba(248,250,252,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;padding:.6rem 2rem}
+.sticky-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.sbox{flex:1;min-width:200px;max-width:500px;position:relative}
+.sbox input{width:100%;padding:.5rem 1rem .5rem 2.3rem;border:2px solid #e2e8f0;border-radius:10px;font-size:.85rem;outline:none;transition:border .2s;background:#fff}
+.sbox input:focus{border-color:#4A90C8}
+.sbox i{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:.8rem}
+.pills{display:flex;gap:.35rem;flex-wrap:wrap}
+.pill{display:flex;align-items:center;gap:.25rem;padding:.28rem .65rem;border-radius:20px;border:1px solid #e2e8f0;font-size:.72rem;cursor:pointer;transition:all .15s;color:#64748b;background:#fff;white-space:nowrap}
+.pill:hover{border-color:#4A90C8;color:#4A90C8}
+.pill.on{color:#fff;border-color:transparent}
+
+/* Main */
+.main{max-width:1200px;margin:0 auto;padding:1.5rem 2rem 3rem}
+
+/* Weekly schedule */
+.week{background:#fff;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:1.5rem;overflow:hidden}
+.week-hdr{background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;padding:1rem 1.25rem;display:flex;align-items:center;gap:.6rem}
+.week-hdr i{font-size:1.1rem}
+.week-hdr-title{font-family:'Shippori Mincho',serif;font-size:1.1rem;font-weight:600}
+.week-row{display:grid;grid-template-columns:70px 44px 1fr 80px;gap:.5rem;padding:.7rem 1.25rem;border-bottom:1px solid #f1f5f9;align-items:start;font-size:.82rem;transition:background .1s}
+.week-row:hover{background:#f8fafc}
+.week-row:last-child{border-bottom:none}
+.week-date{font-weight:600;color:#1e293b}
+.week-day{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:.72rem;font-weight:700;color:#fff;background:#4A90C8}
+.week-day.sat{background:#3b82f6}
+.week-day.sun{background:#ef4444}
+.week-event{font-weight:500;color:#1e293b}
+.week-note{font-size:.72rem;color:#64748b;margin-top:.15rem;line-height:1.4}
+.week-who{font-size:.7rem;color:#94a3b8;white-space:nowrap}
+
+/* Bento overview grid */
+.bento{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:auto;gap:1rem;margin-bottom:2rem}
+.bento-tile{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s}
+.bento-tile:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+.bento-tile.lg{grid-column:span 2}
+.bt-header{height:120px;display:flex;align-items:center;justify-content:center;position:relative;background-size:cover;background-position:center}
+.bt-header::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.4) 0%,rgba(0,0,0,.05) 100%)}
+.bt-header i{font-size:2.2rem;color:rgba(255,255,255,.95);position:relative;z-index:1;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+.bt-body{padding:1rem 1.25rem}
+.bt-name{font-family:'Shippori Mincho',serif;font-size:1.05rem;font-weight:700;margin-bottom:.2rem}
+.bt-count{font-size:.75rem;color:#64748b}
+.bt-samples{margin-top:.5rem;font-size:.72rem;color:#94a3b8;line-height:1.5}
+
+/* Card grid */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.85rem}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.07)}
+.card-top{height:100px;display:flex;align-items:center;justify-content:center;position:relative;background-size:cover;background-position:center}
+.card-top::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.05) 100%)}
+.card-top i{font-size:1.5rem;color:rgba(255,255,255,.9);position:relative;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.3)}
+.card-badge{position:absolute;top:8px;right:8px;font-size:.55rem;padding:.15rem .4rem;border-radius:4px;color:#fff;font-weight:700}
+.card-body{padding:.85rem 1rem 1rem}
+.card-name{font-size:.85rem;font-weight:600;line-height:1.35;margin-bottom:.25rem;display:flex;align-items:center;gap:.3rem}
+.card-name .imp{width:6px;height:6px;border-radius:50%;background:#D97706;flex-shrink:0}
+.card-desc{font-size:.75rem;color:#64748b;line-height:1.55}
+.card-desc b{color:#475569;font-weight:600}
+.card-foot{display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;border-top:1px solid #f1f5f9;font-size:.68rem;color:#94a3b8}
+.card-folder{display:flex;align-items:center;gap:.2rem;color:#4A90C8;font-weight:500}
+.card-tags{display:flex;gap:.2rem}
+.card-tag{padding:.1rem .35rem;border-radius:3px;background:#f1f5f9;font-size:.6rem;color:#64748b}
+
+/* Section header */
+.sec-hdr{display:flex;align-items:center;gap:.5rem;margin:1.5rem 0 .75rem;padding-bottom:.5rem;border-bottom:2px solid #e2e8f0}
+.sec-hdr i{font-size:.9rem}
+.sec-hdr-name{font-size:.95rem;font-weight:700}
+.sec-hdr-cnt{font-size:.75rem;color:#94a3b8}
+
+/* Empty */
+.empty{text-align:center;padding:3rem;color:#94a3b8}
+.empty i{font-size:2.5rem;display:block;margin-bottom:.75rem}
+
+/* Footer */
+.footer{text-align:center;padding:1.5rem;font-size:.7rem;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:2rem}
+
+@media(max-width:960px){
+  .bento{grid-template-columns:repeat(2,1fr)}
+  .bento-tile.lg{grid-column:span 1}
+}
+@media(max-width:600px){
+  .bento{grid-template-columns:1fr}
+  .card-grid{grid-template-columns:1fr}
+  .hdr,.sticky,.main{padding-left:1rem;padding-right:1rem}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-icon"><i class="fa-solid fa-school"></i></div>
+    <div>
+      <div class="hdr-title">○○小学校 資料ポータル</div>
+      <div class="hdr-sub">NAS共有フォルダの 55件の資料を検索・閲覧できます</div>
+    </div>
+  </div>
+</div>
+
+<div class="sticky">
+  <div class="sticky-inner">
+    <div class="sbox">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="q" placeholder="いじめ、指導案、アレルギー …">
+    </div>
+    <div class="pills" id="pills"></div>
+  </div>
+</div>
+
+<div class="main" id="main"></div>
+
+<div class="footer">○○小学校 NAS資料ポータル（サンプル版）— フォルダリンクをクリックするとNAS上のフォルダが開きます</div>
+
+<script>
+const D = [{"id": "S-001", "cat": "school_mgmt", "name": "R8 学校経営計画", "desc": "学校が1年間で何を目指すかの設計図。教育目標・重点目標・経営方針が書かれていて、全ての教育活動の根拠になる文書。年度初めの職員会議で全職員に共有する。", "folder": "01_学校経営/", "updated": "2026-04-01", "tags": ["経営", "年度初め"], "important": true}, {"id": "S-002", "cat": "school_mgmt", "name": "R8 学校要覧", "desc": "学校の自己紹介パンフレット。沿革・児童数・学級数・職員一覧・校区地図などを1冊にまとめたもの。来客や教育委員会への提出用。毎年4月に更新する。", "folder": "01_学校経営/", "updated": "2026-04-01", "tags": ["経営", "要覧"], "important": true}, {"id": "S-003", "cat": "school_mgmt", "name": "校務分掌表", "desc": "誰が何を担当するかの一覧表。教務主任・生徒指導・研修・保健・ICT・安全など、校内の全業務を教職員に割り振ったもの。教頭が原案を作り校長に上げる。", "folder": "01_学校経営/", "updated": "2026-04-01", "tags": ["経営", "分掌", "年度初め"], "important": true}, {"id": "S-004", "cat": "school_mgmt", "name": "年間行事予定", "desc": "4月の入学式から3月の卒業式まで、1年間の全行事が入ったカレンダー。保護者配布用と職員用の2種類がある。変更があれば教頭が更新して再配布する。", "folder": "01_学校経営/", "updated": "2026-04-01", "tags": ["行事", "年間"], "important": true}, {"id": "S-005", "cat": "school_mgmt", "name": "週時程表", "desc": "1日の流れ。朝の会・1〜6時間目・給食・掃除・帰りの会の開始終了時刻とチャイムのタイミング。曜日ごとに微妙に違う（委員会活動・クラブ等）。", "folder": "01_学校経営/", "updated": "2026-04-01", "tags": ["経営", "時程"]}, {"id": "S-006", "cat": "school_mgmt", "name": "学校評価計画", "desc": "学校が自分自身を点検する仕組み。「学力向上」「いじめ対応」等の項目ごとに、年度末に自己評価＋保護者・地域からの外部評価を行う。結果は公表が義務。", "folder": "01_学校経営/", "updated": "2026-06-01", "tags": ["経営", "評価"]}, {"id": "S-007", "cat": "school_mgmt", "name": "学校評議員会 議事録", "desc": "地域の方（民生委員・自治会長等）に学校運営について意見をもらう会議の記録。年3回開催。教頭が資料作成と議事録を担当することが多い。", "folder": "01_学校経営/評議員会/", "updated": "2026-02-15", "tags": ["経営", "評議員"]}, {"id": "S-010", "cat": "kyomu", "name": "教育課程編成", "desc": "どの学年で何時間ずつ授業をするかの設計図。国が決めた標準授業時数をもとに、学校独自の配当を決める。年間1015時間（6年）をどう使うかの計画。", "folder": "02_教務/", "updated": "2026-04-01", "tags": ["教務", "教育課程"], "important": true}, {"id": "S-011", "cat": "kyomu", "name": "年間指導計画（国語）", "desc": "1年生〜6年生の国語で、いつ・どの単元を・何時間で教えるかを月別に並べた表。教科書の配列に沿って作るが、学校行事との兼ね合いで調整する。", "folder": "02_教務/指導計画/", "updated": "2026-04-01", "tags": ["教務", "指導計画", "国語"]}, {"id": "S-012", "cat": "kyomu", "name": "年間指導計画（算数）", "desc": "算数の単元配列表。「かけ算」「分数」などの単元をいつ教えるか。つまずきやすい単元には予備時数を多めに取る等、学校ごとの工夫がある。", "folder": "02_教務/指導計画/", "updated": "2026-04-01", "tags": ["教務", "指導計画", "算数"]}, {"id": "S-013", "cat": "kyomu", "name": "年間指導計画（その他教科）", "desc": "理科・社会・音楽・図工・体育・家庭・外国語の全教科分。教科書会社の配列表をベースに、学校行事や季節に合わせて並び替える。", "folder": "02_教務/指導計画/", "updated": "2026-04-01", "tags": ["教務", "指導計画"]}, {"id": "S-014", "cat": "kyomu", "name": "道徳 年間指導計画", "desc": "道徳の授業で扱う主題（思いやり・きまり・生命尊重等）と教材を、学年ごとに35時間分並べたもの。人権週間や防災の日に合わせた配列がポイント。", "folder": "02_教務/指導計画/", "updated": "2026-04-01", "tags": ["教務", "道徳"]}, {"id": "S-015", "cat": "kyomu", "name": "総合的な学習の時間 全体計画", "desc": "3〜6年生が取り組む探究学習のテーマと年間計画。地域学習・環境・福祉・国際理解など、学校の特色が最も出る部分。地域連携とセットで考える。", "folder": "02_教務/指導計画/", "updated": "2026-04-01", "tags": ["教務", "総合"]}, {"id": "S-016", "cat": "kyomu", "name": "特別活動 年間計画", "desc": "学級会・児童会活動・クラブ活動・学校行事の4本柱の年間計画。「何月にどんな話し合いをするか」「クラブは何回か」等を決めておく。", "folder": "02_教務/指導計画/", "updated": "2026-04-01", "tags": ["教務", "特別活動"]}, {"id": "S-017", "cat": "kyomu", "name": "通知表テンプレート", "desc": "学期末に保護者に渡す成績表のひな形。教科の評定（ABC or ◎○△）と所見欄がある。所見は担任が書き、教頭→校長が点検する。", "folder": "02_教務/成績/", "updated": "2026-06-20", "tags": ["教務", "通知表", "成績"]}, {"id": "S-018", "cat": "kyomu", "name": "指導要録 様式", "desc": "児童の公式な学習記録。卒業まで学校が保管し、転校時に送付する法定帳簿。年度末に担任が記入し、校長が押印する。記入ミスは修正液NG。", "folder": "02_教務/成績/", "updated": "2026-03-01", "tags": ["教務", "指導要録"]}, {"id": "S-020", "cat": "seito", "name": "生徒指導全体計画", "desc": "学校全体でどう子どもを指導・支援するかの方針書。いじめ・不登校・問題行動への対応フローと、日常の生活指導（廊下を走らない等）の両方を含む。", "folder": "03_生徒指導/", "updated": "2026-04-01", "tags": ["生徒指導", "いじめ"], "important": true}, {"id": "S-021", "cat": "seito", "name": "いじめ防止基本方針", "desc": "いじめ防止対策推進法に基づく学校の方針。早期発見のためのアンケート頻度、発見時の対応手順、重大事態の判断基準、教育委員会への報告ルートを規定。", "folder": "03_生徒指導/", "updated": "2026-04-01", "tags": ["生徒指導", "いじめ"], "important": true}, {"id": "S-022", "cat": "seito", "name": "教育相談体制", "desc": "子どもや保護者の悩みを受け止める仕組み。スクールカウンセラー（SC）の来校日、スクールソーシャルワーカー（SSW）との連携方法、ケース会議の開き方。", "folder": "03_生徒指導/", "updated": "2026-04-01", "tags": ["生徒指導", "相談"]}, {"id": "S-023", "cat": "seito", "name": "不登校対応マニュアル", "desc": "3日連続欠席→担任が電話、7日→家庭訪問、30日→教育支援センター紹介…のような段階的対応の手順書。欠席日数の集計は教頭の仕事になることが多い。", "folder": "03_生徒指導/", "updated": "2026-04-01", "tags": ["生徒指導", "不登校"]}, {"id": "S-024", "cat": "seito", "name": "生活アンケート", "desc": "「嫌なことをされていませんか」「困っていることはありませんか」等、学期に1回全児童に配るアンケート。いじめの早期発見が主目的。結果は学年で共有。", "folder": "03_生徒指導/", "updated": "2026-05-15", "tags": ["生徒指導", "アンケート"]}, {"id": "S-030", "cat": "tokushi", "name": "特別支援教育 全体計画", "desc": "支援が必要な子どもをどう支えるかの全体像。校内委員会の構成・年3回の開催計画、巡回相談の申込方法、通級との連携を記載。特支コーディネーターが中心。", "folder": "04_特別支援/", "updated": "2026-04-01", "tags": ["特支", "体制"]}, {"id": "S-031", "cat": "tokushi", "name": "個別の教育支援計画テンプレート", "desc": "支援が必要な児童1人ずつに作る計画書。本人の実態・保護者の願い・長期目標・短期目標・手立てを書く。年度末に評価して次年度に引き継ぐ。", "folder": "04_特別支援/", "updated": "2026-04-01", "tags": ["特支", "支援計画"]}, {"id": "S-032", "cat": "tokushi", "name": "個別の指導計画テンプレート", "desc": "教科ごとの具体的な配慮内容。「テストの時間を1.5倍にする」「板書を写真撮影OK」等の合理的配慮を明文化するための様式。", "folder": "04_特別支援/", "updated": "2026-04-01", "tags": ["特支", "指導計画"]}, {"id": "S-033", "cat": "tokushi", "name": "通級指導教室 案内", "desc": "通常学級に在籍しながら週1〜2時間だけ別室で個別指導を受ける制度の案内。申請手続き・対象基準・指導内容・他校通級の場合の送迎について。", "folder": "04_特別支援/", "updated": "2026-04-01", "tags": ["特支", "通級"]}, {"id": "S-040", "cat": "hoken", "name": "学校保健計画", "desc": "4月の身体測定から3月の健康診断まとめまで、1年間の保健行事と保健指導の計画。養護教諭が作成し、学校医の助言をもらう。歯磨き指導や薬物乱用防止教室も含む。", "folder": "05_保健安全/", "updated": "2026-04-01", "tags": ["保健", "健康"]}, {"id": "S-041", "cat": "hoken", "name": "危機管理マニュアル", "desc": "地震・津波・火災・不審者侵入・台風時の対応手順をまとめた最重要文書。「誰が何をするか」が秒単位で書いてある。尾鷲は南海トラフ警戒地域なので特に重要。", "folder": "05_保健安全/", "updated": "2026-04-01", "tags": ["安全", "危機管理", "防災"], "important": true}, {"id": "S-042", "cat": "hoken", "name": "食物アレルギー対応マニュアル", "desc": "アレルギー児童の給食対応フロー。除去食の確認手順、エピペンの保管場所と使い方、誤食時の緊急対応（119番→エピペン→AED待機）。命に関わるので毎年全職員で確認。", "folder": "05_保健安全/", "updated": "2026-04-01", "tags": ["保健", "アレルギー", "給食"], "important": true}, {"id": "S-043", "cat": "hoken", "name": "感染症対応ガイドライン", "desc": "インフルエンザ・コロナ等の出席停止基準（発症後5日かつ解熱後2日等）、学級閉鎖の判断基準（欠席率20%以上等）、消毒方法の一覧。", "folder": "05_保健安全/", "updated": "2026-04-01", "tags": ["保健", "感染症"]}, {"id": "S-044", "cat": "hoken", "name": "避難訓練計画", "desc": "年3回（地震・火災・不審者）の訓練シナリオ。避難経路・集合場所・点呼方法・反省記録。教頭は訓練の企画と当日の指揮を担当することが多い。", "folder": "05_保健安全/", "updated": "2026-05-01", "tags": ["安全", "防災", "訓練"]}, {"id": "S-045", "cat": "hoken", "name": "交通安全指導計画", "desc": "通学路の危険箇所マップ、交通安全教室（年2回・警察と連携）、保護者の見守り当番表。通学路の変更があれば教頭が教育委員会に報告。", "folder": "05_保健安全/", "updated": "2026-04-01", "tags": ["安全", "交通"]}, {"id": "S-050", "cat": "kenshu", "name": "校内研修計画", "desc": "今年の研究テーマ（例:「主体的に学ぶ子の育成」）と、授業研究会の日程・講師・指導案検討会の計画。研修主任が作成し、教頭が調整する。", "folder": "06_研修/", "updated": "2026-04-15", "tags": ["研修", "研究"], "important": true}, {"id": "S-051", "cat": "kenshu", "name": "研究授業 指導案テンプレート", "desc": "授業研究会で使う指導案のひな形。略案（A4 1枚）と細案（A4 3〜4枚）の2種類。単元観・児童観・指導観と、本時の展開を書く。", "folder": "06_研修/", "updated": "2026-04-15", "tags": ["研修", "指導案"]}, {"id": "S-052", "cat": "kenshu", "name": "過去の研究紀要", "desc": "R5〜R7の3年分の校内研究のまとめ冊子。研究テーマ・授業実践・成果と課題が記録されている。新任の先生や転入教員がこの学校の研究の流れを知るのに使う。", "folder": "06_研修/紀要/", "updated": "2026-03-01", "tags": ["研修", "紀要"]}, {"id": "S-053", "cat": "kenshu", "name": "ICT活用研修資料", "desc": "タブレット（Chromebook）の基本操作、Google Classroom の使い方、デジタル教材の紹介、AI活用の事例等。年度初めの職員研修で使う。", "folder": "06_研修/ICT/", "updated": "2026-06-01", "tags": ["研修", "ICT"]}, {"id": "S-060", "cat": "pta", "name": "PTA総会資料", "desc": "年度初めのPTA総会で配る資料一式。前年度の活動報告・決算、今年度の活動計画・予算案、新旧役員紹介。教頭が資料作成を手伝うことが多い。", "folder": "07_PTA地域/", "updated": "2026-04-20", "tags": ["PTA", "総会"]}, {"id": "S-061", "cat": "pta", "name": "学校だよりバックナンバー", "desc": "毎月発行する保護者向けの通信。校長の挨拶、行事予定、学校の様子、保健だよりを兼ねることも。PDF化してNASに保存。", "folder": "07_PTA地域/学校だより/", "updated": "2026-03-15", "tags": ["広報", "学校だより"]}, {"id": "S-062", "cat": "pta", "name": "地域ボランティア名簿", "desc": "読み聞かせ・登下校見守り・ゲストティーチャー等で協力してくれる地域の方の連絡先一覧。個人情報なのでNAS上の取り扱い注意。", "folder": "07_PTA地域/", "updated": "2026-04-01", "tags": ["地域", "ボランティア"]}, {"id": "S-063", "cat": "pta", "name": "コミュニティスクール運営協議会", "desc": "学校・保護者・地域が一緒に学校運営を考える仕組み。委員名簿・年間計画（年3回）・議事録。教頭が事務局を担当する学校が多い。", "folder": "07_PTA地域/CS/", "updated": "2026-05-01", "tags": ["地域", "CS"]}, {"id": "S-070", "cat": "jimu", "name": "出勤簿・休暇届様式", "desc": "年次有給休暇・特別休暇・介護休暇等の申請用紙。三重県の場合は電子システムもあるが、紙の様式も併用している学校が多い。", "folder": "08_事務/服務/", "updated": "2026-04-01", "tags": ["事務", "服務", "休暇"]}, {"id": "S-071", "cat": "jimu", "name": "旅行命令簿", "desc": "出張に行く際の申請書と、帰ってきてから書く復命書のひな形。研修参加・他校訪問・教育委員会への出頭等で使う。教頭が出張命令を出す立場。", "folder": "08_事務/服務/", "updated": "2026-04-01", "tags": ["事務", "出張"]}, {"id": "S-072", "cat": "jimu", "name": "学校徴収金管理", "desc": "保護者から集める教材費・PTA会費・給食費の年間徴収計画と会計帳簿。未納対応は教頭案件になることが多い。", "folder": "08_事務/会計/", "updated": "2026-04-01", "tags": ["事務", "会計"]}, {"id": "S-073", "cat": "jimu", "name": "備品台帳", "desc": "学校のPC・プロジェクタ・印刷機・体育器具等の管理台帳。購入年度・管理番号・設置場所を記録。年度末に実物と突き合わせて棚卸しする。", "folder": "08_事務/", "updated": "2026-04-01", "tags": ["事務", "備品"]}, {"id": "S-074", "cat": "jimu", "name": "個人情報管理規程", "desc": "成績データ・名簿・写真等の取り扱いルール。USBの持ち出し禁止、PC画面ロック、鍵のかかる棚の管理。情報漏洩が起きたら教頭→校長→教育委員会の報告フロー。", "folder": "08_事務/", "updated": "2026-04-01", "tags": ["事務", "個人情報", "セキュリティ"], "important": true}, {"id": "S-080", "cat": "ict", "name": "タブレット運用ルール", "desc": "児童用Chromebookの利用規約。ログイン方法・充電ルール・破損時の対応・持ち帰り学習のルール。「YouTubeは授業中のみ」等の制限事項も。", "folder": "09_ICT/", "updated": "2026-04-01", "tags": ["ICT", "タブレット", "Chromebook"]}, {"id": "S-081", "cat": "ict", "name": "Wi-Fi・ネットワーク構成図", "desc": "校内LANの配線図、無線APの設置場所、教職員用/児童用ネットワークの分離構成。トラブル時にどこを見ればいいかの手がかり。パスワードは別管理。", "folder": "09_ICT/", "updated": "2026-04-01", "tags": ["ICT", "ネットワーク"]}, {"id": "S-082", "cat": "ict", "name": "Google Workspace 活用ガイド", "desc": "Classroom（課題配信）・Forms（アンケート）・Slides（発表）・Jamboard（協働学習）等の使い方と校内ルール。アカウント管理は教頭orICT担当。", "folder": "09_ICT/", "updated": "2026-04-01", "tags": ["ICT", "Google"]}, {"id": "S-083", "cat": "ict", "name": "デジタル教科書 導入状況", "desc": "どの教科・学年にデジタル教科書が入っているかの一覧。指導者用（大型TV投映用）と学習者用（児童タブレット用）で導入状況が違う。", "folder": "09_ICT/", "updated": "2026-04-01", "tags": ["ICT", "教科書"]}, {"id": "S-090", "cat": "gakunen", "name": "1年 学年経営案", "desc": "1年生の学年目標と指導方針。「ひらがなが書ける」「友だちと仲良く」等の具体的な到達目標と、そのための手立てを学年担任が書く。", "folder": "10_学年/1年/", "updated": "2026-04-10", "tags": ["学年", "1年"]}, {"id": "S-091", "cat": "gakunen", "name": "2年 学年経営案", "desc": "2年生の学年目標。かけ算九九の定着、生活科でのまち探検、2年生としての自覚を育てる方針等。", "folder": "10_学年/2年/", "updated": "2026-04-10", "tags": ["学年", "2年"]}, {"id": "S-092", "cat": "gakunen", "name": "3年 学年経営案", "desc": "3年生の学年目標。理科・社会が始まる学年。ローマ字、わり算、地域学習への意欲づけがポイント。", "folder": "10_学年/3年/", "updated": "2026-04-10", "tags": ["学年", "3年"]}, {"id": "S-093", "cat": "gakunen", "name": "4年 学年経営案", "desc": "4年生の学年目標。二分の一成人式、都道府県学習、クラブ活動開始。「中学年のリーダー」としての自覚。", "folder": "10_学年/4年/", "updated": "2026-04-10", "tags": ["学年", "4年"]}, {"id": "S-094", "cat": "gakunen", "name": "5年 学年経営案", "desc": "5年生の学年目標。委員会活動開始、宿泊学習、家庭科・外国語の本格化。高学年としての責任感を育てる方針。", "folder": "10_学年/5年/", "updated": "2026-04-10", "tags": ["学年", "5年"]}, {"id": "S-095", "cat": "gakunen", "name": "6年 学年経営案", "desc": "6年生の学年目標。最高学年として学校を引っ張る自覚、修学旅行、卒業に向けた取り組み。中学校との接続も意識。", "folder": "10_学年/6年/", "updated": "2026-04-10", "tags": ["学年", "6年"]}, {"id": "S-096", "cat": "gakunen", "name": "特別支援学級 経営案", "desc": "支援学級の教育課程・指導方針。自立活動の時間の使い方、交流学級との連携、個別の目標設定の考え方。", "folder": "10_学年/特支/", "updated": "2026-04-10", "tags": ["学年", "特支"]}];
+const M = {"school_mgmt": {"n": "学校経営", "i": "fa-solid fa-landmark", "cl": "#4A90C8", "gr": "linear-gradient(135deg,#2563eb,#60a5fa)", "img": "portal_images/school_mgmt.jpg", "order": 1}, "kyomu": {"n": "教務", "i": "fa-solid fa-book-open", "cl": "#059669", "gr": "linear-gradient(135deg,#059669,#34d399)", "img": "portal_images/kyomu.jpg", "order": 2}, "seito": {"n": "生徒指導", "i": "fa-solid fa-hand-holding-heart", "cl": "#D97706", "gr": "linear-gradient(135deg,#d97706,#fbbf24)", "img": "portal_images/seito.jpg", "order": 3}, "tokushi": {"n": "特別支援", "i": "fa-solid fa-universal-access", "cl": "#7C3AED", "gr": "linear-gradient(135deg,#7c3aed,#a78bfa)", "img": "portal_images/tokushi.jpg", "order": 4}, "hoken": {"n": "保健・安全", "i": "fa-solid fa-shield-heart", "cl": "#DC2626", "gr": "linear-gradient(135deg,#dc2626,#f87171)", "img": "portal_images/hoken.jpg", "order": 5}, "kenshu": {"n": "研修", "i": "fa-solid fa-chalkboard-user", "cl": "#0891B2", "gr": "linear-gradient(135deg,#0891b2,#22d3ee)", "img": "portal_images/kenshu.jpg", "order": 6}, "pta": {"n": "PTA・地域", "i": "fa-solid fa-people-group", "cl": "#6366F1", "gr": "linear-gradient(135deg,#6366f1,#a5b4fc)", "img": "portal_images/pta.jpg", "order": 7}, "jimu": {"n": "事務・服務", "i": "fa-solid fa-folder-open", "cl": "#6B7280", "gr": "linear-gradient(135deg,#475569,#94a3b8)", "img": "portal_images/jimu.jpg", "order": 8}, "ict": {"n": "ICT", "i": "fa-solid fa-laptop", "cl": "#0EA5E9", "gr": "linear-gradient(135deg,#0284c7,#38bdf8)", "img": "portal_images/ict.jpg", "order": 9}, "gakunen": {"n": "学年", "i": "fa-solid fa-users", "cl": "#8B5CF6", "gr": "linear-gradient(135deg,#7c3aed,#c4b5fd)", "img": "portal_images/gakunen.jpg", "order": 10}};
+const EV = [{"date": "2026-04-01", "day": "水", "event": "新年度準備・職員会議（終日）", "who": "全職員", "note": "経営計画・分掌・教育課程の確認。教頭は進行役"}, {"date": "2026-04-02", "day": "木", "event": "学年打合せ・教室準備", "who": "全職員", "note": "教室配置・掲示物・机椅子の搬入。名簿の最終確認"}, {"date": "2026-04-03", "day": "金", "event": "入学式準備・新1年生受付リハーサル", "who": "全職員", "note": "式場設営・来賓席・看板。教頭は式次第と来賓確認"}, {"date": "2026-04-07", "day": "月", "event": "着任式・始業式", "who": "全職員", "note": "新任挨拶・担任発表。教頭は司会進行"}, {"date": "2026-04-08", "day": "火", "event": "入学式", "who": "全職員", "note": "9:30開式。教頭は司会。写真撮影の段取り確認"}, {"date": "2026-04-09", "day": "水", "event": "通常授業開始・身体測定", "who": "全職員", "note": "給食開始。アレルギー対応児童の再確認"}, {"date": "2026-04-10", "day": "木", "event": "学年経営案提出締切", "who": "担任", "note": "教頭がとりまとめて校長に提出"}];
+const ORD = Object.entries(M).sort((a,b)=>a[1].order-b[1].order).map(e=>e[0]);
+const TOP = ["kyomu", "school_mgmt", "gakunen", "hoken"];
+
+let f='all', q='';
+
+document.getElementById('q').addEventListener('input',e=>{q=e.target.value.toLowerCase();render()});
+
+function setF(c){f=c;render()}
+
+function filt(){
+  let r=D;
+  if(q) r=r.filter(d=>d.name.toLowerCase().includes(q)||d.desc.toLowerCase().includes(q)||d.tags.some(t=>t.toLowerCase().includes(q)));
+  if(f!=='all') r=r.filter(d=>d.cat===f);
+  return r;
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function fmtDesc(s){
+  // 最初の句点までを太字要約、残りを補足
+  const i=s.indexOf('。');
+  if(i<0) return '<b>'+esc(s)+'</b>';
+  return '<b>'+esc(s.slice(0,i+1))+'</b><br>'+esc(s.slice(i+1));
+}
+
+function pills(){
+  const all=D.filter(d=>!q||d.name.toLowerCase().includes(q)||d.desc.toLowerCase().includes(q)||d.tags.some(t=>t.toLowerCase().includes(q)));
+  const c={};all.forEach(d=>c[d.cat]=(c[d.cat]||0)+1);
+  let h=`<div class="pill ${f==='all'?'on':''}" style="${f==='all'?'background:#4A90C8;color:#fff':''}" onclick="setF('all')">すべて ${all.length}</div>`;
+  ORD.forEach(k=>{
+    if(!c[k])return;
+    const m=M[k],on=f===k;
+    h+=`<div class="pill ${on?'on':''}" style="${on?'background:'+m.cl+';color:#fff':''}" onclick="setF('${k}')"><i class="${m.i}" style="font-size:.6rem"></i> ${m.n} ${c[k]}</div>`;
+  });
+  document.getElementById('pills').innerHTML=h;
+}
+
+function render(){
+  pills();
+  const items=filt();
+  const el=document.getElementById('main');
+
+  if(!items.length){el.innerHTML='<div class="empty"><i class="fa-solid fa-folder-open"></i>該当する資料がありません</div>';return}
+
+  let h='';
+
+  // Overview (only when no filter & no search)
+  if(f==='all' && !q){
+    h+='<div class="bento">';
+    ORD.forEach((k,i)=>{
+      const m=M[k];
+      const catItems=D.filter(d=>d.cat===k);
+      if(!catItems.length)return;
+      const isLg=TOP.includes(k);
+      const samples=catItems.slice(0,isLg?4:2).map(d=>d.name).join('、');
+      h+=`<div class="bento-tile ${isLg?'lg':''}" onclick="setF('${k}')">
+        <div class="bt-header" style="background-image:url('${m.img}');background-color:${m.cl}"><i class="${m.i}"></i></div>
+        <div class="bt-body">
+          <div class="bt-name">${m.n}</div>
+          <div class="bt-count">${catItems.length}件の資料</div>
+          <div class="bt-samples">${samples}</div>
+        </div>
+      </div>`;
+    });
+    h+='</div>';
+  }
+
+  // Cards grouped by category
+  const g={};
+  items.forEach(d=>{if(!g[d.cat])g[d.cat]=[];g[d.cat].push(d)});
+
+  ORD.forEach(k=>{
+    if(!g[k])return;
+    const m=M[k];
+    h+=`<div class="sec-hdr"><i class="${m.i}" style="color:${m.cl}"></i><span class="sec-hdr-name">${m.n}</span><span class="sec-hdr-cnt">${g[k].length}件</span></div>`;
+    h+='<div class="card-grid">';
+    g[k].forEach(d=>{
+      const imp=d.important;
+      const tags=d.tags.slice(0,3).map(t=>`<span class="card-tag">${t}</span>`).join('');
+      h+=`<div class="card">
+        <div class="card-top" style="background-image:url('${m.img}');background-color:${m.cl}"><i class="${m.i}"></i></div>
+        ${imp?`<div class="card-badge" style="background:#D97706">重要</div>`:''}
+        <div class="card-body">
+          <div class="card-name">${imp?'<span class="imp"></span>':''}<span>${esc(d.name)}</span></div>
+          <div class="card-desc">${fmtDesc(d.desc)}</div>
+        </div>
+        <div class="card-foot">
+          <div class="card-folder"><i class="fa-solid fa-folder-open"></i> ${esc(d.folder)}</div>
+          <div class="card-tags">${tags}</div>
+        </div>
+      </div>`;
+    });
+    h+='</div>';
+  });
+
+  el.innerHTML=h;
+}
+
+render();
+</script>
+</body>
+</html>
