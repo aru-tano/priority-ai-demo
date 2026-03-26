@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4月 教頭提出文書ガイド — 向井小学校</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --card: #fff;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --warn: #dc2626;
+    --warn-light: #fef2f2;
+    --kawabata: #7c3aed;
+    --kawabata-light: #f3e8ff;
+    --done-bg: #f0fdf4;
+    --done-border: #22c55e;
+    --text: #1e293b;
+    --sub: #64748b;
+    --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    color: var(--sub);
+    font-size: 0.85rem;
+    margin-bottom: 24px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .summary-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .summary-card .number {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .summary-card .label {
+    font-size: 0.75rem;
+    color: var(--sub);
+    margin-top: 4px;
+  }
+  .num-blue { color: var(--accent); }
+  .num-purple { color: var(--kawabata); }
+  .num-red { color: var(--warn); }
+
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 28px 0 12px;
+    padding-left: 12px;
+    border-left: 4px solid var(--accent);
+  }
+  .section-title.kawabata {
+    border-left-color: var(--kawabata);
+  }
+  .section-title.monthly {
+    border-left-color: #f59e0b;
+  }
+
+  .task-card {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .task-card.kawabata {
+    border-left: 4px solid var(--kawabata);
+    background: var(--kawabata-light);
+  }
+  .task-card .task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+  .task-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    flex: 1;
+  }
+  .deadline-badge {
+    background: var(--warn-light);
+    color: var(--warn);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    margin-left: 8px;
+  }
+  .r6-badge {
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 6px;
+  }
+  .kawabata-badge {
+    background: var(--kawabata);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 6px;
+  }
+  .task-detail {
+    font-size: 0.82rem;
+    color: var(--sub);
+    margin-top: 4px;
+  }
+  .task-detail .file-path {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 0.72rem;
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .ask-box {
+    background: var(--kawabata-light);
+    border: 1px solid var(--kawabata);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 8px;
+  }
+  .ask-box h3 {
+    font-size: 0.9rem;
+    color: var(--kawabata);
+    margin-bottom: 8px;
+  }
+  .ask-box .ask-item {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    padding-left: 20px;
+    position: relative;
+  }
+  .ask-box .ask-item::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--kawabata);
+    font-weight: 700;
+  }
+  .ask-box .ask-script {
+    background: #fff;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+    font-size: 0.82rem;
+    border: 1px dashed var(--kawabata);
+    line-height: 1.7;
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 60px;
+    margin: 20px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 28px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .tl-date {
+    position: absolute;
+    left: -60px;
+    width: 50px;
+    text-align: right;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    top: 2px;
+  }
+  .tl-dot {
+    position: absolute;
+    left: -8px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: 2px solid var(--card);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .tl-dot.warn { background: var(--warn); box-shadow: 0 0 0 2px var(--warn); }
+  .tl-dot.purple { background: var(--kawabata); box-shadow: 0 0 0 2px var(--kawabata); }
+  .tl-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+
+  .checklist {
+    list-style: none;
+    padding: 0;
+  }
+  .checklist li {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .footer {
+    text-align: center;
+    color: var(--sub);
+    font-size: 0.72rem;
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  @media print {
+    body { padding: 10px; }
+    .task-card, .ask-box { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<h1>4月 教頭の提出文書ガイド</h1>
+<p class="subtitle">向井小学校 R8年度（2026年度）— 教頭月次タスクDB（234件）より抽出</p>
+
+<div class="summary-grid">
+  <div class="summary-card">
+    <div class="number num-blue">14</div>
+    <div class="label">4月の提出文書</div>
+  </div>
+  <div class="summary-card">
+    <div class="number num-purple">4</div>
+    <div class="label">川端さんに聞くもの</div>
+  </div>
+  <div class="summary-card">
+    <div class="number num-red">5/22</div>
+    <div class="label">最重要締切</div>
+  </div>
+</div>
+
+<!-- タイムライン -->
+<h2 class="section-title">4月の締切タイムライン</h2>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-date">4/1</div>
+    <div class="tl-dot"></div>
+    <div class="tl-content">
+      <strong>川端さんに15分もらう</strong>（午後）<br>
+      超勤報告・SSS報告・毎月提出書類・PTA互助会の4点の様式をもらう
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-date">4/7</div>
+    <div class="tl-dot"></div>
+    <div class="tl-content">
+      入学式 → 直後に<strong>国旗掲揚・国歌斉唱状況報告</strong>を作成（R6は翌日4/8提出）
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-date">4月中旬</div>
+    <div class="tl-dot"></div>
+    <div class="tl-content">
+      指導主事要請訪問希望 / 外国語教育研修会参加希望 / ネットDE研修登録<br>
+      <span style="color:var(--sub);font-size:0.78rem">メールで来ることが多い。見逃さない</span>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-date">4/19頃</div>
+    <div class="tl-dot"></div>
+    <div class="tl-content">
+      特別支援学級担当者等記入表（R6は4/19）
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-date">4/24-25</div>
+    <div class="tl-dot"></div>
+    <div class="tl-content">
+      支援が必要な児童の個人記録票（R6は4/25）<br>
+      紀州教育支援事務所来校依頼（R6は4/24）
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-date">4月中</div>
+    <div class="tl-dot warn"></div>
+    <div class="tl-content">
+      <strong>災害共済の正式提出</strong>（養護：東さんの名前に入替）<br>
+      <span style="color:var(--sub);font-size:0.78rem">最終〆切は5/22だが4月中にやるのが吉</span>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-date">4月中</div>
+    <div class="tl-dot purple"></div>
+    <div class="tl-content">
+      <strong>PTA安全互助会の送金準備</strong>（★川端引継）<br>
+      <span style="color:var(--sub);font-size:0.78rem">最終〆切5/22。新PTA会長名に入替→郵便局で送金</span>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-date">4/30</div>
+    <div class="tl-dot warn"></div>
+    <div class="tl-content">
+      <strong>人権教育実態調査</strong>（R6も4/30ギリギリ）
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-date">遠足前</div>
+    <div class="tl-dot"></div>
+    <div class="tl-content">
+      行事実施届（春の遠足）— 実施計画＋実施届の2枚セット
+    </div>
+  </div>
+</div>
+
+<!-- 自分でできるもの -->
+<h2 class="section-title">自分でできる提出文書（10件）</h2>
+
+<div class="task-card">
+  <div class="task-header">
+    <span class="task-name">1. 国旗掲揚・国歌斉唱状況報告</span>
+    <span class="deadline-badge">入学式直後</span>
+    <span class="r6-badge">R6: 4/8</span>
+  </div>
+  <div class="task-detail">入学式で国旗掲揚・国歌斉唱を実施したことの報告。市教委へ。</div>
+  <div class="task-detail"><span class="file-path">◆R6教頭/t-R6提出物/◆４月/</span></div>
+</div>
+
+<div class="task-card">
+  <div class="task-header">
+    <span class="task-name">2. 特別支援学級担当者等記入表</span>
+    <span class="deadline-badge">4月下旬</span>
+    <span class="r6-badge">R6: 4/19</span>
+  </div>
+  <div class="task-detail">特別支援教育の担当者情報を記入して市教委へ提出。</div>
+</div>
+
+<div class="task-card">
+  <div class="task-header">
+    <span class="task-name">3. 支援が必要な児童の個人記録票</span>
+    <span class="deadline-badge">4月下旬</span>
+    <span class="r6-badge">R6: 4/25</span>
+  </div>
+  <div class="task-detail">該当なしの場合も「該当なし」で報告が必要。</div>
+</div>
+
+<div class="task-card">
+  <div class="task-header">
+    <span class="task-name">4. 紀州教育支援事務所来校依頼</span>
+    <span class="deadline-badge">4月下旬</span>
+    <span class="r6-badge">R6: 4/24</span>
+  </div>
+  <div class="task-detail">指導主事の来校日程の希望を出す。</div>
+</div>
+
+<div class="task-card">
+  <div class="task-header">
+    <span class="task-name">5. 校内研修の指導主事要請訪問希望</span>
+    <span class="deadline-badge">4月中旬</span>
+  </div>
+  <div class="task-detail">研修日程と指導主事の来校希望を市教委に連絡。</div>
+</div>
+
+<div class="task-card">
+  <div class="task-header">
+    <span class="task-name">6. 外国語教育研修会の参加希望</span>
+    <span class="deadline-badge">4月中旬</span>
+    <span class="r6-badge">R6: 4/17 米倉参加</span>
+  </div>
+  <div class="task-detail">R6は米倉先生が参加。R8も米倉先生が外国語担当なので相談。</div>
+</div>
+
+<div class="task-card">
+  <div class="task-header">
+    <span class="task-name">7. ネットDE研修の受講登録</span>
+    <span class="deadline-badge">4月中旬</span>
+  </div>
+  <div class="task-detail">オンライン研修の登録。メールで案内が来る。</div>
+</div>
+
+<div class="task-card">
+  <div class="task-header">
+    <span class="task-name">8. 人権教育実態調査</span>
+    <span class="deadline-badge">4/30</span>
+    <span class="r6-badge">R6: 4/30</span>
+  </div>
+  <div class="task-detail">R6もギリギリ4/30。早めに着手すること。市教委へ。</div>
+  <div class="task-detail"><span class="file-path">◆R6教頭/t-R6提出物/◆４月/</span></div>
+</div>
+
+<div class="task-card">
+  <div class="task-header">
+    <span class="task-name">9. 行事実施届（春の遠足）</span>
+    <span class="deadline-badge">遠足前</span>
+  </div>
+  <div class="task-detail">実施計画＋実施届の2枚セット。校区外に出る場合は必ず提出。</div>
+  <div class="task-detail"><span class="file-path">~/Documents/2025/g-行事（計画書・実施届)/</span></div>
+</div>
+
+<div class="task-card">
+  <div class="task-header">
+    <span class="task-name">10. 災害共済の正式提出</span>
+    <span class="deadline-badge">4月中（〆5/22）</span>
+  </div>
+  <div class="task-detail">3月に見込み人数提出済み。養護教諭を東利香さんに入れ替えて正式提出。</div>
+</div>
+
+<!-- 川端さんに聞くもの -->
+<h2 class="section-title kawabata">川端さんに聞く提出文書（4件）</h2>
+
+<div class="task-card kawabata">
+  <div class="task-header">
+    <span class="task-name">11. 超過勤務時間報告</span>
+    <span class="deadline-badge">翌月初</span>
+    <span class="kawabata-badge">川端引継</span>
+  </div>
+  <div class="task-detail">タイムカードの記録をそのまま報告。大幅にずれている人は修正。毎月やる。</div>
+</div>
+
+<div class="task-card kawabata">
+  <div class="task-header">
+    <span class="task-name">12. SSSの職務内容報告</span>
+    <span class="deadline-badge">翌月初</span>
+    <span class="kawabata-badge">川端引継</span>
+  </div>
+  <div class="task-detail">京呂平さんのSSS業務（〜15:30）の内容報告。毎月やる。</div>
+</div>
+
+<div class="task-card kawabata">
+  <div class="task-header">
+    <span class="task-name">13. 毎月提出書類（4月分）</span>
+    <span class="deadline-badge">5月初</span>
+    <span class="kawabata-badge">川端引継</span>
+    <span class="r6-badge">R6: 5/1</span>
+  </div>
+  <div class="task-detail">問題行動月報、出席統計等のセット。川端先生が全部やっていた。様式一式をもらう。</div>
+</div>
+
+<div class="task-card kawabata">
+  <div class="task-header">
+    <span class="task-name">14. PTA安全互助会 送金報告書</span>
+    <span class="deadline-badge">〆5/22</span>
+    <span class="kawabata-badge">川端引継</span>
+  </div>
+  <div class="task-detail">共済掛金170円/世帯。新PTA会長名に入替→郵便局で送金。4月中に準備開始。</div>
+</div>
+
+<!-- 川端さんへの聞き方 -->
+<div class="ask-box">
+  <h3>川端さんへの聞き方（4/1 午後に15分）</h3>
+  <div class="ask-item"><strong>超勤報告</strong>：「タイムカードのデータをどう報告書に落としてましたか？様式を見せてください」</div>
+  <div class="ask-item"><strong>SSS報告</strong>：「京呂平さんの分ですよね？何を書いてましたか？様式をください」</div>
+  <div class="ask-item"><strong>毎月提出書類</strong>：「毎月セットで出してたやつ、一式見せてもらえますか？」</div>
+  <div class="ask-item"><strong>PTA互助会</strong>：「去年の控えと送金先を教えてください」</div>
+  <div class="ask-script">
+    <strong>切り出し方：</strong><br>
+    「川端先生、今まで教頭の代わりにやっていただいてた書類があると聞きました。<br>
+    4つあると思うんですけど、様式を見せてもらえますか？<br>
+    あと、毎月出してる書類のセットも一式教えてほしいです」
+  </div>
+</div>
+
+<!-- チェックリスト -->
+<h2 class="section-title monthly">4月チェックリスト（印刷して使う）</h2>
+
+<div class="task-card">
+  <ul class="checklist">
+    <li><span class="check-box"></span> 国旗掲揚・国歌斉唱状況報告（入学式直後）</li>
+    <li><span class="check-box"></span> 川端さんから4点の様式をもらう（4/1午後）</li>
+    <li><span class="check-box"></span> 校内研修の指導主事要請訪問希望（4月中旬）</li>
+    <li><span class="check-box"></span> 外国語教育研修会の参加希望（4月中旬）</li>
+    <li><span class="check-box"></span> ネットDE研修の受講登録（4月中旬）</li>
+    <li><span class="check-box"></span> 特別支援学級担当者等記入表（4月下旬）</li>
+    <li><span class="check-box"></span> 支援が必要な児童の個人記録票（4月下旬）</li>
+    <li><span class="check-box"></span> 紀州教育支援事務所来校依頼（4月下旬）</li>
+    <li><span class="check-box"></span> 災害共済の正式提出（4月中）</li>
+    <li><span class="check-box"></span> PTA安全互助会 送金準備（4月中〜〆5/22）</li>
+    <li><span class="check-box"></span> 人権教育実態調査（〆4/30）</li>
+    <li><span class="check-box"></span> 行事実施届：春の遠足（遠足前）</li>
+    <li><span class="check-box"></span> 超過勤務時間報告 4月分（〜5月初）</li>
+    <li><span class="check-box"></span> SSS職務内容報告 4月分（〜5月初）</li>
+    <li><span class="check-box"></span> 毎月提出書類 4月分（〜5月初）</li>
+  </ul>
+</div>
+
+<div class="footer">
+  教頭月次タスクDB（234件）より自動生成 — 2026-03-26<br>
+  R6実績は ◆R6教頭/t-R6提出物/ の実ファイルから抽出
+</div>
+
+</body>
+</html>
