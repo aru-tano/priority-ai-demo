@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Remotion Sample 1: 角度の量感アニメーション</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #f8fafc; color: #1e293b; font-family: 'Hiragino Sans', 'Helvetica Neue', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+.container { width: 720px; height: 480px; background: #ffffff; border-radius: 16px; position: relative; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+.title { position: absolute; top: 24px; left: 32px; font-size: 14px; color: #64748b; letter-spacing: 2px; }
+.angle-label { position: absolute; top: 60px; left: 32px; font-size: 72px; font-weight: 700; color: #2563eb; }
+.angle-unit { font-size: 36px; color: #94a3b8; }
+.hint { position: absolute; bottom: 40px; left: 32px; font-size: 24px; font-weight: 600; color: #334155; opacity: 0; transition: opacity 0.5s; }
+.hint.show { opacity: 1; }
+.protractor-area { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); }
+svg { width: 320px; height: 320px; }
+.progress-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: #2563eb; transition: width 0.1s linear; }
+.phase-label { position: absolute; top: 24px; right: 32px; font-size: 14px; color: #94a3b8; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="title">3年 算数 / 角度の量感</div>
+  <div class="phase-label" id="phase"></div>
+  <div class="angle-label"><span id="angleNum">0</span><span class="angle-unit">°</span></div>
+  <div class="hint" id="hint"></div>
+  <div class="protractor-area">
+    <svg viewBox="0 0 320 320">
+      <circle cx="160" cy="160" r="130" fill="none" stroke="#e2e8f0" stroke-width="2"/>
+      <!-- 目盛り -->
+      <g id="ticks"></g>
+      <!-- 固定線（基準） -->
+      <line x1="160" y1="160" x2="290" y2="160" stroke="#94a3b8" stroke-width="3"/>
+      <!-- 回転線 -->
+      <line id="needle" x1="160" y1="160" x2="290" y2="160" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
+      <!-- 角度の扇形 -->
+      <path id="arc" fill="rgba(37,99,235,0.12)" stroke="none"/>
+      <!-- 中心点 -->
+      <circle cx="160" cy="160" r="6" fill="#f59e0b"/>
+    </svg>
+  </div>
+  <div class="progress-bar" id="progress"></div>
+</div>
+
+<script>
+// 目盛りを描画
+const ticks = document.getElementById('ticks');
+for (let i = 0; i <= 360; i += 10) {
+  const rad = (i * Math.PI) / 180;
+  const inner = i % 30 === 0 ? 110 : 120;
+  const outer = 130;
+  const x1 = 160 + inner * Math.cos(-rad);
+  const y1 = 160 - inner * Math.sin(-rad);
+  const x2 = 160 + outer * Math.cos(-rad);
+  const y2 = 160 - outer * Math.sin(-rad);
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+  line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+  line.setAttribute('stroke', i % 90 === 0 ? '#64748b' : '#cbd5e1');
+  line.setAttribute('stroke-width', i % 30 === 0 ? '2' : '1');
+  ticks.appendChild(line);
+  if (i % 30 === 0 && i <= 180) {
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    const tx = 160 + 96 * Math.cos(-rad);
+    const ty = 160 - 96 * Math.sin(-rad);
+    text.setAttribute('x', tx); text.setAttribute('y', ty + 5);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', '#475569'); text.setAttribute('font-size', '15');
+    text.setAttribute('font-weight', '600');
+    text.textContent = i + '°';
+    ticks.appendChild(text);
+  }
+}
+
+const needle = document.getElementById('needle');
+const arc = document.getElementById('arc');
+const angleNum = document.getElementById('angleNum');
+const hint = document.getElementById('hint');
+const progress = document.getElementById('progress');
+const phase = document.getElementById('phase');
+
+const scenarios = [
+  { target: 30, pause: 3000, hint: 'ノート1冊を少し開いたくらい', phase: 'ちょっとだけ開く' },
+  { target: 90, pause: 3000, hint: '教科書を立てた角。直角。', phase: '直角' },
+  { target: 120, pause: 3000, hint: '時計の4時の長針と短針', phase: 'もうちょっと開く' },
+  { target: 180, pause: 3000, hint: 'まっすぐ。定規1本分。', phase: '半回転' },
+  { target: 45, pause: 3000, hint: 'ピザを8等分した1切れ', phase: '半分の半分' },
+  { target: 360, pause: 3000, hint: 'ぐるっと1周。元に戻った。', phase: '1回転' },
+];
+
+let currentAngle = 0;
+
+function updateNeedle(angle) {
+  const rad = (angle * Math.PI) / 180;
+  const x = 160 + 130 * Math.cos(-rad);
+  const y = 160 - 130 * Math.sin(-rad);
+  needle.setAttribute('x2', x);
+  needle.setAttribute('y2', y);
+
+  // 扇形
+  if (angle > 0 && angle <= 360) {
+    const largeArc = angle > 180 ? 1 : 0;
+    const ex = 160 + 110 * Math.cos(-rad);
+    const ey = 160 - 110 * Math.sin(-rad);
+    arc.setAttribute('d', `M160,160 L270,160 A110,110 0 ${largeArc},1 ${ex},${ey} Z`);
+  }
+
+  angleNum.textContent = Math.round(angle);
+}
+
+function animateTo(target, callback) {
+  const start = currentAngle;
+  const diff = target - start;
+  const duration = Math.abs(diff) * 20;
+  const startTime = performance.now();
+
+  function step(now) {
+    const elapsed = now - startTime;
+    const t = Math.min(elapsed / duration, 1);
+    const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    currentAngle = start + diff * eased;
+    updateNeedle(currentAngle);
+    if (t < 1) requestAnimationFrame(step);
+    else { currentAngle = target; updateNeedle(target); callback(); }
+  }
+  if (duration > 0) requestAnimationFrame(step);
+  else callback();
+}
+
+function runScenario(index) {
+  if (index >= scenarios.length) {
+    // ループ: 1秒後にリセットして最初から
+    hint.classList.remove('show');
+    phase.textContent = '';
+    setTimeout(() => {
+      currentAngle = 0;
+      updateNeedle(0);
+      elapsed = 0;
+      runScenario(0);
+    }, 1500);
+    return;
+  }
+  const sc = scenarios[index];
+  phase.textContent = sc.phase;
+  hint.classList.remove('show');
+
+  animateTo(sc.target, () => {
+    hint.textContent = sc.hint;
+    hint.classList.add('show');
+    setTimeout(() => runScenario(index + 1), sc.pause);
+  });
+}
+
+setTimeout(() => runScenario(0), 800);
+
+// プログレスバー
+let elapsed = 0;
+const total = 24000;
+setInterval(() => {
+  elapsed += 100;
+  progress.style.width = Math.min((elapsed / total) * 100, 100) + '%';
+}, 100);
+</script>
+</body>
+</html>

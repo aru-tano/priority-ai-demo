@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Remotion Sample 2: 面積単位のスケール感</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #f8fafc; color: #1e293b; font-family: 'Hiragino Sans', 'Helvetica Neue', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+.container { width: 720px; height: 480px; background: #ffffff; border-radius: 16px; position: relative; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+.title { position: absolute; top: 24px; left: 32px; font-size: 14px; color: #64748b; letter-spacing: 2px; }
+.unit-label { position: absolute; top: 70px; left: 32px; font-size: 52px; font-weight: 700; transition: all 0.5s; }
+.comparison { position: absolute; top: 140px; left: 32px; font-size: 22px; color: #334155; opacity: 0; transition: opacity 0.5s; font-weight: 500; }
+.comparison.show { opacity: 1; }
+.visual-area { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); width: 340px; height: 340px; display: flex; justify-content: center; align-items: center; }
+.square { background: rgba(16, 185, 129, 0.15); border: 3px solid #10b981; transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); position: absolute; border-radius: 4px; }
+.multiplier { position: absolute; bottom: 70px; left: 32px; font-size: 28px; font-weight: 700; color: #f59e0b; opacity: 0; transition: opacity 0.5s; }
+.multiplier.show { opacity: 1; }
+.progress-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: #10b981; transition: width 0.1s linear; }
+.counter { position: absolute; bottom: 32px; right: 32px; font-size: 14px; color: #94a3b8; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="title">4年 算数 / 面積の単位</div>
+  <div class="unit-label" id="unitLabel">1 cm²</div>
+  <div class="comparison" id="comparison"></div>
+  <div class="multiplier" id="multiplier"></div>
+  <div class="visual-area" id="visualArea">
+    <div class="square" id="square" style="width: 8px; height: 8px;"></div>
+  </div>
+  <div class="counter" id="counter">1 / 5</div>
+  <div class="progress-bar" id="progress"></div>
+</div>
+
+<script>
+const steps = [
+  {
+    unit: '1 cm²', size: 8, color: '#10b981',
+    comparison: '1cmの正方形。消しゴムの断面くらい。',
+    multiplier: ''
+  },
+  {
+    unit: '1 m²', size: 60, color: '#2563eb',
+    comparison: '1mの正方形。両手を広げたくらい。',
+    multiplier: '× 10,000倍'
+  },
+  {
+    unit: '1 a', size: 140, color: '#7c3aed',
+    comparison: '10mの正方形。教室1つ分くらい。',
+    multiplier: '× 100倍'
+  },
+  {
+    unit: '1 ha', size: 240, color: '#ec4899',
+    comparison: '100mの正方形。学校の運動場くらい。',
+    multiplier: '× 100倍'
+  },
+  {
+    unit: '1 km²', size: 300, color: '#f97316',
+    comparison: '1kmの正方形。町全体くらい。',
+    multiplier: '× 100倍'
+  }
+];
+
+const unitLabel = document.getElementById('unitLabel');
+const comparison = document.getElementById('comparison');
+const multiplier = document.getElementById('multiplier');
+const square = document.getElementById('square');
+const counter = document.getElementById('counter');
+const progress = document.getElementById('progress');
+
+let current = 0;
+let elapsed = 0;
+
+function showStep(index) {
+  if (index >= steps.length) {
+    // サマリー表示後にループ
+    setTimeout(() => {
+      comparison.textContent = 'cm² → m² → a → ha → km²';
+      comparison.classList.add('show');
+      multiplier.textContent = '消しゴム → 両手 → 教室 → 運動場 → 町';
+      multiplier.classList.add('show');
+      unitLabel.textContent = '面積の量感';
+      unitLabel.style.color = '#1e293b';
+    }, 500);
+
+    // 3秒後にリセットしてループ
+    setTimeout(() => {
+      comparison.classList.remove('show');
+      multiplier.classList.remove('show');
+      square.style.width = '8px';
+      square.style.height = '8px';
+      square.style.borderColor = '#10b981';
+      square.style.background = '#10b98126';
+      unitLabel.textContent = '1 cm²';
+      unitLabel.style.color = '#10b981';
+      counter.textContent = '1 / 5';
+      elapsed = 0;
+      setTimeout(() => showStep(0), 500);
+    }, 4000);
+    return;
+  }
+
+  const step = steps[index];
+
+  // フェードアウト
+  comparison.classList.remove('show');
+  multiplier.classList.remove('show');
+
+  setTimeout(() => {
+    // 更新
+    unitLabel.textContent = step.unit;
+    unitLabel.style.color = step.color;
+    square.style.width = step.size + 'px';
+    square.style.height = step.size + 'px';
+    square.style.borderColor = step.color;
+    square.style.background = `${step.color}26`;
+    counter.textContent = `${index + 1} / ${steps.length}`;
+
+    // フェードイン
+    setTimeout(() => {
+      comparison.textContent = step.comparison;
+      comparison.classList.add('show');
+      if (step.multiplier) {
+        multiplier.textContent = step.multiplier;
+        multiplier.classList.add('show');
+      }
+    }, 600);
+
+    // 次のステップ
+    setTimeout(() => showStep(index + 1), 3000);
+  }, 300);
+}
+
+setTimeout(() => showStep(0), 800);
+
+// プログレスバー
+const total = 20000;
+setInterval(() => {
+  elapsed += 100;
+  progress.style.width = Math.min((elapsed / total) * 100, 100) + '%';
+}, 100);
+</script>
+</body>
+</html>
