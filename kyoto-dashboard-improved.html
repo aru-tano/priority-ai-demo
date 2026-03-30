@@ -769,6 +769,7 @@ body.dark .header{background:rgba(17,17,16,0.85)}
       <div class="panel" id="p-board"></div>
       <div class="panel" id="p-overview"></div>
       <div class="panel" id="p-resources"></div>
+      <div class="panel" id="p-inbox"></div>
       <div class="panel" id="p-input">
         <div style="text-align:center;padding:80px 40px;color:var(--text-dim)">
           <i class="fa-solid fa-pen-to-square" style="font-size:48px;opacity:0.2;margin-bottom:16px;display:block"></i>
@@ -1483,6 +1484,7 @@ const TAB_DEF=[
   {id:'board',icon:'fa-solid fa-columns',label:'ボード'},
   {id:'overview',icon:'fa-solid fa-chart-bar',label:'概要'},
   {id:'resources',icon:'fa-solid fa-folder-open',label:'資料'},
+  {id:'inbox',icon:'fa-solid fa-inbox',label:'受信箱'},
   {id:'input',icon:'fa-solid fa-pen-to-square',label:'タスク入力'},
 ];
 function renderNav(){
@@ -2967,6 +2969,7 @@ const CMD_PANELS=[
   {id:'board',icon:'fa-solid fa-columns',label:'ボード',key:'4'},
   {id:'overview',icon:'fa-solid fa-chart-bar',label:'概要',key:'5'},
   {id:'resources',icon:'fa-solid fa-folder-open',label:'資料集',key:'6'},
+  {id:'inbox',icon:'fa-solid fa-inbox',label:'受信箱',key:'7'},
 ];
 
 function openCmdPalette(){
@@ -3108,6 +3111,162 @@ TASKS.forEach(tk=>LOCAL_TASKS_BACKUP.push(Object.assign({},tk)));
 loadState();applyTheme();renderAll();
 // GASからデータを非同期で取得して上書き
 fetchFromGAS();
+
+// ═══════════════════════════════════════════════════════════════
+// INBOX TAB — 受信箱（向井小_inbox/_inbox_data.js から読み込み）
+// ═══════════════════════════════════════════════════════════════
+let INBOX_DATA = [];
+
+function loadInboxData() {
+  // _inbox_data.js がグローバル変数 INBOX_ENTRIES を定義している
+  if (typeof INBOX_ENTRIES !== 'undefined') {
+    INBOX_DATA = INBOX_ENTRIES;
+  }
+  renderInbox();
+}
+
+function renderInbox() {
+  const el = document.getElementById('p-inbox');
+  if (!el) return;
+
+  const data = INBOX_DATA;
+  const total = data.length;
+  const unreviewed = data.filter(d => d.status === 'unreviewed').length;
+
+  const groups = {
+    A: { label: '自分がやる（締切あり）', color: 'var(--red)', items: [] },
+    B: { label: '誰かに渡す・頼む', color: 'var(--amber)', items: [] },
+    C: { label: '読んでおく', color: 'var(--blue)', items: [] },
+    D: { label: 'あとで見る（保留）', color: 'var(--text-dim)', items: [] },
+    E: { label: '個人情報あり（扱い注意）', color: 'var(--red)', items: [] },
+  };
+
+  data.forEach(d => {
+    const action = d.suggested_action || 'D';
+    if (groups[action]) groups[action].items.push(d);
+  });
+
+  let html = `
+    <div style="padding:24px 0 12px">
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:4px">
+        <i class="fa-solid fa-inbox" style="color:var(--accent);margin-right:8px"></i>受信箱
+      </h2>
+      <div style="font-size:13px;color:var(--text-secondary)">
+        全${total}件 | 未確認${unreviewed}件
+      </div>
+      <div style="margin-top:8px;padding:10px 14px;background:var(--accent-bg);border-radius:8px;font-size:12px;color:var(--text-secondary);line-height:1.6">
+        <i class="fa-solid fa-lightbulb" style="color:var(--accent);margin-right:6px"></i>
+        ここに溜まったものは Claude Code に相談しよう。<br>
+        「今日のタスク整理して」「この録音を分析して」「締切近い順に教えて」など、なんでも聞けます。
+      </div>
+      <button onclick="refreshInbox()" style="margin-top:8px;padding:6px 14px;background:var(--surface);border:1px solid var(--border-mid);border-radius:8px;font-size:12px;color:var(--text-secondary);cursor:pointer;transition:all .2s">
+        <i class="fa-solid fa-rotate"></i> 受信確認
+      </button>
+    </div>`;
+
+  if (total === 0) {
+    html += `<div style="text-align:center;color:var(--text-dim);padding:60px 20px;font-size:14px">
+      受信箱は空です。<br>iPhoneで撮ってAirDropすると、ここに表示されます。
+    </div>`;
+    el.innerHTML = html;
+    return;
+  }
+
+  ['A','B','C','D','E'].forEach(key => {
+    const g = groups[key];
+    if (g.items.length === 0) return;
+
+    html += `<div style="margin-bottom:20px">
+      <div style="font-size:13px;font-weight:700;color:${g.color};margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid ${g.color}">
+        ${key}. ${g.label} <span style="font-weight:400;color:var(--text-dim);margin-left:6px">${g.items.length}件</span>
+      </div>`;
+
+    g.items.forEach(item => {
+      const typeIcons = { image: 'fa-camera', audio: 'fa-microphone', pdf: 'fa-file-pdf', memo: 'fa-sticky-note' };
+      const icon = typeIcons[item.source_type] || 'fa-paperclip';
+      const due = item.due_date ? `<span style="background:rgba(196,93,93,0.1);color:var(--red);padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600">締切: ${item.due_date}</span>` : '';
+      const from = item.from_entity ? `<span style="color:var(--text-dim);font-size:11px;margin-left:6px">from: ${item.from_entity}</span>` : '';
+      const preview = (item.text_preview || '').substring(0, 100);
+      const received = (item.received_at || '').substring(0, 16).replace('T', ' ');
+      const pi = item.has_personal_info ? '<span style="color:var(--red);font-size:11px;margin-left:6px"><i class="fa-solid fa-lock"></i> 個人情報</span>' : '';
+
+      const title = item.title || item.doc_type || '未分類';
+      html += `
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:6px;transition:box-shadow .2s">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:13px">
+              <i class="fa-solid ${icon}" style="color:var(--text-dim);margin-right:6px"></i>
+              <strong>${title}</strong>
+              ${pi}
+            </div>
+            ${due}
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px;flex-wrap:wrap">
+            <span style="font-size:11px;padding:1px 6px;background:var(--surface-dim);border-radius:4px;color:var(--text-secondary)">${item.doc_type || ''}</span>
+            ${from ? '<span style="font-size:11px;padding:1px 6px;background:var(--surface-dim);border-radius:4px;color:var(--text-secondary)">' + from.replace('from: ','') + '</span>' : ''}
+          </div>
+          <div style="color:var(--text-dim);font-size:11px">${received}</div>
+        </div>`;
+    });
+
+    html += '</div>';
+  });
+
+  el.innerHTML = html;
+}
+
+// 受信箱タブのバッジ（未確認件数）
+const origRenderNav = renderNav;
+renderNav = function() {
+  origRenderNav();
+  // バッジ追加
+  const inboxBtn = document.querySelector('[data-tab="inbox"]');
+  if (inboxBtn && INBOX_DATA.length > 0) {
+    const unrev = INBOX_DATA.filter(d => d.status === 'unreviewed').length;
+    if (unrev > 0) {
+      const existing = inboxBtn.querySelector('.badge');
+      if (!existing) {
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = unrev;
+        inboxBtn.appendChild(badge);
+      }
+    }
+  }
+};
+
+// renderAll にinbox描画を追加
+const origRenderAll = renderAll;
+renderAll = function() {
+  origRenderAll();
+  renderInbox();
+};
+
+// 手動更新ボタン — ページ全体をリロード（確実）
+function refreshInbox() {
+  const btn = document.querySelector('[onclick="refreshInbox()"]');
+  if (btn) {
+    btn.style.opacity = '0.5';
+    btn.textContent = '確認中...';
+  }
+  setTimeout(() => location.reload(), 300);
+}
+
+// 初回読み込み
+loadInboxData();
+
+// 30秒ごとに受信箱データを自動更新
+setInterval(() => {
+  const old = document.querySelector('script[data-inbox-data]');
+  if (old) old.remove();
+  const s = document.createElement('script');
+  s.dataset.inboxData = '1';
+  s.src = '../文章_作業スペース/05_仕事_Work/向井小_inbox/_inbox_data.js?' + Date.now();
+  s.onload = () => loadInboxData();
+  document.head.appendChild(s);
+}, 900000); // 15分ごと
 </script>
+<script src="../文章_作業スペース/05_仕事_Work/向井小_inbox/_inbox_data.js" onerror="console.log('inbox data not found yet')"></script>
+<script>loadInboxData();</script>
 </body>
 </html>
