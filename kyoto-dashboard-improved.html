@@ -624,6 +624,21 @@ body.dark .header{background:rgba(17,17,16,0.85)}
   display:flex;align-items:center;gap:8px;
 }
 
+/* ===== NEW / PENDING BADGES ===== */
+.new-badge{
+  display:inline-block;padding:1px 6px;border-radius:4px;
+  font-size:.6rem;font-weight:800;letter-spacing:.03em;
+  background:#ef4444;color:#fff;margin-right:6px;
+  vertical-align:middle;animation:newPulse 2s ease-in-out infinite;
+}
+@keyframes newPulse{0%,100%{opacity:1}50%{opacity:.7}}
+.pending-badge{
+  display:inline-block;padding:1px 6px;border-radius:4px;
+  font-size:.6rem;font-weight:800;letter-spacing:.03em;
+  background:#8b5cf6;color:#fff;margin-right:6px;
+  vertical-align:middle;
+}
+
 /* ===== MOBILE RESPONSIVE ===== */
 @media(max-width:640px){
   .sidebar{
@@ -872,7 +887,7 @@ const TASKS=[
 {id:"T0003",d:"会議運営",t:"第1回職員会議 司会（8:20〜11:00頃）",cy:"yearly",m:4,wb:0,cl:[],pit:"議事13項目: 着任職員紹介(5名)→担任発表(校長)→校務分掌→日課表→時間割→4月行事→年間行事→入学式→家庭訪問→学校経営 等。記録は川端事務",tg:["会議", "引き継ぎ統合版"],date:"2026-04-01",due:"2026-04-01",priority:"critical",timeSlot:"08:20-11:00"},
 {id:"T0004",d:"教職員管理",t:"校長との初顔合わせ・打合せ",cy:"yearly",m:4,wb:0,cl:[],pit:"渡邉校長（新任）との関係構築が最重要。経営方針の確認。前任(植松校長)引き継ぎ事項の共有",tg:["人事", "引き継ぎ統合版"],date:"2026-04-01",due:"2026-04-01",priority:"critical"},
 {id:"T0005",d:"施設管理",t:"施設確認巡視（鍵・AED・放送設備・防災バッグ・消火器）",cy:"yearly",m:4,wb:0,cl:[],pit:"避難経路確認、体育館・プール門の施錠状態、北側外倉庫・バックネット裏体育倉庫・石灰倉庫の位置確認。まむし注意の焼却炉付近も確認",tg:["施設管理", "引き継ぎ統合版"],date:"2026-04-01",due:"2026-04-01",priority:"critical"},
-{id:"T0006",d:"教職員管理",t:"新転任者の受入（机・PC・鍵・駐車場）",cy:"yearly",m:4,wb:0,cl:[],pit:"新転入3名: 脇奈緒子(あおさぎ教室→3・4年担任)、上ノ坊拓人(赤羽小→5・6年担任)、東利香(尾鷲小→養護助教諭)。提出書類一式を配布",tg:["人事", "引き継ぎ統合版"],date:"2026-04-01",due:"2026-04-01",priority:"high"},
+{id:"T0006",d:"教職員管理",t:"新転任者の受入（机・PC・鍵・駐車場）",cy:"yearly",m:4,wb:0,cl:[],pit:"新転入3名: 脇奈緒子(あおさぎ教室→5・6年担任)、上ノ坊拓人(赤羽小→3・4年担任)、東利香(尾鷲小→養護助教諭)。提出書類一式を配布",tg:["人事", "引き継ぎ統合版"],date:"2026-04-01",due:"2026-04-01",priority:"high"},
 {id:"T0007",d:"地域連携",t:"挨拶回り（学校だより配布先）",cy:"yearly",m:4,wb:0,cl:[],pit:"南靖久(スクールガード・市議)、西倫生(大曽根浦区長)、岩﨑壽一(行野浦区長)、山本拡志(スクールガード・芳向会)、学校運営協議会委員7名。京呂平さんが配布先を知っている",tg:["地域連携", "引き継ぎ統合版"],date:"2026-04-01",due:"2026-04-01",priority:"high",timeSlot:"11:00-"},
 {id:"T0008",d:"教育委員会",t:"管理職届・教職員届 提出（教委宛）",cy:"yearly",m:4,wb:0,cl:[],pit:"管理職名簿・教職員名簿。FAXまたは持参。当日締切",tg:["提出", "引き継ぎ+提出締切DB"],date:"2026-04-01",due:"2026-04-01",priority:"high"},
 {id:"T0009",d:"校内調整",t:"校務分掌案の最終確認・調整",cy:"yearly",m:4,wb:0,cl:[],pit:"主な分掌: 保健主事、学校図書館、道徳推進、生徒指導・いじめ、情報教育、ALT・外国語、給食、特支、PTA、研修・学力向上。昨年度を参考に赤字で変更点を明示",tg:["教務", "引き継ぎ統合版"],date:"2026-04-01",due:"2026-04-01",priority:"high"},
@@ -893,7 +908,8 @@ const TASKS=[
 {id:"T0024",d:"校内調整",t:"川端事務出張: 共同学校事務室（尾鷲小）14:30〜",cy:"yearly",m:4,wb:0,cl:[],pit:"",tg:["確認", "R8月中行事"],date:"2026-04-01",due:"2026-04-01",priority:"low",timeSlot:"14:30-"},
 {id:"T0025",d:"校内調整",t:"日程黒板の記入ルール確認",cy:"yearly",m:4,wb:0,cl:[],pit:"本日と明日の分を書く。朝の打合せは5分以内で",tg:["日常業務", "引き継ぎ統合版"],date:"2026-04-01",due:"2026-04-01",priority:"low"},
 {id:"T0026",d:"施設管理",t:"チャイムの切り替えルール確認（京呂平さんに聞く）",cy:"yearly",m:4,wb:0,cl:[],pit:"水曜日と委員会のある金曜日は鳴り方が異なる",tg:["施設管理", "引き継ぎ統合版"],date:"2026-04-01",due:"2026-04-01",priority:"low"},
-{id:"T0027",d:"施設管理",t:"タイムカードPCの時刻確認",cy:"yearly",m:4,wb:0,cl:[],pit:"インターネット未接続のため時刻がずれることがある。本体は入れっぱなし、帰りはモニターだけOFF",tg:["施設管理", "引き継ぎ統合版"],date:"2026-04-01",due:"2026-04-01",priority:"low"},
+{id:"T0027",d:"施設管理",t:"タイムカードPCの時刻確認",cy:"yearly",m:4,wb:0,cl:[],pit:"インターネット未接続のため時刻がずれることがある。本体は入れっぱなし、帰りはモニターだけOFF。→ブラウザ版出退勤アプリで代替予定",tg:["施設管理", "引き継ぎ統合版"],date:"2026-04-01",due:"2026-04-01",priority:"low"},
+{id:"T0600",d:"教職員管理",t:"★川端先生に絶対聞く: 104勤務状況調査・出退勤・休暇管理",cy:"yearly",m:4,wb:0,cl:[],pit:"【必ず4/1〜3の間に確認】①104のExcel、毎月いつどうやって作ってた？ ②年休・特休の日数はどうやって数えてた？（紙の休暇簿を手で数える？Excel？）③CE-Net以外に何か見ながら書いてたものある？ ④休暇簿は紙？デジタル？保管場所は？ ⑤タイムカードPCの管理者パスワードは？ →回答次第でブラウザ版出退勤アプリに年休記録機能を追加するか判断",tg:["引き継ぎ", "104勤務状況調査"],date:"2026-03-30",due:"2026-04-03",priority:"critical"},
 {id:"T0028",d:"校内調整",t:"（仮）学校運営協議会・くろしお教研 書類確認",cy:"yearly",m:4,wb:0,cl:[],pit:"年度始めの書類確認。くろしお教研の担当者割り当て",tg:["確認", "R1R2メール(仮)"],date:"2026-04-01",due:"2026-04-01",priority:"low",sub:true,who:"R1R2メール推定"},
 {id:"T0029",d:"会議運営",t:"第2回職員会議 司会（8:20〜）",cy:"yearly",m:4,wb:0,cl:[],pit:"議事: 校務分掌確定→掃除区域・縦割り班→保健室確認事項(東)→児童会選挙→家庭環境調査票→校内文書整理(川端)→学校経営の担当者確認",tg:["会議", "引き継ぎ統合版"],date:"2026-04-02",due:"2026-04-02",priority:"critical",timeSlot:"08:20-"},
 {id:"T0030",d:"教育委員会",t:"教育課程届の作成開始",cy:"yearly",m:4,wb:0,cl:[],pit:"年間授業時数配当表・教育課程編成表。前年度との変更点明記。締切4/10",tg:["提出", "提出締切DB"],date:"2026-04-02",due:"2026-04-02",priority:"high"},
@@ -1396,7 +1412,10 @@ const TASKS=[
 {id:"T0527",d:"教育委員会",t:"（仮）不登校報告 提出",cy:"yearly",m:3,wb:0,cl:[],pit:"教委宛。毎月提出",tg:["提出", "R1R2メール(仮)"],date:"2027-03-31",due:"2027-03-31",priority:"high",sub:true,who:"R1R2メール推定"},
 {id:"T0528",d:"教育委員会",t:"（仮）超過勤務時間報告",cy:"yearly",m:3,wb:0,cl:[],pit:"教頭が担当（川端事務から引き継ぎ）",tg:["提出", "R1R2メール(仮)"],date:"2027-03-31",due:"2027-03-31",priority:"medium",sub:true,who:"R1R2メール推定"},
 {id:"T0529",d:"教育委員会",t:"（仮）SSS（庄司さん）職務内容報告",cy:"yearly",m:3,wb:0,cl:[],pit:"教頭が担当（川端事務から引き継ぎ）",tg:["提出", "R1R2メール(仮)"],date:"2027-03-31",due:"2027-03-31",priority:"medium",sub:true,who:"R1R2メール推定"},
-{id:"T0530",d:"危機管理",t:"（仮）安全点検 報告書まとめ",cy:"yearly",m:3,wb:0,cl:[],pit:"奇数月は職員で担当場所を点検。偶数月は教頭が簡易チェック",tg:["安全管理", "R1R2メール(仮)"],date:"2027-03-31",due:"2027-03-31",priority:"medium",sub:true,who:"R1R2メール推定"}
+{id:"T0530",d:"危機管理",t:"（仮）安全点検 報告書まとめ",cy:"yearly",m:3,wb:0,cl:[],pit:"奇数月は職員で担当場所を点検。偶数月は教頭が簡易チェック",tg:["安全管理", "R1R2メール(仮)"],date:"2027-03-31",due:"2027-03-31",priority:"medium",sub:true,who:"R1R2メール推定"},
+// ── inbox仕分けから追加されたタスク ──
+{id:"MT-001",d:"校内調整",t:"GWS端末 入札・設定手配",cy:"yearly",m:4,wb:0,cl:[],pit:"4月初旬入札→富士電機が設定→配布。4/1即配布は無理",tg:["ICT","inbox"],date:"2026-04-20",due:"2026-04-20",priority:"high",created_at:"2026-03-30"},
+{id:"MT-002",d:"校内調整",t:"新任教員アカウント配布 — 誰がやるか要確認",cy:"yearly",m:4,wb:0,cl:[],pit:"アカウント配布は端末配布とは別フロー。情報担当？教頭？赴任後に確認",tg:["ICT","inbox","保留"],date:"2026-04-07",due:"2026-04-07",priority:"medium",created_at:"2026-03-30",pending:true},
 ];
 
 const RULES=[
@@ -1421,12 +1440,13 @@ function loadState(){
   if(!S.status)S.status={};if(!S.cl)S.cl={};if(!S.theme)S.theme='';
   if(!S.tab)S.tab='today';if(!S.hideDone)S.hideDone=false;
   if(!S.sort)S.sort={col:'m',dir:1};if(!S.boardScope)S.boardScope='soon';if(!S.calView)S.calView='month';if(!S.calWeekStart)S.calWeekStart=null;if(!S.weekDays)S.weekDays=5;
-  TASKS.forEach(tk=>{if(!S.status[tk.id])S.status[tk.id]=(tk.cy==='daily'||tk.cy==='weekly'||tk.cy==='monthly')?'進行中':'未着手'});
+  TASKS.forEach(tk=>{if(!S.status[tk.id])S.status[tk.id]=tk.pending?'未着手':(tk.cy==='daily'||tk.cy==='weekly'||tk.cy==='monthly')?'進行中':'未着手'});
 }
 function saveState(){localStorage.setItem(LS_KEY,JSON.stringify(S))}
 function getStatus(id){return S.status[id]||'未着手'}
 function setStatus(id,st){S.status[id]=st;saveState();gasUpdateStatus(id,st)}
 function isDone(id){return getStatus(id)==='完了'}
+function isNewTask(createdAt){if(!createdAt)return false;const d=new Date(createdAt);const now=new Date();return(now-d)<3*24*60*60*1000}
 function toggleCl(taskId,idx){const k=taskId+'_'+idx;S.cl[k]=!S.cl[k];saveState()}
 function isClDone(taskId,idx){return !!S.cl[taskId+'_'+idx]}
 
@@ -1739,7 +1759,7 @@ function renderListRows(){
   document.getElementById('listRows').innerHTML=filtered.map(tk=>`
     <div class="list-row${isDone(tk.id)?' done':''}" data-id="${tk.id}" onclick="this.classList.toggle('open')">
       ${cb(tk.id)}
-      <div class="list-task">${esc(tk.t)}</div>
+      <div class="list-task">${tk.created_at&&isNewTask(tk.created_at)?'<span class="new-badge">New</span>':''}${tk.pending?'<span class="pending-badge">保留</span>':''}${esc(tk.t)}</div>
       <div class="list-domain">${domDot(tk.d)} ${esc(tk.d)}</div>
       <div class="list-month">${tk.m?tk.m+'月':'通年'}</div>
       <div class="list-cycle">${dueTag(tk)||`<span style="font-size:.65rem;color:var(--text-dim2)">${CY_LABEL[tk.cy]}</span>`}</div>
@@ -2440,6 +2460,7 @@ const RESOURCES = [
   {name:'FW アプリカタログ',tag:'アプリ',desc:'教育アプリ15本のカタログページ。',icon:'fa-solid fa-rocket',link:'../文章_作業スペース/FriendlyWorkshop/catalog.html'},
   {name:'4月実践資料（職員会議・自己紹介・入学式台本）',tag:'教頭業務',desc:'第1〜3回職員会議の司会台本＋教頭自己紹介（1分/30秒版）＋入学式シナリオ（R2実物セリフベース）。印刷してポケットに。',icon:'fa-solid fa-scroll',thumb:'',link:'kyoto-april-practice-docs.html'},
   {name:'4/1〜3 完全タイムライン',tag:'教頭業務',desc:'赴任初日から入学式前日準備まで。全タスクをチェックボックス付き時系列で網羅。提出物・持ち物リスト付き。',icon:'fa-solid fa-list-check',thumb:'',link:'kyoto-april-1to3-timeline.html'},
+  {name:'inbox仕分けフロー',tag:'AI秘書',desc:'受信箱→DB振り分けの対話型仕分けフロー図。タスク・暗黙知・参考資料・個人情報の5分類。',icon:'fa-solid fa-arrows-split-up-and-left',thumb:'',link:'inbox-sort-flow.html'},
 ];
 
 // Apps data (from dev_dashboard)
