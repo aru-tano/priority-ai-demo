@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>inbox全体フロー — AirDrop→DB振り分けまで</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FAF9F6;--surface:#fff;--border:rgba(45,38,33,.08);
+  --text:#2d2621;--dim:#6b6560;--dim2:#a8a29e;
+  --green:#4A7C59;--green-bg:rgba(74,124,89,.07);
+  --amber:#C8934A;--amber-bg:rgba(200,147,74,.08);
+  --blue:#5B7DB1;--blue-bg:rgba(91,125,177,.08);
+  --red:#C45D5D;--red-bg:rgba(196,93,93,.08);
+  --pink:#B85A7A;--pink-bg:rgba(184,90,122,.08);
+  --purple:#8B6DB0;--purple-bg:rgba(139,109,176,.08);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+body{font-family:'Inter','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);padding:40px 20px;min-height:100vh}
+.container{max-width:960px;margin:0 auto}
+
+.header{text-align:center;margin-bottom:48px}
+.header h1{font-size:1.6rem;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.header p{font-size:.875rem;color:var(--dim)}
+.badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:.7rem;font-weight:700;background:var(--green-bg);color:var(--green);margin-top:8px}
+
+/* Section divider */
+.section-divider{
+  text-align:center;margin:36px 0 24px;position:relative;
+}
+.section-divider::before{
+  content:"";position:absolute;left:0;right:0;top:50%;
+  border-top:1px dashed var(--border);
+}
+.section-label{
+  position:relative;display:inline-block;
+  padding:4px 16px;border-radius:20px;
+  font-size:.7rem;font-weight:700;letter-spacing:.03em;
+}
+.section-label.auto{background:#e8f5ec;color:var(--green)}
+.section-label.dialog{background:var(--amber-bg);color:var(--amber)}
+.section-label.system{background:var(--blue-bg);color:var(--blue)}
+
+/* Flow */
+.flow{display:flex;flex-direction:column;gap:0;position:relative}
+
+.arrow{display:flex;justify-content:center;padding:6px 0}
+.arrow svg{width:24px;height:32px;color:var(--dim2)}
+.arrow-label{font-size:.65rem;color:var(--dim2);text-align:center;margin-top:-2px;margin-bottom:2px}
+
+/* Step card */
+.step{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:24px 28px;position:relative;
+  box-shadow:0 2px 8px rgba(0,0,0,.03);
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease);
+}
+.step:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+
+.step-num{
+  position:absolute;top:-12px;left:24px;
+  width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:700;color:#fff;
+}
+.step-num.user-step{background:var(--amber)}
+.step-num.auto-step{background:var(--green)}
+.step-num.cc-step{background:var(--blue)}
+.step-num.system-step{background:var(--purple)}
+
+.step-title{font-size:1rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.step-title .icon{font-size:1.1rem}
+.step-body{font-size:.85rem;color:var(--dim);line-height:1.7}
+.step-body code{background:var(--green-bg);color:var(--green);padding:1px 6px;border-radius:4px;font-size:.8rem;font-family:'Inter',monospace}
+
+.actor{
+  display:inline-block;padding:2px 8px;border-radius:5px;
+  font-size:.7rem;font-weight:700;margin-bottom:8px;
+}
+.actor-cc{background:var(--blue-bg);color:var(--blue)}
+.actor-user{background:var(--amber-bg);color:var(--amber)}
+.actor-auto{background:var(--green-bg);color:var(--green)}
+.actor-system{background:var(--purple-bg);color:var(--purple)}
+
+/* Input sources */
+.input-sources{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  margin-top:12px;
+}
+.input-src{
+  border:1px solid var(--border);border-radius:10px;padding:12px;
+  text-align:center;background:var(--surface);
+}
+.input-src .src-icon{font-size:1.6rem;margin-bottom:4px}
+.input-src .src-label{font-size:.75rem;font-weight:700;color:var(--text)}
+.input-src .src-sub{font-size:.65rem;color:var(--dim2);margin-top:2px}
+
+/* Processing detail */
+.process-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  margin-top:12px;
+}
+.process-item{
+  border:1px solid var(--border);border-radius:10px;padding:10px 12px;
+  background:var(--green-bg);
+}
+.process-item .proc-label{font-size:.75rem;font-weight:700;color:var(--green);margin-bottom:2px}
+.process-item .proc-sub{font-size:.65rem;color:var(--dim);line-height:1.4}
+
+/* Destination cards */
+.destinations{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:10px;
+  margin-top:14px;
+}
+.dest{
+  border:1px solid var(--border);border-radius:12px;padding:14px 12px;
+  text-align:center;transition:all .25s var(--ease);cursor:default;
+}
+.dest:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.05)}
+.dest-icon{font-size:1.4rem;margin-bottom:6px}
+.dest-label{font-size:.75rem;font-weight:700;margin-bottom:3px}
+.dest-sub{font-size:.65rem;color:var(--dim2);line-height:1.4}
+.dest-task{background:var(--amber-bg);border-color:rgba(200,147,74,.15)}
+.dest-task .dest-label{color:var(--amber)}
+.dest-pending{background:var(--purple-bg);border-color:rgba(139,109,176,.15)}
+.dest-pending .dest-label{color:var(--purple)}
+.dest-knowledge{background:var(--blue-bg);border-color:rgba(91,125,177,.15)}
+.dest-knowledge .dest-label{color:var(--blue)}
+.dest-ref{background:var(--green-bg);border-color:rgba(74,124,89,.15)}
+.dest-ref .dest-label{color:var(--green)}
+.dest-personal{background:var(--red-bg);border-color:rgba(196,93,93,.15)}
+.dest-personal .dest-label{color:var(--red)}
+.dest-done{background:rgba(45,38,33,.03);border-color:var(--border)}
+.dest-done .dest-label{color:var(--dim)}
+
+/* Example conversation */
+.example{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:24px 28px;margin-top:32px;
+}
+.example h3{font-size:.85rem;font-weight:700;margin-bottom:16px;color:var(--dim);display:flex;align-items:center;gap:6px}
+.chat{display:flex;flex-direction:column;gap:10px}
+.chat-line{display:flex;gap:10px;align-items:flex-start}
+.chat-avatar{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:700;color:#fff;
+}
+.chat-avatar.cc{background:var(--blue)}
+.chat-avatar.user{background:var(--amber)}
+.chat-bubble{
+  padding:10px 14px;border-radius:12px;font-size:.82rem;line-height:1.6;
+  max-width:600px;
+}
+.chat-bubble.cc{background:var(--blue-bg);color:var(--text)}
+.chat-bubble.user{background:var(--amber-bg);color:var(--text)}
+.chat-bubble strong{font-weight:700}
+
+.summary-box{
+  margin-top:10px;padding:12px 16px;border-radius:10px;
+  background:var(--green-bg);border:1px solid rgba(74,124,89,.12);
+  font-size:.8rem;line-height:1.7;color:var(--text);
+}
+
+/* Loop indicator */
+.loop-indicator{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin:8px 0;font-size:.7rem;color:var(--dim2);
+}
+.loop-line{flex:1;max-width:80px;border-top:1px dashed var(--dim2)}
+
+.footer{text-align:center;margin-top:48px;font-size:.7rem;color:var(--dim2)}
+
+@media(max-width:700px){
+  .destinations{grid-template-columns:repeat(3,1fr)}
+  .input-sources,.process-grid{grid-template-columns:1fr}
+  .step{padding:18px 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>向井小 inbox パイプライン</h1>
+    <p>AirDropで飛ばしてから、DBに届くまでの全体像</p>
+    <div class="badge">対話型仕分け — 慣れたら全自動に切替可</div>
+  </div>
+
+  <div class="flow">
+
+    <!-- ==================== PHASE A: 入口 ==================== -->
+    <div class="section-divider">
+      <span class="section-label auto">PHASE A — データが入る</span>
+    </div>
+
+    <!-- Step 1: AirDrop -->
+    <div class="step">
+      <div class="step-num user-step">1</div>
+      <div class="actor actor-user">ユーザー</div>
+      <div class="step-title"><span class="icon">📱</span>iPhoneからAirDrop / PLAUDで録音</div>
+      <div class="step-body">
+        職員室で配布物を撮る。打ち合わせを録音する。メモを飛ばす。<br>
+        <strong>やることはこれだけ。あとは全部自動。</strong>
+      </div>
+      <div class="input-sources">
+        <div class="input-src">
+          <div class="src-icon">📷</div>
+          <div class="src-label">写真・書類</div>
+          <div class="src-sub">AirDropで<br>Macに飛ばす</div>
+        </div>
+        <div class="input-src">
+          <div class="src-icon">🎙️</div>
+          <div class="src-label">録音</div>
+          <div class="src-sub">PLAUDまたは<br>iPhoneボイスメモ</div>
+        </div>
+        <div class="input-src">
+          <div class="src-icon">📝</div>
+          <div class="src-label">テキストメモ</div>
+          <div class="src-sub">CCメモ/ に<br>投げ込み</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow"><svg viewBox="0 0 24 32"><path d="M12 2v24m-6-6l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- ==================== PHASE B: 自動処理 ==================== -->
+    <div class="section-divider">
+      <span class="section-label auto">PHASE B — 自動で読み取る（watcher）</span>
+    </div>
+
+    <!-- Step 2: Watcher -->
+    <div class="step">
+      <div class="step-num auto-step">2</div>
+      <div class="actor actor-auto">自動（watcher常駐）</div>
+      <div class="step-title"><span class="icon">👁️</span>ファイル検知 → 受信箱に取り込み</div>
+      <div class="step-body">
+        <code>~/Downloads/</code> を監視。新しいファイルが来たら自動で <code>向井小_inbox/</code> にコピー。<br>
+        ファイル種別を判定して振り分け先フォルダへ。
+      </div>
+      <div class="process-grid">
+        <div class="process-item">
+          <div class="proc-label">画像 → images/</div>
+          <div class="proc-sub">JPG, PNG, HEIC</div>
+        </div>
+        <div class="process-item">
+          <div class="proc-label">音声 → audio/</div>
+          <div class="proc-sub">OGG, M4A, WAV</div>
+        </div>
+        <div class="process-item">
+          <div class="proc-label">メモ → memos/</div>
+          <div class="proc-sub">MD, TXT</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow"><svg viewBox="0 0 24 32"><path d="M12 2v24m-6-6l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- Step 3: OCR / Transcription -->
+    <div class="step">
+      <div class="step-num auto-step">3</div>
+      <div class="actor actor-auto">自動</div>
+      <div class="step-title"><span class="icon">🔤</span>OCR / 文字起こし / 自動分析</div>
+      <div class="step-body">
+        画像 → OCRでテキスト抽出<br>
+        音声 → Whisperで文字起こし<br>
+        テキスト → 内容分析（文書種別・期限・個人情報フラグ・推奨アクション）<br>
+        結果を <code>text/</code> に保存、<code>_index.jsonl</code> に台帳登録
+      </div>
+      <div class="process-grid">
+        <div class="process-item">
+          <div class="proc-label">テキスト化</div>
+          <div class="proc-sub">OCR or Whisper<br>→ text/ に保存</div>
+        </div>
+        <div class="process-item">
+          <div class="proc-label">自動分析</div>
+          <div class="proc-sub">文書種別 / 期限<br>個人情報フラグ</div>
+        </div>
+        <div class="process-item">
+          <div class="proc-label">台帳登録</div>
+          <div class="proc-sub">_index.jsonl に<br>status=unreviewed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow"><svg viewBox="0 0 24 32"><path d="M12 2v24m-6-6l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- ==================== PHASE C: 対話で仕分け ==================== -->
+    <div class="section-divider">
+      <span class="section-label dialog">PHASE C — 対話で仕分ける</span>
+    </div>
+
+    <!-- Step 4: Trigger -->
+    <div class="step">
+      <div class="step-num user-step">4</div>
+      <div class="actor actor-user">ユーザー</div>
+      <div class="step-title"><span class="icon">💬</span>「仕分けして」</div>
+      <div class="step-body">
+        好きなタイミングで声をかける。<br>
+        CCが <code>_index.jsonl</code> から <code>status=unreviewed</code> を全件取得。
+      </div>
+    </div>
+
+    <div class="arrow"><svg viewBox="0 0 24 32"><path d="M12 2v24m-6-6l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- Step 5: Propose -->
+    <div class="step">
+      <div class="step-num cc-step">5</div>
+      <div class="actor actor-cc">CC</div>
+      <div class="step-title"><span class="icon">🔍</span>1件ずつ提示 + 振り分け提案</div>
+      <div class="step-body">
+        テキスト全文を読み、内容を要約して見せる。<br>
+        <strong>音声は複数トピックに分解</strong>して「この録音から○件抽出しました」と提示。<br>
+        CCが振り分け先を<strong>理由付きで提案</strong>する。
+      </div>
+    </div>
+
+    <div class="arrow"><svg viewBox="0 0 24 32"><path d="M12 2v24m-6-6l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- Step 6: Confirm -->
+    <div class="step">
+      <div class="step-num user-step">6</div>
+      <div class="actor actor-user">ユーザー</div>
+      <div class="step-title"><span class="icon">✋</span>承認 or 変更指示</div>
+      <div class="step-body">
+        <strong>OK</strong> → 提案通り登録<br>
+        <strong>「暗黙知やな」「タスクで」</strong> → 振り分け先を変更<br>
+        <strong>スキップ</strong> → 何もせず次へ<br>
+        <strong>自由コメント</strong> → メモとして付記
+      </div>
+    </div>
+
+    <div class="loop-indicator">
+      <div class="loop-line"></div>
+      <span>全件処理するまでStep 5↔6 を繰り返す</span>
+      <div class="loop-line"></div>
+    </div>
+
+    <div class="arrow"><svg viewBox="0 0 24 32"><path d="M12 2v24m-6-6l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- ==================== PHASE D: 登録・反映 ==================== -->
+    <div class="section-divider">
+      <span class="section-label system">PHASE D — DBに届く</span>
+    </div>
+
+    <!-- Step 7: Register -->
+    <div class="step">
+      <div class="step-num auto-step">7</div>
+      <div class="actor actor-auto">自動</div>
+      <div class="step-title"><span class="icon">📦</span>振り分け先DBに登録</div>
+      <div class="step-body">
+        確定した分類に応じて、それぞれのDBにレコードを追加。<br>
+        <code>_index.jsonl</code> の <code>status</code> を <code>reviewed</code> に更新。
+      </div>
+      <!-- Destinations -->
+      <div class="destinations" style="margin-top:16px">
+        <div class="dest dest-task">
+          <div class="dest-icon">🔨</div>
+          <div class="dest-label">タスク</div>
+          <div class="dest-sub">tasks.jsonl<br>status=todo</div>
+        </div>
+        <div class="dest dest-pending">
+          <div class="dest-icon">❓</div>
+          <div class="dest-label">保留</div>
+          <div class="dest-sub">tasks.jsonl<br>status=pending</div>
+        </div>
+        <div class="dest dest-knowledge">
+          <div class="dest-icon">💡</div>
+          <div class="dest-label">暗黙知</div>
+          <div class="dest-sub">onboarding<br>_db.jsonl</div>
+        </div>
+        <div class="dest dest-ref">
+          <div class="dest-icon">📁</div>
+          <div class="dest-label">参考資料</div>
+          <div class="dest-sub">向井小学校/<br>フォルダ</div>
+        </div>
+        <div class="dest dest-personal">
+          <div class="dest-icon">🔒</div>
+          <div class="dest-label">個人情報</div>
+          <div class="dest-sub">受信箱に残す<br>AI投入禁止</div>
+        </div>
+        <div class="dest dest-done">
+          <div class="dest-icon">✓</div>
+          <div class="dest-label">処理済み</div>
+          <div class="dest-sub">status=<br>reviewed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow"><svg viewBox="0 0 24 32"><path d="M12 2v24m-6-6l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- Step 8: Dashboard -->
+    <div class="step">
+      <div class="step-num system-step">8</div>
+      <div class="actor actor-system">ダッシュボード</div>
+      <div class="step-title"><span class="icon">📊</span>ダッシュボードに反映</div>
+      <div class="step-body">
+        受信箱タブの件数・ステータスが更新される。<br>
+        タスクDBに入ったものはカレンダー・タスクリストにも反映。<br>
+        <strong>完了サマリー</strong>で「タスク○件、暗黙知○件…」と報告。
+      </div>
+    </div>
+
+  </div><!-- /flow -->
+
+  <!-- Example conversation -->
+  <div class="example">
+    <h3><span style="font-size:1rem">💬</span> 実際の対話イメージ（Phase C）</h3>
+    <div class="chat">
+      <div class="chat-line">
+        <div class="chat-avatar user">U</div>
+        <div class="chat-bubble user">仕分けして</div>
+      </div>
+      <div class="chat-line">
+        <div class="chat-avatar cc">CC</div>
+        <div class="chat-bubble cc">未確認が<strong>2件</strong>あります。1件目から見ていきます。<br><br>
+          <strong>📥 [1/2] 音声 recording_001.ogg（3:47）</strong><br><br>
+          この録音から<strong>3件</strong>抽出しました：<br>
+          ① タスク「GWS端末 入札・設定手配」期限: 4月中旬<br>
+          ② タスク「新任教員アカウント配布」期限: 4/1<br>
+          ③ 暗黙知「向井小ICT体制 — 富士電機が保守、3成先生がキーパーソン」<br><br>
+          ①②→ 🔨タスク、③→ 💡暗黙知 で登録しますか？
+        </div>
+      </div>
+      <div class="chat-line">
+        <div class="chat-avatar user">U</div>
+        <div class="chat-bubble user">OK</div>
+      </div>
+      <div class="chat-line">
+        <div class="chat-avatar cc">CC</div>
+        <div class="chat-bubble cc">
+          登録しました → MT-001, MT-002, KN-037<br><br>
+          <strong>📥 [2/2] 画像 IMG_0001.JPG</strong><br>
+          年間行事一覧表です。📁参考資料 として保管しますか？
+        </div>
+      </div>
+      <div class="chat-line">
+        <div class="chat-avatar user">U</div>
+        <div class="chat-bubble user">OK、あと暗黙知にも「農業体験が多い学校」って入れて</div>
+      </div>
+      <div class="chat-line">
+        <div class="chat-avatar cc">CC</div>
+        <div class="chat-bubble cc">
+          <div class="summary-box">
+            <strong>仕分け完了:</strong><br>
+            🔨 タスク 2件（MT-001, MT-002）<br>
+            💡 暗黙知 2件（KN-037, KN-038）<br>
+            📁 参考資料 1件
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    inbox pipeline — Session 198 (2026-03-30)
+  </div>
+
+</div>
+
+</body>
+</html>

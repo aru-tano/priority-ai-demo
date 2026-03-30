@@ -428,7 +428,7 @@ body.dark .header{background:rgba(17,17,16,0.85)}
 .hide-done-toggle.active{background:var(--accent-bg);color:var(--accent);border-color:rgba(74,124,89,0.2)}
 
 /* ===== PANEL 2: LIST ===== */
-.list-toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.list-toolbar{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
 .list-toolbar select,.list-toolbar input{
   padding:8px 12px;border-radius:8px;border:1px solid var(--border-mid);
   background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;
@@ -436,6 +436,18 @@ body.dark .header{background:rgba(17,17,16,0.85)}
 }
 .list-toolbar select:focus,.list-toolbar input:focus{outline:none;border-color:var(--accent)}
 .list-toolbar input{flex:1;min-width:140px}
+.filter-row{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.filter-row-label{font-size:.65rem;font-weight:700;color:var(--text-dim);min-width:32px;flex-shrink:0}
+.fbtn{
+  padding:4px 10px;border-radius:6px;border:1px solid var(--border-mid);
+  background:var(--surface);color:var(--text-dim);font-size:.72rem;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;
+}
+.fbtn:hover{border-color:var(--accent);color:var(--accent)}
+.fbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.fbtn.on-red{background:#ef4444;color:#fff;border-color:#ef4444}
+.fbtn.on-purple{background:#8b5cf6;color:#fff;border-color:#8b5cf6}
+.search-row{display:flex;gap:8px;align-items:center}
 .list-count{font-size:12.5px;color:var(--text-dim);margin-bottom:8px;font-weight:500}
 .list-header{
   display:grid;grid-template-columns:30px 1fr 90px 50px 100px 56px;gap:8px;
@@ -1439,14 +1451,15 @@ function loadState(){
   try{S=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){S={}}
   if(!S.status)S.status={};if(!S.cl)S.cl={};if(!S.theme)S.theme='';
   if(!S.tab)S.tab='today';if(!S.hideDone)S.hideDone=false;
-  if(!S.sort)S.sort={col:'m',dir:1};if(!S.boardScope)S.boardScope='soon';if(!S.calView)S.calView='month';if(!S.calWeekStart)S.calWeekStart=null;if(!S.weekDays)S.weekDays=5;
+  if(!S.sort)S.sort={col:'m',dir:1};if(!S.boardScope)S.boardScope='soon';if(!S.calView)S.calView='month';if(!S.calWeekStart)S.calWeekStart=null;if(!S.weekDays)S.weekDays=5;// Filters reset on reload — they're session-only, not persistent
+S.filterNew=false;S.filterPending=false;S.filterStatus='';S.filterMonth='';S.filterDom='';
   TASKS.forEach(tk=>{if(!S.status[tk.id])S.status[tk.id]=tk.pending?'未着手':(tk.cy==='daily'||tk.cy==='weekly'||tk.cy==='monthly')?'進行中':'未着手'});
 }
 function saveState(){localStorage.setItem(LS_KEY,JSON.stringify(S))}
 function getStatus(id){return S.status[id]||'未着手'}
 function setStatus(id,st){S.status[id]=st;saveState();gasUpdateStatus(id,st)}
 function isDone(id){return getStatus(id)==='完了'}
-function isNewTask(createdAt){if(!createdAt)return false;const d=new Date(createdAt);const now=new Date();return(now-d)<3*24*60*60*1000}
+function isNewTask(createdAt){if(!createdAt)return false;const d=new Date(createdAt);const now=new Date();const diffDays=(now-d)/(24*60*60*1000);return diffDays<7}
 function toggleCl(taskId,idx){const k=taskId+'_'+idx;S.cl[k]=!S.cl[k];saveState()}
 function isClDone(taskId,idx){return !!S.cl[taskId+'_'+idx]}
 
@@ -1673,37 +1686,72 @@ async function aiPickToday(){
 // ═══════════════════════════════════════════════════════════════
 function renderList(){
   const el=document.getElementById('p-list');
-  const domSel=document.getElementById('fDom');
+  // filters are button-based now
   const doms=[...new Set(TASKS.map(t=>t.d))].sort();
   const months=[...new Set(TASKS.map(t=>t.m).filter(Boolean))].sort((a,b)=>{const fa=a>=4?a-4:a+8;const fb=b>=4?b-4:b+8;return fa-fb;});
 
-  const needsInit=!document.getElementById('fDom');
+  const needsInit=!document.getElementById('fSearch');
   if(needsInit){
     el.innerHTML=`
       <div class="list-toolbar">
-        <select id="fDom"></select>
-        <select id="fMon"></select>
-        <select id="fSt"><option value="">全状態</option>${STATUSES.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
-        <input type="text" id="fSearch" placeholder="検索...">
-        <button class="hide-done-toggle${S.hideDone?' active':''}" id="listHideDone">${S.hideDone?'完了表示':'完了隠す'}</button>
+        <div class="search-row">
+          <input type="text" id="fSearch" placeholder="検索..." style="flex:1">
+        </div>
+        <div class="filter-row" id="fTagRow">
+          <button class="fbtn${S.filterNew?' on-red':''}" data-filter="new">New</button>
+          <button class="fbtn${S.filterPending?' on-purple':''}" data-filter="pending">保留</button>
+          <span style="width:1px;height:16px;background:var(--border-mid);margin:0 2px"></span>
+          ${STATUSES.map(s=>`<button class="fbtn${S.filterStatus===s?' on':''}" data-status="${s}">${s}</button>`).join('')}
+          <span style="width:1px;height:16px;background:var(--border-mid);margin:0 2px"></span>
+          <button class="fbtn${S.hideDone?' on':''}" data-filter="hideDone">完了隠す</button>
+        </div>
+        <div class="filter-row" id="fMonthRow">
+          <span class="filter-row-label">月</span>
+          ${months.map(m=>`<button class="fbtn${S.filterMonth==m?' on':''}" data-month="${m}">${m}月</button>`).join('')}
+        </div>
+        <div class="filter-row" id="fDomRow">
+          <span class="filter-row-label">領域</span>
+          ${doms.map(d=>`<button class="fbtn${S.filterDom===d?' on':''}" data-dom="${d}">${d}</button>`).join('')}
+        </div>
       </div>
       <div class="list-count" id="listCount"></div>
       <div class="list-header" id="listHeader"></div>
       <div class="list-rows" id="listRows"></div>
     `;
-    ['fDom','fMon','fSt'].forEach(id=>document.getElementById(id).addEventListener('change',renderListRows));
     document.getElementById('fSearch').addEventListener('input',debounce(renderListRows,200));
-    document.getElementById('listHideDone').addEventListener('click',()=>{S.hideDone=!S.hideDone;saveState();renderAll()});
+    el.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{
+      const f=btn.dataset.filter;
+      if(f==='new'){S.filterNew=!S.filterNew;S.filterPending=false}
+      else if(f==='pending'){S.filterPending=!S.filterPending;S.filterNew=false}
+      else if(f==='hideDone'){S.hideDone=!S.hideDone}
+      saveState();updateListFilterUI();renderListRows();
+    }));
+    el.querySelectorAll('[data-status]').forEach(btn=>btn.addEventListener('click',()=>{
+      S.filterStatus=S.filterStatus===btn.dataset.status?'':btn.dataset.status;saveState();updateListFilterUI();renderListRows();
+    }));
+    el.querySelectorAll('[data-month]').forEach(btn=>btn.addEventListener('click',()=>{
+      S.filterMonth=S.filterMonth===+btn.dataset.month?'':+btn.dataset.month;saveState();updateListFilterUI();renderListRows();
+    }));
+    el.querySelectorAll('[data-dom]').forEach(btn=>btn.addEventListener('click',()=>{
+      S.filterDom=S.filterDom===btn.dataset.dom?'':btn.dataset.dom;saveState();updateListFilterUI();renderListRows();
+    }));
   }
-  // GASデータ取得後もフィルタoptionを最新に更新
-  const curDom=document.getElementById('fDom').value;
-  const curMon=document.getElementById('fMon').value;
-  document.getElementById('fDom').innerHTML=`<option value="">全領域</option>${doms.map(d=>`<option value="${d}"${d===curDom?' selected':''}>${d}</option>`).join('')}`;
-  document.getElementById('fMon').innerHTML=`<option value="">全月</option>${months.map(m=>`<option value="${m}"${String(m)===curMon?' selected':''}>${m}月</option>`).join('')}<option value="null"${curMon==='null'?' selected':''}>通年</option>`;
-  document.getElementById('listHideDone').textContent=S.hideDone?'完了表示':'完了隠す';
-  document.getElementById('listHideDone').className='hide-done-toggle'+(S.hideDone?' active':'');
+  updateListFilterUI();
   renderListHeader();
   renderListRows();
+}
+function updateListFilterUI(){
+  const el=document.getElementById('p-list');
+  if(!el)return;
+  el.querySelectorAll('[data-filter]').forEach(btn=>{
+    const f=btn.dataset.filter;
+    if(f==='new')btn.className='fbtn'+(S.filterNew?' on-red':'');
+    else if(f==='pending')btn.className='fbtn'+(S.filterPending?' on-purple':'');
+    else if(f==='hideDone'){btn.className='fbtn'+(S.hideDone?' on':'');btn.textContent=S.hideDone?'完了表示':'完了隠す'}
+  });
+  el.querySelectorAll('[data-status]').forEach(btn=>{btn.className='fbtn'+(S.filterStatus===btn.dataset.status?' on':'')});
+  el.querySelectorAll('[data-month]').forEach(btn=>{btn.className='fbtn'+(S.filterMonth===+btn.dataset.month?' on':'')});
+  el.querySelectorAll('[data-dom]').forEach(btn=>{btn.className='fbtn'+(S.filterDom===btn.dataset.dom?' on':'')});
 }
 
 function renderListHeader(){
@@ -1711,7 +1759,7 @@ function renderListHeader(){
     {key:'',label:'',nosort:true},
     {key:'t',label:'タスク'},
     {key:'d',label:'領域'},
-    {key:'m',label:'月'},
+    {key:'m',label:'日付'},
     {key:'due',label:'締切'},
     {key:'st',label:'状態'},
   ];
@@ -1728,17 +1776,15 @@ function sortBy(col){
 }
 
 function getFiltered(){
-  const dom=document.getElementById('fDom')?.value||'';
-  const mon=document.getElementById('fMon')?.value||'';
-  const st=document.getElementById('fSt')?.value||'';
   const q=(document.getElementById('fSearch')?.value||'').toLowerCase();
   return TASKS.filter(tk=>{
-    if(dom&&tk.d!==dom)return false;
-    if(mon==='null'&&tk.m!==null)return false;
-    if(mon&&mon!=='null'&&tk.m!==+mon)return false;
-    if(st&&getStatus(tk.id)!==st)return false;
+    if(S.filterDom&&tk.d!==S.filterDom)return false;
+    if(S.filterMonth&&tk.m!==S.filterMonth)return false;
+    if(S.filterStatus&&getStatus(tk.id)!==S.filterStatus)return false;
     if(S.hideDone&&isDone(tk.id))return false;
     if(q&&!tk.t.toLowerCase().includes(q)&&!tk.d.toLowerCase().includes(q)&&!tk.tg.join(' ').toLowerCase().includes(q))return false;
+    if(S.filterNew&&!(tk.created_at&&isNewTask(tk.created_at)))return false;
+    if(S.filterPending&&!tk.pending)return false;
     return true;
   }).sort((a,b)=>{
     const {col,dir}=S.sort;
@@ -1761,7 +1807,7 @@ function renderListRows(){
       ${cb(tk.id)}
       <div class="list-task">${tk.created_at&&isNewTask(tk.created_at)?'<span class="new-badge">New</span>':''}${tk.pending?'<span class="pending-badge">保留</span>':''}${esc(tk.t)}</div>
       <div class="list-domain">${domDot(tk.d)} ${esc(tk.d)}</div>
-      <div class="list-month">${tk.m?tk.m+'月':'通年'}</div>
+      <div class="list-month">${tk.date?tk.date.slice(5).replace('-','/'):'通年'}</div>
       <div class="list-cycle">${dueTag(tk)||`<span style="font-size:.65rem;color:var(--text-dim2)">${CY_LABEL[tk.cy]}</span>`}</div>
       ${statusBtn(tk.id)}
       <div class="list-detail">
@@ -2841,10 +2887,17 @@ async function fetchFromGAS(){
     ]);
     // シート1: タスク
     if(tasksRes&&tasksRes.tasks&&tasksRes.tasks.length>0){
+      // Preserve local-only tasks (added via inbox sort, etc.)
+      const localOnly=TASKS.filter(tk=>tk.created_at);
+      const gasIds=new Set(tasksRes.tasks.map(g=>g.id||g.ID||''));
       TASKS.length=0;
       tasksRes.tasks.forEach(g=>{
         const tk=convertGasTask(g);
         TASKS.push(tk);
+      });
+      // Re-add local tasks that aren't in GAS
+      localOnly.forEach(lt=>{
+        if(!gasIds.has(lt.id))TASKS.push(lt);
       });
       TASKS.forEach(tk=>{
         if(tk.status)S.status[tk.id]=tk.status;
