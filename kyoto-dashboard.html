@@ -2479,29 +2479,18 @@ function submitStaffQuick(){
 // ═══════════════════════════════════════════════════════════════
 const SS='../文章_作業スペース/FriendlyWorkshop/dev_screenshots/';
 const RESOURCES = [
-  {name:'【サンプル】朝ブリーフィング — 赴任初日（4/1）',tag:'ブリーフィング（サンプル）',desc:'サンプル生成。赴任Day1の最重要タスク・落とし穴・タイムライン・声かけ。7DB＋セマンティック検索統合。',icon:'fa-solid fa-sun',thumb:'',link:'kyoto-briefing-2026-04-01.html'},
-  {name:'【サンプル】朝ブリーフィング — 赴任2日目（4/2）',tag:'ブリーフィング（サンプル）',desc:'サンプル生成。Day2のブリーフィング。前日フィードバック反映・チェックリスト進捗。',icon:'fa-solid fa-sun',thumb:'',link:'kyoto-briefing-2026-04-02.html'},
-  {name:'【サンプル】朝ブリーフィング — 赴任3日目（4/3）',tag:'ブリーフィング（サンプル）',desc:'サンプル生成。Day3のブリーフィング。初週リズム確立・人間関係構築。',icon:'fa-solid fa-sun',thumb:'',link:'kyoto-briefing-2026-04-03.html'},
-  {name:'朝ブリーフィング — 最新版',tag:'ブリーフィング',desc:'build_briefing.py で最後に生成されたブリーフィング。4/1以降は毎朝自動更新。',icon:'fa-solid fa-bolt',thumb:'',link:'kyoto-secretary-briefing.html'},
   {name:'NotebookLM 30分で火をつける研修',tag:'研修スライド',desc:'算数教科書デモ → Audio Overview → AquaVoice実データ → VoicePad体験 → ハンズオン演習。12枚構成。',icon:'fa-solid fa-book-open-reader',thumb:SS+'res_notebooklm_kenshu.png',links:[{label:'スライド',url:'../文章_作業スペース/05_仕事_Work/教頭エージェント/notebooklm_kenshu_slide.html'},{label:'発表者ノート',url:'../文章_作業スペース/05_仕事_Work/教頭エージェント/notebooklm_kenshu_speaker_notes.md'}]},
   {name:'VoicePad 導入スライド',tag:'ツール紹介',desc:'VoicePadの概要・セットアップ・活用法を説明するスライド資料。',icon:'fa-solid fa-microphone',thumb:SS+'res_voicepad_slides.png',link:'../文章_作業スペース/FriendlyWorkshop/tools/voice-to-doc/guide_slides.html'},
   {name:'尾鷲マイクロ水力 調査レポート',tag:'レポート',desc:'尾鷲市における小水力発電の可能性調査。',icon:'fa-solid fa-water',thumb:SS+'res_microhydro.png',links:[{label:'HTML版',url:'../文章_作業スペース/05_仕事_Work/owase_microhydro_report.html'},{label:'PDF版',url:'../文章_作業スペース/05_仕事_Work/owase_microhydro_report.pdf'}]},
-  {name:'4月着任チェックリスト',tag:'教頭業務',desc:'教頭1年目の4月着任時やることリスト。',icon:'fa-solid fa-clipboard-check',thumb:SS+'res_april_checklist.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/print_april_checklist.html'},
   {name:'テンプレートショーケース',tag:'デザイン',desc:'HTMLスライド3テンプレートの比較。',icon:'fa-solid fa-swatchbook',thumb:SS+'res_template_showcase.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/template_showcase.html'},
-  {name:'4月ダッシュボード',tag:'教頭業務',desc:'4月の教頭タスク・行事・チェックリストを集約。',icon:'fa-solid fa-calendar-days',thumb:SS+'res_april_dashboard.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/kyoto_april_dashboard.html'},
   {name:'年間提出書類カレンダー',tag:'教頭業務',desc:'年間407件の教頭書類を月別管理。提出(270件)＋配布(137件)の3シート構成。チェックボックス・着手日・締切・流れ付き。',icon:'fa-solid fa-file-circle-check',thumb:'',link:'https://docs.google.com/spreadsheets/d/1_w4zQC2Da-CZo8hpUluoj8gXBbKr9ChvkjaTaQepaB0/edit'},
 
   {name:'紀北教育研究所 知のDB全体図',tag:'教育',desc:'教育研究所のDB構造を俯瞰する全体図。',icon:'fa-solid fa-diagram-project',thumb:SS+'res_kihoku_db_map.png',link:'../文章_作業スペース/05_仕事_Work/紀北教育研究所_知のDB全体図.html'},
   {name:'割合ガイド',tag:'教材サンプル',desc:'割合の考え方を図解したサンプル教材。',icon:'fa-solid fa-percent',thumb:SS+'res_wariai_guide.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/sample_wariai_guide.html'},
   {name:'割合図解',tag:'教材サンプル',desc:'割合のビジュアル図解資料。',icon:'fa-solid fa-chart-pie',thumb:SS+'res_wariai_zukai.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/sample_wariai_zukai.html'},
   {name:'ステップ開示テンプレート',tag:'テンプレート',desc:'HTMLスライドのステップ開示テンプレート。',icon:'fa-solid fa-layer-group',thumb:SS+'res_step_reveal.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/template_step_reveal.html'},
-  {name:'社中泊フロー',tag:'教頭業務',desc:'宿泊行事の流れを整理したフローチャート。',icon:'fa-solid fa-route',thumb:SS+'res_shachuuhaku.png',link:'../文章_作業スペース/05_仕事_Work/教頭エージェント/test_shachuuhaku_flow.html'},
-  {name:'写真家DNAダッシュボード',tag:'写真分析',desc:'写真撮影スタイルの分析ダッシュボード。',icon:'fa-solid fa-camera',thumb:SS+'res_photo_dna_dash.png',link:'../文章_作業スペース/05_仕事_Work/photo_analysis/photographer_dna_dashboard.html'},
   {name:'写真家DNA研究',tag:'写真分析',desc:'写真撮影の傾向・強みの分析資料。',icon:'fa-solid fa-flask',thumb:SS+'res_photo_dna_study.png',link:'../文章_作業スペース/05_仕事_Work/photo_analysis/photographer_dna_study.html'},
-  {name:'業務改革ポータル',tag:'業務改革',desc:'業務改革の各種ツール・情報への入口。',icon:'fa-solid fa-gauge-high',thumb:SS+'res_reform_portal.png',link:'../文章_作業スペース/05_仕事_Work/06_業務改革_WorkReform/portal/index.html'},
   {name:'2年算数「長さのたんい」第3時',tag:'教材セット',desc:'授業スライド・練習プリント・ゲームの4点セット。',icon:'fa-solid fa-ruler-combined',thumb:SS+'res_lesson_slide.png',links:[{label:'スライド',url:'../文章_作業スペース/05_仕事_Work/教科書PDF/教材セット_2年算数_長さのたんい_第3時/01_授業スライド.html'},{label:'プリント',url:'../文章_作業スペース/05_仕事_Work/教科書PDF/教材セット_2年算数_長さのたんい_第3時/02_練習プリント.html'},{label:'ゲーム',url:'../文章_作業スペース/05_仕事_Work/教科書PDF/教材セット_2年算数_長さのたんい_第3時/04_mm読み取りゲーム.html'}]},
-  {name:'写真クイズ',tag:'写真',desc:'YouTube写真講座から生成したクイズ。',icon:'fa-solid fa-question-circle',thumb:SS+'res_photo_quiz.png',link:'../文章_作業スペース/05_仕事_Work/youtube_context_collector/output/quizzes/photo_quiz.html'},
-  {name:'教頭ダッシュボード',tag:'教頭業務',desc:'カレンダー連携・スプレッドシート連携。',icon:'fa-solid fa-table-columns',thumb:SS+'res_kyoto_dashboard.png',link:'kyoto-dashboard.html'},
   {name:'校舎巡回ガイド',tag:'教頭業務',desc:'校舎を歩きながら確認するポイント集。鍵・窓・部屋の使い方・退校チェック。植松校長の校舎案内（2026-03-26）文字起こしから抽出。',icon:'fa-solid fa-route',thumb:'',link:'mukai-building-guide.html'},
   {name:'校内資料ポータル（サンプル）',tag:'学校経営',desc:'NAS共有フォルダの全資料をカード型UIで検索・閲覧。10カテゴリ55件。赴任後に実データで差し替え。',icon:'fa-solid fa-school',thumb:'',link:'school_portal_sample.html'},
   {name:'教科書PDF・テキストデータ',tag:'教科書データ',desc:'算数・国語 1〜6年の教科書PDF+OCRテキスト化データ。',icon:'fa-solid fa-book',link:'../文章_作業スペース/05_仕事_Work/教科書PDF/'},
@@ -2731,6 +2720,7 @@ const DB_CAT_ICONS={edu_practice:'fa-solid fa-chalkboard-user',edu_curriculum:'f
 
 let resSubTab='resources';
 let resSearch='';
+let resTagFilter='all';
 let resDbCatFilter='all';
 let resAppStatusFilter='all';
 
@@ -2751,14 +2741,30 @@ function renderResources(){
       ${subTabs.map(t=>`<button onclick="${t.link?`window.open('${t.link}','_blank')`:`resSubTab='${t.id}';renderResources()`}" style="padding:10px 20px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:15px;font-weight:600;color:${resSubTab===t.id?'var(--accent)':'var(--text-dim)'};border-bottom:2px solid ${resSubTab===t.id?'var(--accent)':'transparent'};transition:all .2s;display:flex;align-items:center;gap:6px"><i class="${t.icon}" style="font-size:13px"></i>${t.label}<span style="font-size:12px;background:${resSubTab===t.id?'var(--accent)':'var(--surface-dim)'};color:${resSubTab===t.id?'#fff':'var(--text-dim)'};padding:1px 7px;border-radius:10px;font-weight:700">${t.count}</span>${t.link?'<i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;opacity:0.5"></i>':''}</button>`).join('')}
     </div>
     <div style="margin-bottom:16px">
-      <input type="text" placeholder="検索..." value="${resSearch}" oninput="resSearch=this.value;renderResources()" style="width:100%;max-width:320px;padding:7px 12px 7px 32px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:14px;outline:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2214%22 height=%2214%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23a8a29e%22 stroke-width=%222%22><circle cx=%2211%22 cy=%2211%22 r=%228%22/><path d=%22m21 21-4.3-4.3%22/></svg>');background-repeat:no-repeat;background-position:10px center">
+      <input type="text" id="resSearchInput" autocomplete="off" placeholder="検索..." value="${resSearch}" oninput="resSearch=this.value;renderResourcesContent()" style="width:100%;max-width:320px;padding:7px 12px 7px 32px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:14px;outline:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2214%22 height=%2214%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23a8a29e%22 stroke-width=%222%22><circle cx=%2211%22 cy=%2211%22 r=%228%22/><path d=%22m21 21-4.3-4.3%22/></svg>');background-repeat:no-repeat;background-position:10px center">
     </div>
+    <div id="resContentArea"></div>
   `;
 
+  el.innerHTML=html;
+  renderResourcesContent();
+}
+
+function renderResourcesContent(){
+  const el=document.getElementById('resContentArea');
+  if(!el)return;
   const q=resSearch.toLowerCase();
+  let html='';
 
   if(resSubTab==='resources'){
-    const filtered=RESOURCES.filter(r=>!q||r.name.toLowerCase().includes(q)||r.tag.toLowerCase().includes(q)||r.desc.toLowerCase().includes(q));
+    // Tag filter buttons
+    const allTags=[...new Set(RESOURCES.map(r=>r.tag))].sort();
+    html+=`<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap"><button onclick="resTagFilter='all';renderResourcesContent()" style="padding:4px 12px;border-radius:7px;border:1px solid ${resTagFilter==='all'?'var(--accent)':'var(--border)'};background:${resTagFilter==='all'?'var(--accent)':'var(--surface)'};color:${resTagFilter==='all'?'#fff':'var(--text-dim)'};font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s">全て</button>${allTags.map(t=>`<button onclick="resTagFilter='${t}';renderResourcesContent()" style="padding:4px 12px;border-radius:7px;border:1px solid ${resTagFilter===t?'var(--accent)':'var(--border)'};background:${resTagFilter===t?'var(--accent)':'var(--surface)'};color:${resTagFilter===t?'#fff':'var(--text-dim)'};font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s">${t}</button>`).join('')}</div>`;
+    const filtered=RESOURCES.filter(r=>{
+      if(resTagFilter!=='all'&&r.tag!==resTagFilter)return false;
+      if(q&&!r.name.toLowerCase().includes(q)&&!r.tag.toLowerCase().includes(q)&&!r.desc.toLowerCase().includes(q))return false;
+      return true;
+    });
     html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">${filtered.map((r,i)=>{
       const actionHTML=r.links?r.links.map(l=>`<a href="${l.url}" target="_blank" style="font-size:13px;font-weight:600;padding:4px 10px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;transition:all .2s">${l.label}</a>`).join(''):r.link?`<a href="${r.link}" target="_blank" style="font-size:13px;font-weight:600;padding:4px 10px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;transition:all .2s">開く</a>`:'';
       const thumbHTML=r.thumb?`<img src="${r.thumb}" alt="${r.name}" style="width:100%;height:100%;object-fit:cover;transition:transform .5s ease" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:'';
@@ -2777,7 +2783,7 @@ function renderResources(){
     // Status filter
     const statuses=['all','published','ready','dev','external'];
     const statusLabels={all:'全て',published:'公開済',ready:'完成未掲載',dev:'開発中',external:'外部'};
-    html+=`<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">${statuses.map(s=>`<button onclick="resAppStatusFilter='${s}';renderResources()" style="padding:4px 12px;border-radius:7px;border:1px solid ${resAppStatusFilter===s?'var(--accent)':'var(--border)'};background:${resAppStatusFilter===s?'var(--accent)':'var(--surface)'};color:${resAppStatusFilter===s?'#fff':'var(--text-dim)'};font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s">${statusLabels[s]}</button>`).join('')}</div>`;
+    html+=`<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">${statuses.map(s=>`<button onclick="resAppStatusFilter='${s}';renderResourcesContent()" style="padding:4px 12px;border-radius:7px;border:1px solid ${resAppStatusFilter===s?'var(--accent)':'var(--border)'};background:${resAppStatusFilter===s?'var(--accent)':'var(--surface)'};color:${resAppStatusFilter===s?'#fff':'var(--text-dim)'};font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s">${statusLabels[s]}</button>`).join('')}</div>`;
     const filtered=APPS_DATA.filter(a=>{
       if(resAppStatusFilter!=='all'&&a.status!==resAppStatusFilter)return false;
       if(q&&!a.name.toLowerCase().includes(q)&&!a.subject.toLowerCase().includes(q))return false;
@@ -2791,7 +2797,7 @@ function renderResources(){
       const thumbSrc=ASS+thumbFile+'.png';
       return `<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${sm.c};border-radius:12px;padding:12px;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 1px 4px rgba(0,0,0,0.03)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)'" onmouseout="this.style.transform='';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.03)'">
         <div style="width:100%;aspect-ratio:16/10;border-radius:8px;overflow:hidden;margin-bottom:8px;background:var(--surface-dim)"><img src="${thumbSrc}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"></div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><select onchange="changeAppStatus('${a.name}',this.value);renderResources()" style="font-size:10.5px;font-weight:600;padding:2px 4px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:${sm.c};font-family:inherit;cursor:pointer">${Object.entries(APP_STATUS).map(([k,v])=>'<option value=\"'+k+'\"'+(k===a.status?' selected':'')+' style=\"color:'+v.c+'\">'+v.l+'</option>').join('')}</select>${a.grade!=='\u2014'?`<span style="font-size:10.5px;padding:1px 5px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.grade}</span>`:''}<span style="font-size:10.5px;padding:1px 5px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.subject}</span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><select onchange="changeAppStatus('${a.name}',this.value);renderResourcesContent()" style="font-size:10.5px;font-weight:600;padding:2px 4px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:${sm.c};font-family:inherit;cursor:pointer">${Object.entries(APP_STATUS).map(([k,v])=>'<option value=\"'+k+'\"'+(k===a.status?' selected':'')+' style=\"color:'+v.c+'\">'+v.l+'</option>').join('')}</select>${a.grade!=='\u2014'?`<span style="font-size:10.5px;padding:1px 5px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.grade}</span>`:''}<span style="font-size:10.5px;padding:1px 5px;border-radius:4px;background:var(--surface-dim);color:var(--text-dim)">${a.subject}</span></div>
         <div style="font-size:15px;font-weight:700;margin-bottom:6px">${a.name}</div>
         <a href="${href}" target="_blank" style="font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:4px">${a.status==='external'?'外部サイト':'開く'} <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></a>
       </div>`;
