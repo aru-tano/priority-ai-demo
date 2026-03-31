@@ -360,46 +360,68 @@ body {
     width: 2px;
     background: #e2e8f0;
 }
-.timeline-row {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 16px;
-    position: relative;
+/* ===== Time-block chunk format (matches kyoto-april-1to3-timeline) ===== */
+.tl-chunk { margin-bottom: 8px; }
+.tl-chunk-header { display: flex; align-items: flex-start; gap: 12px; padding: 4px 0; }
+.tl-time-col {
+    flex-shrink: 0; width: 80px; text-align: right;
+    position: relative; padding-right: 16px;
 }
-.timeline-time {
-    width: 60px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: #0d9488;
-    font-family: ui-monospace, monospace;
-    flex-shrink: 0;
-    padding-top: 2px;
+.tl-time-col::after {
+    content: ''; position: absolute; right: -5px; top: 8px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: white; border: 2px solid #0d9488; z-index: 1;
 }
-.timeline-dot {
-    width: 10px;
-    height: 10px;
-    background: #0d9488;
-    border-radius: 50%;
-    flex-shrink: 0;
-    margin: 5px 12px 0;
-    position: relative;
-    z-index: 1;
+.tl-time-col.crit::after { background: #dc2626; border-color: #dc2626; }
+.tl-time-col.high::after { background: #f59e0b; border-color: #f59e0b; }
+.tl-time-col.info::after { background: #0d9488; border-color: #0d9488; }
+.tl-time-col.low::after { background: #94a3b8; border-color: #94a3b8; }
+.tl-time-label {
+    font-size: 0.78rem; font-weight: 700; display: inline-block;
+    padding: 2px 6px; border-radius: 4px;
 }
-.timeline-content {
-    flex: 1;
-    min-width: 0;
+.tl-time-label.crit { color: #fff; background: #dc2626; }
+.tl-time-label.high { color: #fff; background: #f59e0b; }
+.tl-time-label.info { color: #0d9488; background: #e0f7f5; }
+.tl-time-label.low { color: #64748b; background: #f1f5f9; }
+.tl-task-block {
+    flex: 1; background: #fff; border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06); padding: 10px 14px; margin-bottom: 4px;
 }
-.timeline-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #1e293b;
+.tl-task-block.crit { border-left: 3px solid #dc2626; background: #fffbfb; }
+.tl-task-block.high { border-left: 3px solid #f59e0b; background: #fffdf7; }
+.tl-task-block.info { border-left: 3px solid #0d9488; background: #f8fcfb; }
+.tl-task-block.low { border-left: 3px solid #cbd5e1; }
+.tl-task-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.04);
 }
-.timeline-desc {
-    font-size: 0.82rem;
-    color: #64748b;
-    margin-top: 2px;
-    line-height: 1.5;
+.tl-task-item:last-child { border-bottom: none; padding-bottom: 0; }
+.tl-task-check { flex-shrink: 0; margin-top: 2px; }
+.tl-task-check input[type="checkbox"] { width: 16px; height: 16px; accent-color: #0d9488; cursor: pointer; }
+.tl-task-content { flex: 1; }
+.tl-task-main { font-size: 0.88rem; font-weight: 600; color: #1e293b; }
+.tl-task-sub { font-size: 0.78rem; color: #64748b; margin-top: 2px; padding-left: 8px; border-left: 2px solid #e2e8f0; line-height: 1.5; }
+.tl-memo {
+    background: #fffbf0; border-radius: 8px; border-left: 3px solid #d4a017;
+    padding: 8px 12px; margin: 6px 0 12px 92px; font-size: 0.78rem; line-height: 1.6;
 }
+.tl-memo::before { content: '教頭メモ'; display: block; font-size: 0.68rem; font-weight: 700; color: #b8860b; margin-bottom: 2px; }
+.tl-role-tag {
+    display: inline-block; font-size: 0.68rem; font-weight: 600;
+    padding: 1px 6px; border-radius: 3px; margin-left: 4px; vertical-align: middle;
+}
+.tl-role-tag.kyoto { background: #e0f7f5; color: #0d9488; }
+.tl-role-tag.staff { background: #e3f2fd; color: #1565c0; }
+.tl-role-tag.principal { background: #fff3e0; color: #e65100; }
+
+/* Legacy compat (keep for other sections) */
+.timeline-row { display: flex; align-items: flex-start; margin-bottom: 16px; position: relative; }
+.timeline-time { width: 60px; font-size: 0.82rem; font-weight: 600; color: #0d9488; font-family: ui-monospace, monospace; flex-shrink: 0; padding-top: 2px; }
+.timeline-dot { width: 10px; height: 10px; background: #0d9488; border-radius: 50%; flex-shrink: 0; margin: 5px 12px 0; position: relative; z-index: 1; }
+.timeline-content { flex: 1; min-width: 0; }
+.timeline-title { font-size: 0.9rem; font-weight: 600; color: #1e293b; }
+.timeline-desc { font-size: 0.82rem; color: #64748b; margin-top: 2px; line-height: 1.5; }
 
 /* ===== Remaining (details/summary) ===== */
 .remaining-tasks {
@@ -840,14 +862,165 @@ if(location.hash==='#embed')document.documentElement.classList.add('embed-mode')
         </div>
         <div class="section-body">
             <div class="timeline">
-                <div class="timeline-row"><div class="timeline-time">06:45</div><div class="timeline-dot" style="background:#dc2626"></div><div class="timeline-content"><div class="timeline-title">出勤・解錠</div><div class="timeline-desc">庄司さんが7時前に来るがマスターキーなし。<strong>教頭が先に開ける</strong>。玄関→職員室→1F廊下の窓1カ所を換気</div></div></div>
-                <div class="timeline-row"><div class="timeline-time">08:00</div><div class="timeline-dot" style="background:#dc2626"></div><div class="timeline-content"><div class="timeline-title">辞令交付式</div><div class="timeline-desc">教育委員会にて。渡邉校長（尾鷲市教委より）・田上教頭（紀北教育研究所より）</div></div></div>
-                <div class="timeline-row"><div class="timeline-time">08:20</div><div class="timeline-dot" style="background:#dc2626"></div><div class="timeline-content"><div class="timeline-title">第1回職員会議（〜11:00）</div><div class="timeline-desc"><strong>教頭が司会</strong>。記録は川端事務。議事13項目: 着任職員紹介(5名)→担任発表(校長)→校務分掌→日課表→時間割→4月行事→年間行事→入学式→家庭訪問→学校経営。<br>※議事録フォーマットは植松校長が第1〜3回分を作成済み</div></div></div>
-                <div class="timeline-row"><div class="timeline-time">11:00</div><div class="timeline-dot" style="background:#f59e0b"></div><div class="timeline-content"><div class="timeline-title">挨拶回り</div><div class="timeline-desc">京呂平さんが配布先を知っている。南靖久(スクールガード・市議)、西倫生(大曽根浦区長)、岩﨑壽一(行野浦区長)、山本拡志(芳向会)、学校運営協議会委員7名</div></div></div>
-                <div class="timeline-row"><div class="timeline-time">12:15</div><div class="timeline-dot" style="background:#f59e0b"></div><div class="timeline-content"><div class="timeline-title">給食検食</div><div class="timeline-desc">法令義務。校長不在時は教頭が責任者</div></div></div>
-                <div class="timeline-row"><div class="timeline-time">13:30</div><div class="timeline-dot" style="background:#3b82f6"></div><div class="timeline-content"><div class="timeline-title">校長出張（市校長会）</div><div class="timeline-desc"><strong>教頭が学校管理</strong>。川端事務も14:30から共同学校事務室へ出張。午後は教頭一人の時間帯あり</div></div></div>
-                <div class="timeline-row"><div class="timeline-time">午後</div><div class="timeline-dot" style="background:#6b7280"></div><div class="timeline-content"><div class="timeline-title">職員室の机移動</div><div class="timeline-desc">新体制レイアウトに変更。教室の机移動も</div></div></div>
-                <div class="timeline-row"><div class="timeline-time">18:00</div><div class="timeline-dot" style="background:#f59e0b"></div><div class="timeline-content"><div class="timeline-title">施錠確認・退勤</div><div class="timeline-desc">校舎内・体育館の施錠、電気消し忘れ。体育館トイレの窓閉め、バックネット裏外トイレの電気。渡り廊下の風戸。庄司さんがチェック済みだが最終確認は教頭</div></div></div>
+
+                <!-- 07:20 出勤 -->
+                <div class="tl-chunk">
+                  <div class="tl-chunk-header">
+                    <div class="tl-time-col crit"><span class="tl-time-label crit">07:20</span></div>
+                    <div class="tl-task-block crit">
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">出勤・玄関と職員室の解錠 <span class="tl-role-tag kyoto">教頭</span></div>
+                          <div class="tl-task-sub">1F廊下の窓1カ所＋職員室1カ所を換気</div>
+                        </div>
+                      </div>
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">庄司さんに挨拶</div>
+                          <div class="tl-task-sub">7時前から来ているがマスターキーなし。「おはようございます。今日からお世話になります」</div>
+                        </div>
+                      </div>
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">タイムカードPCの時刻確認</div>
+                          <div class="tl-task-sub">ネット未接続で時間がずれている可能性あり</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 08:00 辞令交付 -->
+                <div class="tl-chunk">
+                  <div class="tl-chunk-header">
+                    <div class="tl-time-col crit"><span class="tl-time-label crit">08:00</span></div>
+                    <div class="tl-task-block crit">
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">辞令交付式（尾鷲市教委にて） <span class="tl-role-tag principal">校長同行</span></div>
+                          <div class="tl-task-sub">渡邉校長（市教委より）と一緒に出席。外部＝丁寧さ最優先（RULE-020）</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 08:20 第1回職員会議 -->
+                <div class="tl-chunk">
+                  <div class="tl-chunk-header">
+                    <div class="tl-time-col crit"><span class="tl-time-label crit">08:20</span></div>
+                    <div class="tl-task-block crit">
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">第1回職員会議（〜11:00）<strong>司会は教頭</strong> <span class="tl-role-tag kyoto">教頭司会</span><span class="tl-role-tag staff">川端記録</span></div>
+                        </div>
+                      </div>
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">着任職員紹介（5名）</div>
+                        </div>
+                      </div>
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">担任発表（校長から）</div>
+                          <div class="tl-task-sub">1-2年＝内山 / 3-4年＝上ノ坊 / 5-6年＝脇</div>
+                        </div>
+                      </div>
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">校務分掌→日課表→時間割→年間行事→入学式計画</div>
+                          <div class="tl-task-sub">議事13項目。前年度資料: ★R7職員会議/R7第1回職員会議/</div>
+                        </div>
+                      </div>
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">管理職・事務等名簿を提出 <span class="tl-role-tag kyoto" style="background:#fffbeb;color:#b45309">本日締切</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tl-memo">初日は聞く。発言力のある人を見極めるのが地図を手に入れる最短ルート。ルールブックより人を読む（RULE-014）</div>
+                </div>
+
+                <!-- 11:00 挨拶回り -->
+                <div class="tl-chunk">
+                  <div class="tl-chunk-header">
+                    <div class="tl-time-col high"><span class="tl-time-label high">11:00</span></div>
+                    <div class="tl-task-block high">
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">新年度挨拶回り <span class="tl-role-tag staff">京呂平さん同行</span></div>
+                          <div class="tl-task-sub">配布先11名: 南靖久・西倫生・岩﨑壽一・山本拡志・上野朋子・岡由美子・岩田昭人・村島秀樹・岡文彦・笠松千恵子・日向風花</div>
+                        </div>
+                      </div>
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">学校だよりを持参</div>
+                          <div class="tl-task-sub">初回は教頭が自ら行って顔を見せるのが良い</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 13:30 午後 -->
+                <div class="tl-chunk">
+                  <div class="tl-chunk-header">
+                    <div class="tl-time-col info"><span class="tl-time-label info">13:30</span></div>
+                    <div class="tl-task-block info">
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">校長出張（市校長会）→ 教頭が学校管理</div>
+                          <div class="tl-task-sub">川端事務も14:30から共同学校事務室（尾鷲小）へ。<strong>午後は教頭一人の時間帯あり</strong></div>
+                        </div>
+                      </div>
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">職員室・教室の机移動</div>
+                          <div class="tl-task-sub">新転任者の席配置。駐車場割り当ても</div>
+                        </div>
+                      </div>
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">PC・NAS・勤怠モニターの確認</div>
+                          <div class="tl-task-sub">教頭用PCが間に合わない場合→米倉先生のPCを借りる。NASフォルダ構成を把握</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 18:00 退勤 -->
+                <div class="tl-chunk">
+                  <div class="tl-chunk-header">
+                    <div class="tl-time-col high"><span class="tl-time-label high">18:00</span></div>
+                    <div class="tl-task-block high">
+                      <div class="tl-task-item">
+                        <div class="tl-task-check"><input type="checkbox" onchange="saveCheckState(this)"></div>
+                        <div class="tl-task-content">
+                          <div class="tl-task-main">施錠確認・退勤</div>
+                          <div class="tl-task-sub">校舎内・体育館の施錠。体育館トイレ窓閉め。バックネット裏外トイレ電気。渡り廊下の風戸。勤怠PCモニター電源OFF</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tl-memo">庄司さんが丁寧にチェックしてくださっている。最終確認は教頭。「ありがとうございます。お疲れさまでした」</div>
+                </div>
+
             </div>
         </div>
     </div>

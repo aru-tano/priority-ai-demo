@@ -797,7 +797,7 @@ body.dark .topbar{{background:rgba(17,17,16,0.9)}}
 
 <!-- Sticky topbar -->
 <div class="topbar">
-  <a href="kyoto-dashboard-improved.html" class="topbar-back"><i class="fa-solid fa-arrow-left"></i> ダッシュボードへ</a>
+  <a href="kyoto-dashboard.html" class="topbar-back"><i class="fa-solid fa-arrow-left"></i> ダッシュボードへ</a>
   <input type="text" class="search-box" id="searchBox" placeholder="記事・タグ・場所を検索..." oninput="handleSearch(this.value)">
   <div style="flex:1"></div>
   <span id="resultCount" style="font-size:13px;color:var(--text-dim);font-weight:600"></span>

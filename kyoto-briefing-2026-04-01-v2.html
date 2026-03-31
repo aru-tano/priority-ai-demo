@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教頭ブリーフィング — 2026年4月1日（水）</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+  background: #f8fafc; color: #1e293b; line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+.header {
+  background: #fff; border-bottom: 1px solid #e2e8f0;
+  padding: 20px 24px; position: sticky; top: 0; z-index: 100;
+}
+.header-inner { max-width: 720px; margin: 0 auto; }
+.header-title { font-size: 1.3rem; font-weight: 700; }
+.header-sub { font-size: .85rem; color: #64748b; margin-top: 4px; }
+.chip { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: .78rem; font-weight: 600; margin-right: 6px; }
+.chip-red { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.chip-blue { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+
+/* Container */
+.container { max-width: 720px; margin: 0 auto; padding: 20px 24px 80px; }
+
+/* Timeline */
+.tl-block { margin-bottom: 24px; position: relative; padding-left: 56px; }
+.tl-block::before {
+  content: ''; position: absolute; left: 24px; top: 28px; bottom: -24px;
+  width: 2px; background: #e2e8f0;
+}
+.tl-block:last-child::before { display: none; }
+
+.tl-time {
+  position: absolute; left: 0; top: 6px;
+  font-size: .82rem; font-weight: 700; color: #64748b;
+  width: 44px; text-align: right;
+}
+.tl-dot {
+  position: absolute; left: 19px; top: 10px;
+  width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #94a3b8;
+}
+.tl-dot.critical { box-shadow: 0 0 0 2px #dc2626; background: #dc2626; }
+.tl-dot.high { box-shadow: 0 0 0 2px #f59e0b; background: #f59e0b; }
+.tl-dot.normal { box-shadow: 0 0 0 2px #2563eb; background: #2563eb; }
+.tl-dot.low { box-shadow: 0 0 0 2px #94a3b8; background: #94a3b8; }
+
+.tl-card {
+  background: #fff; border-radius: 10px; padding: 14px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.tl-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+.tl-detail { font-size: .88rem; color: #475569; line-height: 1.6; }
+
+/* Embedded notes */
+.tl-note {
+  margin-top: 8px; padding: 8px 12px; border-radius: 8px;
+  font-size: .83rem; line-height: 1.5;
+}
+.note-voice { background: #f0fdf4; border-left: 3px solid #16a34a; }
+.note-pitfall { background: #fef2f2; border-left: 3px solid #dc2626; }
+.note-rule { background: #eff6ff; border-left: 3px solid #2563eb; }
+.note-submit { background: #fffbeb; border-left: 3px solid #f59e0b; }
+.note-label {
+  font-weight: 700; font-size: .75rem; text-transform: uppercase;
+  letter-spacing: .5px; margin-bottom: 2px;
+}
+.note-voice .note-label { color: #16a34a; }
+.note-pitfall .note-label { color: #dc2626; }
+.note-rule .note-label { color: #2563eb; }
+.note-submit .note-label { color: #b45309; }
+
+/* Phase divider */
+.phase {
+  margin: 32px 0 20px; padding: 8px 16px;
+  background: #0f172a; color: #fff; border-radius: 8px;
+  font-size: .9rem; font-weight: 700; text-align: center;
+}
+
+/* Sidebar: Submissions */
+.sidebar-section { margin-top: 40px; }
+.sidebar-title {
+  font-size: .9rem; font-weight: 700; color: #64748b;
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0;
+}
+.sub-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.sub-table th { text-align: left; padding: 8px 10px; background: #f1f5f9; font-weight: 600; color: #475569; }
+.sub-table td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; }
+.sub-table tr.today td { background: #fef2f2; font-weight: 600; }
+.sub-table tr.soon td { background: #fffbeb; }
+
+/* Footer message */
+.footer-msg {
+  margin-top: 40px; padding: 16px 20px; border-radius: 10px;
+  background: #f0fdf4; border: 1px solid #bbf7d0;
+  font-size: .9rem; line-height: 1.6; color: #166534;
+}
+
+/* Tomorrow */
+.tomorrow-card {
+  background: #fff; border-radius: 10px; padding: 14px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-top: 12px;
+}
+.tomorrow-title { font-weight: 700; font-size: .9rem; margin-bottom: 4px; }
+.tomorrow-detail { font-size: .85rem; color: #475569; }
+
+@media print {
+  .header { position: static; }
+  body { font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-title">4月1日（水）教頭ブリーフィング</div>
+    <div class="header-sub">
+      <span class="chip chip-red">着任日</span>
+      <span class="chip chip-blue">入学式まであと5日</span>
+      向井小学校 令和8年度
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ===== Phase: 朝（〜8:00） ===== -->
+<div class="phase">朝 — 出勤〜辞令交付</div>
+
+<div class="tl-block">
+  <div class="tl-time">7:20</div>
+  <div class="tl-dot normal"></div>
+  <div class="tl-card">
+    <div class="tl-title">出勤・鍵開け</div>
+    <div class="tl-detail">
+      玄関→職員室の順に開錠。1F廊下の窓1カ所を換気。職員室も1カ所。
+    </div>
+    <div class="tl-note note-voice">
+      <div class="note-label">声かけ</div>
+      庄司さんが7時前から来ているはず。「おはようございます。今日からお世話になります」
+    </div>
+    <div class="tl-note note-pitfall">
+      <div class="note-label">注意</div>
+      タイムカードPCの時間がずれている可能性（ネット未接続で自動補正されない）。要確認
+    </div>
+  </div>
+</div>
+
+<div class="tl-block">
+  <div class="tl-time">8:00</div>
+  <div class="tl-dot critical"></div>
+  <div class="tl-card">
+    <div class="tl-title">辞令交付式（尾鷲市教委にて）</div>
+    <div class="tl-detail">
+      渡邉校長と一緒に出席。ここで正式に教頭の辞令を受ける。
+    </div>
+    <div class="tl-note note-rule">
+      <div class="note-label">判断ルール</div>
+      外部＝地雷原。丁寧さ最優先。（RULE-020）
+    </div>
+  </div>
+</div>
+
+<!-- ===== Phase: 午前 ===== -->
+<div class="phase">午前 — 第1回職員会議＋挨拶回り</div>
+
+<div class="tl-block">
+  <div class="tl-time">8:20</div>
+  <div class="tl-dot critical"></div>
+  <div class="tl-card">
+    <div class="tl-title">第1回職員会議（〜11:00）</div>
+    <div class="tl-detail">
+      <strong>司会は教頭</strong>。記録は川端事務。議題13項目。<br>
+      ① 着任職員紹介（自分・脇・上ノ坊・東）<br>
+      ② 担任発表（校長から）: 1-2年＝内山 / 3-4年＝上ノ坊 / 5-6年＝脇<br>
+      ③ 校務分掌 ④ 日課表・時間割 ⑤ 入学式計画 ⑥ 年間行事 ⑦ 教育方針…
+    </div>
+    <div class="tl-note note-voice">
+      <div class="note-label">声かけ</div>
+      <strong>川端事務</strong>「記録よろしくお願いします。色々教えてください」<br>
+      <strong>内山先生</strong>「学校のこと一番ご存知だと聞いてます」<br>
+      <strong>米倉先生</strong>「時間割の原案、ありがとうございます」
+    </div>
+    <div class="tl-note note-rule">
+      <div class="note-label">判断ルール</div>
+      初日は聞く。発言力のある人を見極めるのが地図を手に入れる最短ルート。ルールブックより人を読む。（RULE-014）
+    </div>
+    <div class="tl-note note-pitfall">
+      <div class="note-label">注意</div>
+      事項書は早めに作るのが鉄則。今日は初回なので前年度のものを参照（★R7職員会議/R7第1回職員会議/）
+    </div>
+    <div class="tl-note note-submit">
+      <div class="note-label">提出</div>
+      管理職・事務等名簿 → 市教委（本日提出）<br>
+      時間割（提出用）→ 米倉先生の原案をもとに確定後
+    </div>
+  </div>
+</div>
+
+<div class="tl-block">
+  <div class="tl-time">11:00</div>
+  <div class="tl-dot high"></div>
+  <div class="tl-card">
+    <div class="tl-title">新年度挨拶回り</div>
+    <div class="tl-detail">
+      京呂平さんが同行（場所を知っている）。学校だよりを持参。<br>
+      配布先11名: 南靖久・西倫生・岩﨑壽一・山本拡志・上野朋子・岡由美子・岩田昭人・村島秀樹・岡文彦・笠松千恵子・日向風花
+    </div>
+    <div class="tl-note note-voice">
+      <div class="note-label">声かけ</div>
+      <strong>京呂平さん</strong>「ご一緒させてください。場所を教えてください」<br>
+      <strong>地域の方</strong>「はじめまして。4月から教頭になりました田上です。よろしくお願いいたします」
+    </div>
+    <div class="tl-note note-rule">
+      <div class="note-label">判断ルール</div>
+      初回は教頭が自ら行って顔を見せるのが良い（引き継ぎより）。地域の方への第一印象が大事
+    </div>
+  </div>
+</div>
+
+<!-- ===== Phase: 午後 ===== -->
+<div class="phase">午後 — 環境整備＋確認作業</div>
+
+<div class="tl-block">
+  <div class="tl-time">13:00</div>
+  <div class="tl-dot normal"></div>
+  <div class="tl-card">
+    <div class="tl-title">職員室・教室の机移動</div>
+    <div class="tl-detail">
+      新転任者の席配置。駐車場割り当ても決める。
+    </div>
+  </div>
+</div>
+
+<div class="tl-block">
+  <div class="tl-time">14:00</div>
+  <div class="tl-dot normal"></div>
+  <div class="tl-card">
+    <div class="tl-title">PC・ネットワーク・NAS確認</div>
+    <div class="tl-detail">
+      教頭用PCの確認（間に合わない場合は米倉先生のPCを借りる）。<br>
+      NAS共有フォルダの構成を把握。教頭フォルダを年度別で作成。<br>
+      勤怠管理モニター確認（電源ON運用）。
+    </div>
+    <div class="tl-note note-pitfall">
+      <div class="note-label">注意</div>
+      校内Wi-Fi（OWS-STF-AP）にQRコードで個人端末が接続できてしまう。NASにもアクセス可能。セキュリティ要確認
+    </div>
+  </div>
+</div>
+
+<div class="tl-block">
+  <div class="tl-time">15:00</div>
+  <div class="tl-dot low"></div>
+  <div class="tl-card">
+    <div class="tl-title">Eライブラリ研修の調整</div>
+    <div class="tl-detail">
+      尾鷲市がR8年度に予算計上。4/1〜3の間で研修を受けるのが理想。<br>
+      研究発表会（11月）に向けて学力向上の柱にする案あり。
+    </div>
+  </div>
+</div>
+
+<div class="tl-block">
+  <div class="tl-time">〜17:00</div>
+  <div class="tl-dot low"></div>
+  <div class="tl-card">
+    <div class="tl-title">退校前チェック</div>
+    <div class="tl-detail">
+      校舎内・体育館の施錠確認。体育館トイレの窓閉め。バックネット裏外トイレの電気。渡り廊下の風戸。
+    </div>
+    <div class="tl-note note-voice">
+      <div class="note-label">声かけ</div>
+      <strong>庄司さん</strong>（施錠を丁寧にチェックしてくださる方）「ありがとうございます。お疲れさまでした」
+    </div>
+  </div>
+</div>
+
+<!-- ===== 提出物カウントダウン ===== -->
+<div class="sidebar-section">
+  <div class="sidebar-title">4月の提出物カウントダウン</div>
+  <table class="sub-table">
+    <tr><th>締切</th><th>提出物</th><th>提出先</th></tr>
+    <tr class="today"><td>4/1</td><td>管理職・事務等名簿</td><td>市教委</td></tr>
+    <tr class="today"><td>4/1</td><td>時間割（提出用）</td><td>市教委</td></tr>
+    <tr><td>4/8</td><td>指導主事要請訪問希望</td><td>市教委</td></tr>
+    <tr><td>4/9</td><td>主任等の報告</td><td>市教委</td></tr>
+    <tr><td>4/9</td><td>教育課程実施届</td><td>市教委</td></tr>
+    <tr><td>4/9</td><td>保健主事申</td><td>市教委</td></tr>
+    <tr><td>4/13</td><td>学級担任・教科担任報告</td><td>市教委</td></tr>
+    <tr><td>4/15</td><td>常勤講師届</td><td>市教委</td></tr>
+    <tr><td>4/16</td><td>児童名簿</td><td>市教委</td></tr>
+    <tr><td>4/20</td><td>不登校児童報告書 / 教科時数調べ</td><td>市教委</td></tr>
+    <tr><td>4/22</td><td>人権教育実態調査</td><td>市教委</td></tr>
+    <tr><td>4/23</td><td>学校基本調査（至急）</td><td>市教委</td></tr>
+    <tr><td>4/24</td><td>問題行動等調査</td><td>市教委</td></tr>
+  </table>
+</div>
+
+<!-- ===== 明日の予告 ===== -->
+<div class="sidebar-section">
+  <div class="sidebar-title">明日・明後日</div>
+  <div class="tomorrow-card">
+    <div class="tomorrow-title">4/2（木）第2回職員会議</div>
+    <div class="tomorrow-detail">校務分掌詳細、掃除区域、保健室確認、児童会選挙段取り。入学式の司会原稿を取り出して練習開始</div>
+  </div>
+  <div class="tomorrow-card">
+    <div class="tomorrow-title">4/3（金）入学式前日準備 + 挨拶回り</div>
+    <div class="tomorrow-detail">体育館会場設営、座席配置、司会リハーサル。午後は転入者で挨拶回り</div>
+  </div>
+</div>
+
+<!-- ===== ひとこと ===== -->
+<div class="footer-msg">
+  <strong>今日のひとこと</strong><br>
+  初日は「聞く日」。自分の出番は司会だけ。あとは観察して、人を読む。<br>
+  教頭は目立ったらあかん。先生たちに活躍してもらうのが教頭の仕事。（RULE-035）
+</div>
+
+</div><!-- /container -->
+</body>
+</html>

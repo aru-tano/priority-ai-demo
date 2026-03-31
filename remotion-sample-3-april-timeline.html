@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Remotion Sample 3: 教頭4月タイムライン</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0f172a; color: #f8fafc; font-family: 'Helvetica Neue', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+.container { width: 720px; height: 480px; background: #1e293b; border-radius: 16px; position: relative; overflow: hidden; }
+.header { position: absolute; top: 24px; left: 32px; }
+.header h2 { font-size: 28px; font-weight: 700; color: #f8fafc; }
+.header p { font-size: 13px; color: #64748b; margin-top: 4px; }
+.date-display { position: absolute; top: 24px; right: 32px; text-align: right; }
+.date-num { font-size: 56px; font-weight: 800; color: #f59e0b; line-height: 1; }
+.date-dow { font-size: 14px; color: #94a3b8; }
+.timeline { position: absolute; top: 100px; left: 32px; right: 32px; bottom: 50px; overflow: hidden; }
+.task { display: flex; align-items: center; margin-bottom: 6px; opacity: 0; transform: translateX(-20px); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); height: 32px; }
+.task.show { opacity: 1; transform: translateX(0); }
+.task.done { opacity: 0.4; }
+.task-time { width: 50px; font-size: 12px; color: #64748b; flex-shrink: 0; }
+.task-bar { height: 28px; border-radius: 6px; display: flex; align-items: center; padding: 0 12px; font-size: 13px; font-weight: 500; flex-grow: 1; margin-left: 8px; }
+.task-bar.admin { background: #1e3a5f; color: #38bdf8; border-left: 3px solid #38bdf8; }
+.task-bar.ceremony { background: #3b1f4b; color: #a78bfa; border-left: 3px solid #a78bfa; }
+.task-bar.meeting { background: #1f3b2f; color: #34d399; border-left: 3px solid #34d399; }
+.task-bar.urgent { background: #4b1f1f; color: #f87171; border-left: 3px solid #f87171; }
+.task-bar.parent { background: #3b351f; color: #fbbf24; border-left: 3px solid #fbbf24; }
+.task-check { width: 16px; height: 16px; border-radius: 50%; border: 2px solid currentColor; margin-right: 8px; flex-shrink: 0; transition: all 0.3s; }
+.task.done .task-check { background: currentColor; }
+.stats { position: absolute; bottom: 16px; left: 32px; right: 32px; display: flex; gap: 24px; }
+.stat { font-size: 12px; color: #64748b; }
+.stat span { color: #f8fafc; font-weight: 600; font-size: 16px; }
+.progress-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: #f59e0b; transition: width 0.1s linear; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h2>教頭の4月</h2>
+    <p>向井小学校 R8年度</p>
+  </div>
+  <div class="date-display">
+    <div class="date-num" id="dateNum">1</div>
+    <div class="date-dow" id="dateDow">火</div>
+  </div>
+  <div class="timeline" id="timeline"></div>
+  <div class="stats" id="stats">
+    <div class="stat">完了 <span id="doneCount">0</span></div>
+    <div class="stat">残り <span id="leftCount">0</span></div>
+    <div class="stat">優先 <span id="urgentCount">0</span></div>
+  </div>
+  <div class="progress-bar" id="progress"></div>
+</div>
+
+<script>
+const days = [
+  {
+    date: 1, dow: '火',
+    tasks: [
+      { time: '7:30', text: '新任教職員受入準備', type: 'admin' },
+      { time: '8:00', text: '辞令交付式', type: 'ceremony' },
+      { time: '9:00', text: '新任者校内案内', type: 'admin' },
+      { time: '10:00', text: '職員会議（年間計画）', type: 'meeting' },
+      { time: '12:00', text: '教室配置・備品確認', type: 'admin' },
+      { time: '13:00', text: '教科書配布準備', type: 'admin' },
+      { time: '14:00', text: '入学式リハーサル確認', type: 'ceremony' },
+      { time: '15:00', text: '学校安全点検', type: 'urgent' },
+      { time: '16:00', text: '校長報告', type: 'meeting' },
+    ]
+  },
+  {
+    date: 2, dow: '水',
+    tasks: [
+      { time: '7:30', text: '通学路安全確認', type: 'urgent' },
+      { time: '8:30', text: '学級編制確認', type: 'admin' },
+      { time: '9:30', text: '入学式式次第最終確認', type: 'ceremony' },
+      { time: '10:00', text: '来賓受付準備', type: 'ceremony' },
+      { time: '11:00', text: '新1年教室環境整備', type: 'admin' },
+      { time: '13:00', text: '教委提出書類作成', type: 'urgent' },
+      { time: '14:00', text: '校務分掌確認・修正', type: 'admin' },
+      { time: '15:30', text: 'PTA役員引継ぎ連絡', type: 'parent' },
+      { time: '16:30', text: '明日の段取り確認', type: 'meeting' },
+    ]
+  },
+  {
+    date: 3, dow: '木',
+    tasks: [
+      { time: '7:00', text: '入学式会場最終準備', type: 'ceremony' },
+      { time: '8:00', text: '来賓受付・誘導', type: 'ceremony' },
+      { time: '9:30', text: '入学式', type: 'ceremony' },
+      { time: '11:00', text: '記念撮影', type: 'ceremony' },
+      { time: '12:00', text: '片付け・原状復帰', type: 'admin' },
+      { time: '13:00', text: '保護者対応（個別相談）', type: 'parent' },
+      { time: '14:00', text: '報告書作成（教委）', type: 'urgent' },
+      { time: '15:00', text: '翌日以降の時間割確認', type: 'admin' },
+      { time: '16:00', text: '週報作成・送信', type: 'admin' },
+    ]
+  },
+  {
+    date: 7, dow: '月',
+    tasks: [
+      { time: '7:30', text: '登校指導', type: 'urgent' },
+      { time: '8:15', text: '始業式', type: 'ceremony' },
+      { time: '9:00', text: '学級開き巡回', type: 'admin' },
+      { time: '10:00', text: '転入生対応', type: 'parent' },
+      { time: '11:00', text: '給食開始準備確認', type: 'admin' },
+      { time: '13:00', text: '不登校児童情報引継ぎ', type: 'urgent' },
+      { time: '14:00', text: '保護者配布物確認', type: 'admin' },
+      { time: '15:00', text: '教育課程届出準備', type: 'urgent' },
+      { time: '16:30', text: '新任フォロー面談', type: 'meeting' },
+    ]
+  }
+];
+
+const timeline = document.getElementById('timeline');
+const dateNum = document.getElementById('dateNum');
+const dateDow = document.getElementById('dateDow');
+const doneCount = document.getElementById('doneCount');
+const leftCount = document.getElementById('leftCount');
+const urgentCount = document.getElementById('urgentCount');
+const progress = document.getElementById('progress');
+
+let totalTasks = 0;
+let completedTasks = 0;
+
+function showDay(dayIndex) {
+  if (dayIndex >= days.length) {
+    // 最後のメッセージ
+    timeline.innerHTML = '';
+    dateNum.textContent = '4月';
+    dateNum.style.fontSize = '32px';
+    dateDow.textContent = '';
+    const msg = document.createElement('div');
+    msg.style.cssText = 'text-align:center;margin-top:80px;';
+    msg.innerHTML = `
+      <div style="font-size:48px;font-weight:800;color:#f59e0b;margin-bottom:16px;">${totalTasks}</div>
+      <div style="font-size:18px;color:#94a3b8;">タスクが最初の1週間で動く</div>
+      <div style="font-size:14px;color:#64748b;margin-top:24px;">これを可視化するだけで<br>校長への説明が変わる</div>
+    `;
+    timeline.appendChild(msg);
+    return;
+  }
+
+  const day = days[dayIndex];
+  dateNum.textContent = day.date;
+  dateNum.style.fontSize = '56px';
+  dateDow.textContent = day.dow;
+  timeline.innerHTML = '';
+
+  totalTasks += day.tasks.length;
+  let urgent = day.tasks.filter(t => t.type === 'urgent').length;
+
+  day.tasks.forEach((task, i) => {
+    const el = document.createElement('div');
+    el.className = 'task';
+    el.innerHTML = `
+      <div class="task-time">${task.time}</div>
+      <div class="task-bar ${task.type}">
+        <div class="task-check"></div>
+        ${task.text}
+      </div>
+    `;
+    timeline.appendChild(el);
+
+    // 順番にアニメーション表示
+    setTimeout(() => {
+      el.classList.add('show');
+    }, 200 + i * 150);
+
+    // チェック完了アニメーション
+    setTimeout(() => {
+      el.classList.add('done');
+      completedTasks++;
+      doneCount.textContent = completedTasks;
+      leftCount.textContent = totalTasks - completedTasks;
+    }, 200 + i * 150 + 800);
+  });
+
+  leftCount.textContent = totalTasks - completedTasks;
+  urgentCount.textContent = urgent;
+
+  // 次の日へ
+  const dayDuration = day.tasks.length * 150 + 2000;
+  setTimeout(() => showDay(dayIndex + 1), dayDuration);
+}
+
+setTimeout(() => showDay(0), 600);
+
+// プログレスバー
+let elapsed = 0;
+const total = 25000;
+setInterval(() => {
+  elapsed += 100;
+  progress.style.width = Math.min((elapsed / total) * 100, 100) + '%';
+}, 100);
+</script>
+</body>
+</html>
