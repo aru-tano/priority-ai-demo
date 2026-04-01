@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-04-01 向井小 新年度初日 全記録</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f8fafc;--surface:#e2e8f0;--card:#ffffff;
+  --text:#1e293b;--muted:#64748b;--accent:#0369a1;
+  --green:#166534;--amber:#b45309;--rose:#be123c;--purple:#7c3aed;
+  --border:#cbd5e1;
+}
+body{font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;padding:0}
+.hero{background:linear-gradient(135deg,#dbeafe,#e0f2fe,#f0f9ff);padding:3rem 2rem 2rem;text-align:center;border-bottom:1px solid var(--border)}
+.hero h1{font-size:1.6rem;font-weight:700;margin-bottom:.5rem}
+.hero .sub{color:var(--muted);font-size:.9rem}
+.hero .stats{display:flex;gap:1.5rem;justify-content:center;margin-top:1rem;flex-wrap:wrap}
+.hero .stat{text-align:center}
+.hero .stat .num{font-size:1.8rem;font-weight:700;color:var(--accent)}
+.hero .stat .label{font-size:.75rem;color:var(--muted)}
+nav.toc{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:.6rem 1rem;overflow-x:auto;white-space:nowrap;display:flex;gap:.5rem}
+nav.toc a{color:var(--muted);text-decoration:none;font-size:.8rem;padding:.4rem .8rem;border-radius:6px;background:var(--card);transition:.2s;flex-shrink:0}
+nav.toc a:hover,nav.toc a.active{color:#fff;background:var(--accent)}
+.recording{box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.container{max-width:960px;margin:0 auto;padding:1rem 1.5rem 4rem}
+.section-header{margin:2.5rem 0 1rem;padding:1rem 1.2rem;background:var(--surface);border-radius:10px;border-left:4px solid var(--accent)}
+.section-header h2{font-size:1.2rem;display:flex;align-items:center;gap:.5rem}
+.section-header .time-range{color:var(--muted);font-size:.8rem;margin-top:.3rem}
+.recording{margin:1rem 0;background:var(--card);border-radius:10px;overflow:hidden}
+.rec-header{padding:.8rem 1.2rem;display:flex;align-items:center;gap:.8rem;cursor:pointer;border-bottom:1px solid var(--border)}
+.rec-header:hover{background:rgba(3,105,161,.06)}
+.rec-time{font-family:'SF Mono',monospace;font-size:.85rem;color:var(--accent);min-width:50px}
+.rec-title{font-weight:600;font-size:.95rem;flex:1}
+.rec-dur{font-size:.75rem;color:var(--muted);background:var(--surface);padding:.2rem .5rem;border-radius:4px}
+.rec-tag{font-size:.65rem;padding:.15rem .4rem;border-radius:3px;font-weight:600}
+.tag-meeting{background:rgba(22,101,52,.1);color:var(--green)}
+.tag-work{background:rgba(180,83,9,.1);color:var(--amber)}
+.tag-visit{background:rgba(124,58,237,.1);color:var(--purple)}
+.tag-it{background:rgba(190,18,60,.1);color:var(--rose)}
+.tag-plan{background:rgba(3,105,161,.1);color:var(--accent)}
+.rec-body{padding:1rem 1.2rem;font-size:.88rem;line-height:1.8}
+.rec-body h3{font-size:1rem;font-weight:700;margin:1.2rem 0 .5rem;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:.3rem}
+.rec-body h4{font-size:.9rem;font-weight:600;margin:1rem 0 .4rem;color:var(--green)}
+.rec-body ul{margin:.3rem 0 .8rem 1.2rem}
+.rec-body li{margin:.2rem 0}
+.rec-body li ul{margin:.1rem 0 .3rem 1rem}
+.rec-body .quote{background:var(--surface);border-left:3px solid var(--accent);padding:.5rem .8rem;margin:.5rem 0;border-radius:0 6px 6px 0;font-style:italic;color:var(--muted)}
+.rec-body table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:.82rem}
+.rec-body th{background:var(--surface);text-align:left;padding:.4rem .6rem;border:1px solid var(--border);color:var(--accent);font-weight:600}
+.rec-body td{padding:.4rem .6rem;border:1px solid var(--border)}
+.rec-body .action{background:rgba(3,105,161,.04);border:1px solid rgba(3,105,161,.2);border-radius:6px;padding:.6rem .8rem;margin:.5rem 0}
+.rec-body .action h4{color:var(--accent);margin:0 0 .3rem}
+.staff-table td:first-child{font-weight:600;color:var(--accent)}
+.print-btn{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--accent);color:#fff;border:none;padding:.7rem 1.2rem;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:200}
+.print-btn:hover{transform:scale(1.05)}
+@media print{
+  body{background:#fff;color:#000}
+  .hero{background:#f0f4f8;color:#000;border-bottom:2px solid #000}
+  .hero .stat .num{color:#0369a1}
+  .hero .sub,.hero .stat .label{color:#64748b}
+  nav.toc,.print-btn{display:none}
+  .section-header{background:#f0f4f8;border-left-color:#0369a1;break-before:page}
+  .recording{background:#fff;border:1px solid #ccc}
+  .rec-header{background:#f8fafc}
+  .rec-body h3{color:#0369a1}
+  .rec-body h4{color:#166534}
+  .rec-body .quote{background:#f0f4f8;border-left-color:#0369a1}
+  .rec-body table th{background:#f0f4f8;color:#0369a1}
+  .rec-body .action{background:#f0f9ff;border-color:#0369a1}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>2026年4月1日（火）向井小学校 新年度初日 全記録</h1>
+  <p class="sub">Plaud Cloud Note Pro 全録音を統合 &#8212; 田上教頭 着任初日</p>
+  <div class="stats">
+    <div class="stat"><div class="num">16</div><div class="label">録音</div></div>
+    <div class="stat"><div class="num">850+</div><div class="label">分</div></div>
+    <div class="stat"><div class="num">10</div><div class="label">名の職員</div></div>
+    <div class="stat"><div class="num">3</div><div class="label">複式学級</div></div>
+  </div>
+</div>
+
+<nav class="toc" id="toc">
+  <a href="#sec1">早朝準備</a>
+  <a href="#sec2">職員会議</a>
+  <a href="#sec3">挨拶回り</a>
+  <a href="#sec4">午後打ち合わせ</a>
+  <a href="#sec5">IT対応</a>
+  <a href="#sec6">夕方</a>
+  <a href="#staff">職員一覧</a>
+  <a href="#actions">TODO</a>
+</nav>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SECTION 1: 早朝 -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section-header" id="sec1">
+  <h2>第1部: 早朝〜朝の準備</h2>
+  <div class="time-range">06:33 〜 07:47（3件・計102分）</div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">06:33</span>
+    <span class="rec-title">朝の準備と書類整理</span>
+    <span class="rec-tag tag-work">準備</span>
+    <span class="rec-dur">33分</span>
+  </div>
+  <div class="rec-body">
+    <h3>校舎の開錠・環境整備</h3>
+    <ul>
+      <li>放送室のすぐ前の窓を開ける。給食室（包丁室）の窓も開放</li>
+      <li>エアコンの位置確認 &#8212; 「ここにあるんだ」「2階の教室のはここだと思う」</li>
+      <li>暑くなったら稼働させる予定</li>
+    </ul>
+    <h3>職員室の自席セットアップ</h3>
+    <ul>
+      <li>書類の仮置き: ファイリング書類一式を机の下の足元スペースの棚に載せた</li>
+      <li>PTA文書会計簿、安全点検表、配布物関係のクリアファイルをまとめて足元に</li>
+      <li>1年生配布物の所在確認: 下敷き・ランドセルカバー・交通安全ワークブック</li>
+      <li>各学年配布のクリアファイル・交通安全関係を整理</li>
+      <li class="quote">「とにかく置き場所がない」</li>
+      <li>安全点検表を印刷。職員会議の事項書を準備</li>
+    </ul>
+    <h3>PC関連</h3>
+    <ul>
+      <li>パソコン: dynabook 教頭T（教育委員会支給機）</li>
+      <li>指認証でログインできない状態が判明</li>
+      <li class="quote">「指でログインできない。終わってます」</li>
+    </ul>
+  </div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">07:08</span>
+    <span class="rec-title">着任と業務準備 &#8212; 机の整備・初対面の会話</span>
+    <span class="rec-tag tag-work">準備</span>
+    <span class="rec-dur">38分</span>
+  </div>
+  <div class="rec-body">
+    <h3>机周りの整備</h3>
+    <ul>
+      <li>ディスプレイの電源をタコ足配線で確保。USBは一旦諦め</li>
+      <li>キーボードは机の一番下の棚。PC機器関係は左下に配置</li>
+      <li>弁当・箸・電卓は2段目の引き出しに</li>
+      <li>電話は右上端に配置。伝言メモはディスプレイの棚スペースに</li>
+      <li>遅刻欠席連絡も上の棚スペースに配置</li>
+      <li>HDMIケーブルを忘れたことに気づく</li>
+      <li>7時13分時点:「7時半まで寝かせて」（PC起動待ち）</li>
+    </ul>
+    <h3>提出書類の確認</h3>
+    <ul>
+      <li>赴任届・通勤経路を書かないといけない → 紙にメモ</li>
+      <li>プライバシーポリシー同意書を引き出しから発見 → 令和6年4月8日付。入学式の日に配布必要</li>
+      <li class="quote">「マジで頼んだね、もう、AIさん」</li>
+    </ul>
+    <h3>御浜出身の先生との初対面会話</h3>
+    <ul>
+      <li>「おはようございます。新たにいまして田上です。よろしくお願いします」</li>
+      <li>御浜出身の先生: 御浜町からこちらの紀北地域で13〜14年勤務。高速で40分通勤</li>
+      <li>田上: 教育研究所から異動。通勤は5分差（「あんまり5分しか違わないっていうのも面白い」）</li>
+      <li>下道だと景色はいいが時間がかかる。「朝日と海が見えて、ええとこやなって思って」</li>
+      <li>三浜のみかんは美味しい。この辺は実は米どころ（棚田の名残、今は住宅地に）</li>
+      <li>津波: 心配なし（高台立地）。「土砂に乗ったらラフ」だが基本安全</li>
+      <li>冬は日が陰るのが早く寒い。運動場が冷たくなる。水はけも悪い可能性</li>
+      <li>「いろいろお話聞かせてください。ちょっと勉強させてください」</li>
+    </ul>
+    <h3>スクールサポートスタッフとの会話</h3>
+    <ul>
+      <li>お届け物の配達先を覚えたい → 一緒に回って場所を教えてもらう約束</li>
+      <li>例年の流れ: 9時までに会議終了 → その後先生たちで係担当の話し合い</li>
+    </ul>
+    <h3>渡邉校長との初顔合わせ</h3>
+    <ul>
+      <li>「校長として頑張ります」「足引っ張らないように」「お互い引っ張り合ってバランスよく」</li>
+      <li>コミュニティ・スクール会議と県の校長会総会の日程が重複 → 調整が必要</li>
+      <li>校長室の鍵と電気の場所を教わる</li>
+      <li>本日の予定確認: 8時打ち合わせ → 職員会議</li>
+    </ul>
+  </div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">07:47</span>
+    <span class="rec-title">打ち合わせ前の情報交換 &#8212; 入学式計画</span>
+    <span class="rec-tag tag-meeting">会議</span>
+    <span class="rec-dur">31分</span>
+  </div>
+  <div class="rec-body">
+    <h3>残留教員（内山先生）への挨拶</h3>
+    <ul>
+      <li>「残っていただいている唯一の方ですので、この学校のこと全部教えてください」</li>
+      <li>「僕らは全部ついていくことにしていますので」</li>
+    </ul>
+    <h3>入学式・始業式のタイムスケジュール検討（校長＋教頭）</h3>
+    <ul>
+      <li>8:10 着任式・始業式開始（15分）→ 8:25終了</li>
+      <li>8:25〜8:45 学級指導（担任と子どもたちの時間）</li>
+      <li class="quote">「思い出を作って持って帰らせんと。親がどんな先生やったって絶対聞くで」</li>
+      <li>8:45〜9:00 歌・言葉の練習</li>
+      <li>9:00 受付開始</li>
+      <li>9:20 児童入場</li>
+    </ul>
+    <h4>歌について</h4>
+    <ul>
+      <li>校長:「この村は歌えるんかい？声が出るのかい？」</li>
+      <li>→ 出ないなら歌入りCDを準備</li>
+      <li>「自分が歌っているのを録音しておいて」（練習用に）</li>
+      <li>転校生以外は歌える。1回歌わせて確認でOKの方針</li>
+    </ul>
+    <h4>着任紹介の演出</h4>
+    <ul>
+      <li>校長: ドキドキ感を出したい。「何か持ってくれるのよ、とかね」</li>
+      <li>顔写真を掲示する方向</li>
+      <li>理科と外国語の先生 → 女の子たちにとってイメージとは全然違う先生だと思うので、ドキドキ感になる</li>
+      <li>職員紹介は名前を呼んで立ってお辞儀のみ（保護者もいるので紹介はする）</li>
+    </ul>
+    <h4>時間割の引き継ぎ（内山先生から）</h4>
+    <ul>
+      <li>提出用と職員用（実際の運用）で2種類のファイルがある</li>
+      <li>提出用は4日制の枠に収めてある。実際は5日制で運用</li>
+      <li>3年生の算数は実質5コマだが提出上は4コマに収めてある</li>
+      <li>全校音楽は提出上は各学年別、実際は1人が全校で実施</li>
+      <li>体育は運動場が広く児童が少ないので全校合同可能</li>
+      <li class="quote">「お互いでチェックして、提出の前にちゃんとチェックしてから出すという感じで」</li>
+    </ul>
+    <h4>特別な配慮が必要な児童の引き継ぎ</h4>
+    <ul>
+      <li>3年生に取り出し指導が必要な児童あり</li>
+      <li>1対1だとかなりのことができるが、集団に入ると集中できない（情緒面）</li>
+      <li>「プリント、みんなのおるとこで、これやろうかっていう複式があるので」 → しんどい</li>
+      <li>昨年: 算数は内山先生が取り出し、国語は上松前校長が取り出し</li>
+      <li>今年: 国語は複式で様子見。しんどくなったら教頭が取り出しに入る</li>
+      <li>AB年度（複式の年度割り当て）を崩してしまった経緯あり → 今年は正常化目指す</li>
+      <li>入門期の1年生のサポートとしてTTで入る体制も検討</li>
+    </ul>
+    <h4>Google文字起こし導入の話題</h4>
+    <ul>
+      <li>校長:「タブレットで写真を撮って、Googleに回して、パソコンで編集するのはできるのか？」</li>
+      <li>田上:「できます。簡単にできます」</li>
+      <li>校長:「働き方改革って、そういうこともできるなら、得意の分野を活かしていこう」</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SECTION 2: 職員会議 -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section-header" id="sec2">
+  <h2>第2部: 職員会議（第1回）</h2>
+  <div class="time-range">08:18 〜 10:40（3件・計155分）&#x2605; 最重要</div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">08:18</span>
+    <span class="rec-title">第1回職員会議 &#8212; 校長挨拶・着任紹介・担任発表</span>
+    <span class="rec-tag tag-meeting">職員会議</span>
+    <span class="rec-dur">34分</span>
+  </div>
+  <div class="rec-body">
+    <h3>開会</h3>
+    <ul>
+      <li>田上教頭:「第1回の職員会議を始めさせていただきます。学校長よりお願いします」</li>
+    </ul>
+
+    <h3>校長挨拶（渡邉校長）</h3>
+    <ul>
+      <li>「始まり方も僕ら分かっていないというところで、本当に新しいメンバーが揃って、本当に新しい向井小学校で出発です」</li>
+      <li>「初めての校長ですので、いろいろ助けていただくことが多々あると思います」</li>
+      <li>「今までおられた方もおりますので、いろいろ教えてほしいことがあると思います」</li>
+    </ul>
+    <h4>大事にしたいこと</h4>
+    <ul>
+      <li><strong>安心安全</strong>:「子どもたちと僕たちもそうなんですが、安心安全の中でまず活動できるのが学校」</li>
+      <li>「いじめであったり差別であったり、そういうところは絶対許さないというところはみんなできちんと守りながらやっていきたい」</li>
+      <li>「怪我とか病気とかそういうことも含めて安全安心」</li>
+      <li><strong>働き方改革</strong>:「自分たちもお互い気をつけながら守っていきましょう」</li>
+      <li><strong>教師同士のつながり</strong>:「教師同士がきちっとつながり合うのはこれは当たり前」「強いチームを作りたい」</li>
+      <li>「真剣に話す時もあれば、僕は笑い話が好きなんですけど、笑いながらしゃべる時もいいと思いますので、楽しい雰囲気の中で過ごしていきたい」</li>
+      <li>「あんまり長くなると嫌がられるのは当たり前ですので、今日はこれぐらいにしておきたい」</li>
+    </ul>
+
+    <h3>着任職員紹介</h3>
+    <table>
+      <tr><th>名前</th><th>役職</th><th>本人コメント</th></tr>
+      <tr><td>渡邉史次</td><td>校長</td><td>「初めての校長です」</td></tr>
+      <tr><td>田上良</td><td>教頭</td><td>「僕も分からないことをいっぱい聞くと思います。短くいきます」</td></tr>
+      <tr><td>脇奈緒子</td><td>教員</td><td>「現場は3年ぶりで、複式も初めてで、分からんことだらけで。助けていただけたら嬉しいです」</td></tr>
+      <tr><td>東利香</td><td>教員</td><td>「皆さんの力をお借りしながら頑張っていきたい」</td></tr>
+      <tr><td>上ノ坊拓人</td><td>教員</td><td>「尾鷲に来て働くのは初めて。早く力になれるように頑張ります」</td></tr>
+    </table>
+
+    <h3>在籍職員紹介</h3>
+    <table>
+      <tr><th>名前</th><th>役職</th><th>本人コメント</th></tr>
+      <tr><td>内山真穂</td><td>教員（唯一の残留）</td><td>「人が増えてすごく嬉しいです。ちょっといろいろありまして休み中に…歓迎会の日を設定していきたい」</td></tr>
+      <tr><td>米倉すが</td><td>教員</td><td>「助けてもらいながらなんとか1年やれたら」</td></tr>
+      <tr><td>川端昌</td><td>事務職員</td><td>「4年目。まだまだちんぷんかんぷん。楽しくしていきたい」</td></tr>
+      <tr><td>京呂平紀身</td><td>業務員</td><td>「4年目です」</td></tr>
+      <tr><td>庄司光寿</td><td>学校業務支援</td><td>「7年目。重たい荷物は持てるので何でも言ってください」</td></tr>
+    </table>
+    <ul>
+      <li>スクールカウンセラーは未定</li>
+      <li class="quote">「ここにおるメンバー10人でこの1年間楽しく乗り切っていきたいと思います」（校長）</li>
+    </ul>
+
+    <h3>議事(1) 本日の日程</h3>
+    <ul>
+      <li>事例公式: 8時（完了）</li>
+      <li>第1回職員会議: 11時頃終了目標</li>
+      <li>新任挨拶回り: 午前中</li>
+      <li>尾鷲市校長会: 13:30（校長出席）</li>
+      <li>午後: 職員室の机移動 → 教室の机移動</li>
+    </ul>
+
+    <h3>議事(2) 学級担任発表</h3>
+    <table>
+      <tr><th>学級</th><th>担任</th></tr>
+      <tr><td>1・2年生</td><td>内山真穂 先生</td></tr>
+      <tr><td>3・4年生</td><td>上ノ坊拓人 先生</td></tr>
+      <tr><td>5・6年生</td><td>脇奈緒子 先生</td></tr>
+    </table>
+    <ul><li>3複式学級体制（1クラスに2学年）</li></ul>
+
+    <h3>議事(3) 校務分掌（話し合いへ移行）</h3>
+    <ul>
+      <li>校長が校長会準備のため一旦中座</li>
+      <li>「ある程度次のところの話も進めやすいように話し合いを見て戻ってくる」</li>
+      <li>マスターキーでPCを開けられるようになった報告あり</li>
+    </ul>
+  </div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">09:02</span>
+    <span class="rec-title">職員会議 続き &#8212; 校務分掌・行事担当・修学旅行方針</span>
+    <span class="rec-tag tag-meeting">職員会議</span>
+    <span class="rec-dur">98分</span>
+  </div>
+  <div class="rec-body">
+    <h3>校務分掌の担当割り振り</h3>
+    <table>
+      <tr><th>分掌</th><th>担当</th></tr>
+      <tr><td>人権推進委員</td><td>上ノ坊</td></tr>
+      <tr><td>黒潮担当</td><td>上ノ坊</td></tr>
+      <tr><td>学校運営協議会</td><td>校長</td></tr>
+      <tr><td>全主事</td><td>内山</td></tr>
+      <tr><td>学校図書館</td><td>教頭（引き継ぎ関係で今年は教頭）</td></tr>
+      <tr><td>道徳教育推進</td><td>内山</td></tr>
+      <tr><td>生徒指導・いじめ問題</td><td>脇</td></tr>
+      <tr><td>情報教育</td><td>上ノ坊</td></tr>
+      <tr><td>保養所連絡会</td><td>内山</td></tr>
+      <tr><td>ALT・外国語教育</td><td>脇</td></tr>
+      <tr><td>小中連絡会</td><td>脇</td></tr>
+      <tr><td>給食担当</td><td>東</td></tr>
+      <tr><td>特別支援教育</td><td>上ノ坊</td></tr>
+      <tr><td>PTA担当</td><td>脇</td></tr>
+      <tr><td>研修・学力向上</td><td>内山</td></tr>
+    </table>
+
+    <h3>行事担当の割り振り</h3>
+    <table>
+      <tr><th>月</th><th>行事</th><th>担当</th><th>備考</th></tr>
+      <tr><td>4月</td><td>入学式</td><td>全員</td><td></td></tr>
+      <tr><td>4月</td><td>家庭訪問調整</td><td>校長＋各担任</td><td></td></tr>
+      <tr><td>5月</td><td>春の遠足</td><td>内山</td><td></td></tr>
+      <tr><td>5月</td><td>体力テスト</td><td>内山</td><td></td></tr>
+      <tr><td>5月</td><td>第1回QU</td><td>脇</td><td></td></tr>
+      <tr><td>通年</td><td>避難訓練（全回）</td><td>教頭</td><td>防災担当</td></tr>
+      <tr><td>6月</td><td>心肺蘇生講習</td><td>教頭</td><td></td></tr>
+      <tr><td>6月</td><td>プール清掃・管理</td><td>東</td><td></td></tr>
+      <tr><td>6月</td><td>修学旅行（6年）</td><td>脇</td><td>矢ノ浜小と合同</td></tr>
+      <tr><td>7月</td><td>おさすり作り</td><td>教頭</td><td>地域連携行事</td></tr>
+      <tr><td>8月</td><td>平和学習</td><td>各担任</td><td>今年から全校→各学級に変更</td></tr>
+      <tr><td>9月</td><td>薬物乱用教室</td><td>教頭</td><td></td></tr>
+      <tr><td>10月</td><td>運動会</td><td>内山</td><td>一輪車の伝統あり</td></tr>
+      <tr><td>10月</td><td>第2回QU</td><td>脇</td><td></td></tr>
+      <tr><td>秋</td><td>社会見学（5年）</td><td>脇</td><td>他校と合同で調整中</td></tr>
+      <tr><td>通年</td><td>防犯教室・交通安全教室</td><td>教頭</td><td></td></tr>
+      <tr><td>通年</td><td>個別懇談会調整</td><td>教頭</td><td></td></tr>
+      <tr><td>冬</td><td>しめ縄・餅つき</td><td>教頭</td><td>規模縮小で復活</td></tr>
+    </table>
+    <div class="quote">「ほとんど教頭先生の名前になっている」（内山先生）→ 教頭:「了解です。助けてもらいます」</div>
+
+    <h3>修学旅行・社会見学の方針（重要議論）</h3>
+    <h4>令和8年度（今年）の決定事項</h4>
+    <ul>
+      <li><strong>6年生</strong>: 矢ノ浜小と合同で6月に修学旅行</li>
+      <li><strong>5年生</strong>: 社会見学（他校と合同で調整中。サーキットへの申し込みはしていない）</li>
+    </ul>
+    <h4>5年生が修学旅行に含まれない経緯</h4>
+    <ul>
+      <li>昨年度途中まで5年生が0人だった</li>
+      <li>2人の転入が判明した時点で、既に学校間で「6年のみ」の約束が確定</li>
+      <li>変更できなかった</li>
+      <li class="quote">「5年生には説明してないんですよね」「今まで5、6で行ってきたんやけど、ちょっと今年はねっていうのを話はしとかんなん」</li>
+    </ul>
+    <h4>今後の方針</h4>
+    <table>
+      <tr><th>年度</th><th>修学旅行</th><th>社会見学</th></tr>
+      <tr><td>令和8（今年）</td><td>6年のみ（矢ノ浜と合同）</td><td>5年（他校と合同）</td></tr>
+      <tr><td>令和9</td><td>5・6年で修学旅行</td><td>なし</td></tr>
+      <tr><td>令和10</td><td>なし</td><td>5・6年で社会見学</td></tr>
+    </table>
+    <h4>費用問題の経緯</h4>
+    <ul>
+      <li>以前は単独で修学旅行 → 1人8〜10万円</li>
+      <li>双子の家庭で16万の負担 → PTA総会で紛糾した過去</li>
+      <li>2学年合同・他校合同で1人4万円程度に抑制できた</li>
+      <li class="quote">「経済的なものというのは親も本当に子どものためには出したいかもしれない。出したいと思うけど苦しいところってやっぱり出てくると思う」（校長）</li>
+      <li>今後も合同方式を継続する方向で検討</li>
+      <li>来年の6年生は他校が十何人いる → 2人が入っていく形になる</li>
+      <li class="quote">「今年変わるから、今までと違うじゃないですか。ちゃんと考えるチャンスかもしれません」</li>
+    </ul>
+
+    <h3>平和学習の方針変更</h3>
+    <ul>
+      <li>昨年まで: 全校で実施</li>
+      <li>今年から: 各担任が発達段階に応じて各学級で実施</li>
+      <li>理由:「テーマが難しいなということを自分たちが思う」</li>
+    </ul>
+
+    <h3>日課表（タイムテーブル）の確認</h3>
+    <ul>
+      <li>昨年と基本同じ構成</li>
+    </ul>
+    <table>
+      <tr><th>時刻</th><th>内容</th></tr>
+      <tr><td>8:00</td><td>勤務開始・打ち合わせ（〜8:05）</td></tr>
+      <tr><td>8:05</td><td>読書タイム（〜8:15）</td></tr>
+      <tr><td>8:15</td><td>朝の会（〜8:20）</td></tr>
+      <tr><td>8:20</td><td>1時限目開始</td></tr>
+    </table>
+    <ul>
+      <li><strong>水曜日課（特別短縮）</strong>: 掃除なし。5時間目開始 13:00、児童下校 14:20</li>
+    </ul>
+
+    <h3>「向井小タイム」の提案（校長発案・重要議論）</h3>
+    <ul>
+      <li><strong>概要</strong>: 読み書き計算・漢字に特化した15分間の基礎学力タイム</li>
+      <li><strong>背景</strong>: 学力面で厳しい児童がいる。5年生転入者2名のうち1名はかなり学力面の課題あり</li>
+      <li class="quote">「学力の厳しい子が向井小におるっていうところで、できたらそういうことして力つけれたらいいな」（校長）</li>
+      <li><strong>方法</strong>: 従来は各学級バラバラだった15分枠を、<strong>全校で集まって実施</strong>する形に変更。全教員が全児童の様子を見られるメリット</li>
+      <li class="quote">「できたらみんなで集まって、みんなで様子も見れたり」</li>
+      <li><strong>朝の読書タイム</strong>も同様に全校集合形式を検討</li>
+      <li><strong>研究発表会との接続</strong>: 向井小タイムの取り組みを研究発表会で示せたらという構想</li>
+      <li class="quote">「向井小学校としてのこういうやり方があるよっていうのを示せたら」（校長）</li>
+      <li><strong>時数カウント</strong>: 赤小では同様の枠を「総合」としてカウント。今年は一旦カウントなし（「一旦なしで」）で実験し、来年度から正式化する方向</li>
+      <li><strong>注意点</strong>: 正式なモジュールにすると、行事準備等にこの時間を流用できなくなるトレードオフあり</li>
+    </ul>
+
+    <h3>7時間目（月1回・委員会活動）</h3>
+    <ul>
+      <li><strong>実施日</strong>: 毎月最終金曜日</li>
+      <li><strong>仕組み</strong>: その日だけ「掃除なし」にして時間を捻出し、7時間目を設定</li>
+      <li><strong>対象</strong>: 委員会メンバー（高学年）。低学年は6時間目で下校</li>
+      <li><strong>区分</strong>: 特別活動（とっかつ）としてカウント</li>
+      <li><strong>前任教員の声</strong>:「すごい大変」（上ノ坊先生の前任）</li>
+      <li><strong>将来構想</strong>: 向井小タイムがモジュール化されれば、委員会を6時間目に移動でき、7時間目を廃止できる可能性あり</li>
+    </ul>
+
+    <h3>道徳のAB年度問題（複式学級の課題）</h3>
+    <ul>
+      <li><strong>AB年度とは</strong>: 複式学級で2年サイクル（A年度/B年度）に分けて道徳の全内容を教える仕組み。教科書会社が作成したABスケジュールに基づく</li>
+      <li><strong>問題</strong>: ここ2年間、一部の学年だけ単式化して指導した結果、ABサイクルが崩れてしまった</li>
+      <li class="quote">「いろんな事情があって、去年、一昨年って、一部分の学年だけ単式化してやったんです。それぞれ、そのAB年度が崩れてしまっていて」</li>
+      <li><strong>今年の方針</strong>: 正常化する1年。ただし学年ごとに状況が異なる:
+        <ul>
+          <li><strong>1・2年生</strong>: 転入もあり、今年からABで新スタート可能</li>
+          <li><strong>3・4年生</strong>: 各学年でバラバラに進めてしまったため、今年は単式で実施。来年度からAB復帰</li>
+          <li><strong>5・6年生</strong>: ABは正常に機能中</li>
+        </ul>
+      </li>
+      <li><strong>教頭の役割</strong>: 3・4年が単式道徳をやる裏の時間に、教頭が書写を担当する。これにより担任の空き時間を確保</li>
+      <li class="quote">「道徳の時間は裏で、教頭先生に書写してもらえれば、先生方の空き時間が1つ確保される」</li>
+      <li><strong>確認事項</strong>: 合同先の学校（矢ノ浜小等）とAB年度が同じかどうか要確認</li>
+    </ul>
+
+    <h3>全校体育・全校音楽と教科担任制</h3>
+    <ul>
+      <li><strong>教科担任制</strong>: 非常勤の米倉先生が高学年の外国語と理科を担当（昨年同様、持ち時間17時間）</li>
+      <li><strong>全校体育</strong>: 水曜日、内山先生が全校を指導</li>
+      <li><strong>全校音楽</strong>: 木曜日、上ノ坊先生が全校を指導</li>
+      <li><strong>メリット</strong>: 1人が全校を見ている間、他の2名の担任に空き時間ができる</li>
+      <li><strong>削減効果</strong>: 1・2年担任 25時間、5・6年担任 25時間。約3時間ずつの縮減</li>
+      <li><strong>研究授業の教科</strong>: 算数か国語かは未決定。3年生のクラスが研究発表の対象</li>
+    </ul>
+
+    <h3>入学式の追加段取り</h3>
+    <ul>
+      <li><strong>日時</strong>: 4月6日（月）受付9:00、開式9:30、10:00頃終了</li>
+      <li><strong>6年生の言葉</strong>: 児童1名だけで読む。原稿が本人に渡されているか要確認（石川先生経由）</li>
+      <li><strong>入場</strong>: 新1年生（少人数）を内山先生が先導して入場。先生が前、児童が後ろ</li>
+      <li><strong>写真撮影</strong>: 業者ではなく東先生が撮影</li>
+      <li><strong>会場の花</strong>: 当日に届くため前日準備には置けない</li>
+      <li><strong>準備</strong>: 5年生が来られない事情があり、教職員のみで設営</li>
+    </ul>
+
+    <h3>4月スケジュールの追加情報</h3>
+    <ul>
+      <li><strong>4/6〜4/10</strong>: 給食後に下校（短縮日程）。金曜日から通常日課</li>
+      <li><strong>4/13〜4/17</strong>: 家庭訪問週間</li>
+      <li><strong>4/20</strong>: 県校長会（教文会館、10:00）。校長が理事に就任予定 → 不在が増える</li>
+      <li><strong>4/24</strong>: 県校長会総会</li>
+      <li><strong>調整事項</strong>: 遠足・学校運営協議会・心臓検診・職員会議の日程が校長不在と重なるため要調整</li>
+    </ul>
+
+    <h3>家庭訪問の計画</h3>
+    <ul>
+      <li><strong>期間</strong>: 4月13日（月）〜17日（金）</li>
+      <li><strong>方法</strong>: 保護者に配布プリントを渡し、希望時間帯に丸をつけてもらう → 学校側で調整</li>
+      <li><strong>配布日</strong>: 4月6日（入学式・始業式の日）</li>
+      <li><strong>時間帯</strong>: 14:45開始。「頭の14:45〜15:00は要るのか」という議論あり（もっと遅くてもいい？）</li>
+      <li><strong>件数</strong>: 少人数校のため各担任4〜6件程度。「最近では少なくなってきたもので、カットするのもできる」（校長）</li>
+      <li><strong>家庭訪問週間も6時間授業</strong>: 校長の方針。行事が多いため勉強時間の確保が必要</li>
+      <li class="quote">「行事がどいっぽいあるもんで、勉強する時間の確保っていうのは必要」（校長）</li>
+      <li><strong>教頭の役割</strong>: スケジュール調整。校長も必要なら自ら訪問に行くと申し出</li>
+    </ul>
+
+    <h3>学校経営計画</h3>
+    <ul>
+      <li>文書「G-学校経営2026年」が共有フォルダに配置済み</li>
+      <li>教頭はPC未接続のためまだ確認できていない</li>
+      <li><strong>段取り</strong>: 第2回職員会議で各自の分担箇所を決め、第3回職員会議で提案</li>
+      <li>校務分掌の文書は別途、第2回で議論</li>
+    </ul>
+
+    <h3>駐車場の取り決め</h3>
+    <ul>
+      <li>昨年は固定の区画割なし</li>
+      <li>校長の場所は既に決定済み</li>
+      <li>頭から入れるか、バックで入れるかは自由</li>
+      <li><strong>注意</strong>: スペースがギリギリ。ドアのレールに対してまっすぐ停めないと隣の車に干渉する</li>
+      <li class="quote">「なるべくまっすぐ入れる」「内山先生による講習会を」（笑い）</li>
+      <li>早く帰る人が出やすい場所に停めるのが合理的</li>
+    </ul>
+
+    <h3>交通安全の警告（校長・締めの発言）</h3>
+    <ul>
+      <li class="quote">「交通事故っていうのは、もう一発でアウトの時もありますので、職を失うってことです」（校長）</li>
+      <li><strong>報告義務</strong>: 事故が起きたら土日関係なくすぐ校長に連絡。校長は即座に市教育委員会へ報告する</li>
+      <li><strong>学校周辺の具体的危険箇所</strong>:
+        <ul>
+          <li>学校へ上がるカーブに自販機があり、高齢女性がよく座っている（体が道路にはみ出すほど）</li>
+          <li>猫の飛び出し</li>
+          <li>見通しの悪いカーブが多い</li>
+          <li>下り坂で止まりにくい箇所がある</li>
+        </ul>
+      </li>
+      <li>教員は公人としての自覚を。小さな事故でも学校全体の評判に影響する</li>
+    </ul>
+
+    <h3>職員会議の運営ルール</h3>
+    <ul>
+      <li><strong>司会と記録のローテーション</strong>: 1年生担任から順番に回す</li>
+    </ul>
+  </div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">10:40</span>
+    <span class="rec-title">職員会議 終盤 &#8212; 壁面美観・提出物管理・Gemini導入</span>
+    <span class="rec-tag tag-meeting">職員会議</span>
+    <span class="rec-dur">23分</span>
+  </div>
+  <div class="rec-body">
+    <h3>提出物の管理</h3>
+    <ul>
+      <li>校長:「地獄は溜めんように。ボードにセンターに並んどるもんですか」</li>
+      <li>「提出物は遅れんように頑張っていこう」</li>
+      <li>提出期限の間違い（内部・外部の区別）に注意</li>
+    </ul>
+    <h3>壁面の美観対応</h3>
+    <ul>
+      <li>30年前の壁画が劣化している</li>
+      <li>校長: 発表会に向けて1個でも2個でも復活させたい</li>
+      <li>予算の問題あり（復元にはすごい金額がかかる）</li>
+      <li>代案: 黒っぽい汚れを落とせなくても、白く塗ってしまえば形は出る</li>
+      <li>ペンキ代程度なら出せる可能性</li>
+    </ul>
+    <h3>Google文字起こし（Gemini）導入</h3>
+    <ul>
+      <li>校長:「Geminiちゃん使えるようになるのかな」</li>
+      <li>田上:「金のワカン、Googleワカンとあるのでそれでいけると思う」</li>
+      <li>校長:「タブレットで写真を撮って文字起こしして、パソコンで編集する。そういうこともできるなら得意分野を活かしていこう」</li>
+      <li class="quote">「働き方改革って、そういうこともできるんやったら、俺らもただ改革でそんなんできたらいいな」</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SECTION 3: 挨拶回り -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section-header" id="sec3">
+  <h2>第3部: 挨拶回り・課題認識</h2>
+  <div class="time-range">11:18 〜 12:30（2件・計119分）</div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">11:18</span>
+    <span class="rec-title">新任挨拶回り &#8212; 地域関係者への訪問</span>
+    <span class="rec-tag tag-visit">訪問</span>
+    <span class="rec-dur">65分</span>
+  </div>
+  <div class="rec-body">
+    <h3>校長挨拶（校内向け正式版）</h3>
+    <ul>
+      <li>渡邉校長: 20〜30年ぶりにこの地を訪れた</li>
+      <li>新メンバー4名（校長・教頭・脇・東）の体制紹介</li>
+      <li>転出職員リストを共有し確認を促す</li>
+    </ul>
+    <h3>車での挨拶回り</h3>
+    <ul>
+      <li>民生児童委員への挨拶</li>
+      <li>心配事相談員への挨拶</li>
+      <li>岡井美子氏（地域の関係者）が話題に</li>
+      <li>ある訪問先: 約25年前の運動会で配線を手伝ってもらった思い出話</li>
+      <li>各訪問先で新体制を紹介し、今後の協力を依頼</li>
+    </ul>
+    <h3>車中での懸案共有</h3>
+    <ul>
+      <li>入学式での「エマリ」「ハルカ」両児童への個別対応が必要</li>
+      <li>「発表会」が未定 → 早急に企画必要</li>
+      <li>教員は公人としての自覚: 交通事故注意。小さな事故でも学校全体の評判に影響</li>
+      <li>プレッシャーで活動できなくなる職員がいる → 周囲の声かけ・サポートが必要</li>
+      <li>餅つきイベントが規模縮小で復活</li>
+      <li class="quote">「最終的に、子どもたちのために明るい雰囲気をつくる必要がある」</li>
+    </ul>
+  </div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">12:30</span>
+    <span class="rec-title">組織的な準備不足と情報共有の課題</span>
+    <span class="rec-tag tag-plan">課題認識</span>
+    <span class="rec-dur">54分</span>
+  </div>
+  <div class="rec-body">
+    <h3>複数イベントの同時進行</h3>
+    <ul>
+      <li><strong>公聴会</strong>: 出席簿の準備。「紙の読み上げ形式」での対応を議論中だが具体内容未定</li>
+      <li><strong>入学式</strong>: スピーチ原稿が未完成。練習時間も不足</li>
+      <li><strong>児童会選挙</strong>: 実施の要否自体が未確認</li>
+    </ul>
+    <h3>情報共有システムの機能不全</h3>
+    <ul>
+      <li>田上:「共有フォルダが開けない」</li>
+      <li>総務課の東氏（※東利香先生とは別人）との認識齟齬:「4月1日に使えるはず」の前提が覆った</li>
+      <li>清文社の書類:「そもそも見れない」状態</li>
+      <li>Google Drive 1058アカウントへのデータ移動を要請 → スプレッドシート・ドキュメント形式での閲覧が目的だが未実行</li>
+    </ul>
+    <h3>属人的なタスク管理と心理的負担</h3>
+    <ul>
+      <li>各タスクが個人の記憶や口約束に依存。組織的な管理が欠如</li>
+      <li>校長の「持っててもええで」許可 → 誰が最終責任を持つか不明確</li>
+      <li>保護者との関係性（同級生の親など）が業務判断に心理的影響:「気まずい」等の心理的負担</li>
+      <li>公聴会・入学式・児童会選挙が同時進行しているのに、担当者間の書類共有やタスク割り当てが機能していない</li>
+      <li class="quote">この属人的な運営から脱却し、体系的な情報管理とタスク遂行の規律を確立する必要がある</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SECTION 4: 午後の会議 -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section-header" id="sec4">
+  <h2>第4部: 午後の打ち合わせ（教員間の根回し）</h2>
+  <div class="time-range">13:30頃 〜 15:10頃（1件・約97分）</div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">13:30頃</span>
+    <span class="rec-title">校務分掌の担当割り振り（教員間の打ち合わせ）</span>
+    <span class="rec-tag tag-work">打ち合わせ</span>
+    <span class="rec-dur">約97分</span>
+  </div>
+  <div class="rec-body">
+    <div class="quote">午前の職員会議（〜10:40頃）と挨拶回りの後、午後13:30頃から再開。校長は尾鷲市校長会（13:30〜）に出席のため不在。教員間で校務分掌の担当を誰が受け持つかを内々に話し合う根回し的な打ち合わせ。正式な職員会議ではない。田上教頭は職員室に同席していたが、直接は口出しせず自身の業務に当たっていた（が、初日で環境が整わず思うように動けなかった）。</div>
+    <h3>PC・アカウント関連（冒頭の確認事項）</h3>
+    <ul>
+      <li>前任者のユーザー情報の削除と新規登録が必要</li>
+      <li>パスワードでログインできない問題 → 最終的に解決</li>
+    </ul>
+    <h3>校務分掌の担当割り振り</h3>
+    <ul>
+      <li>防災担当: 教頭。体育系: 別の教員</li>
+      <li>校長担当箇所を緑色でマークする工夫</li>
+      <li>リアルタイムで資料を書き換えながら話し合い</li>
+      <li>OA担当の確認 → 全員で話し合う機会を設ける</li>
+      <li>昨年の資料はデータ共有 → 今年もデータ形式が望ましい</li>
+      <li class="quote">「従来のやり方に固執せず、変更すべき点は変えていく」</li>
+    </ul>
+    <h3>児童会・委員会活動の再構築</h3>
+    <ul>
+      <li><strong>現状の問題</strong>: 児童会メンバーが委員会も兼任 → 負担が大きい</li>
+      <li><strong>改善案</strong>:
+        <ul>
+          <li>高学年が児童会、3・4年生が委員会を分担</li>
+          <li>活動時間を分ける</li>
+          <li>任期: 委員会は前期・後期制、児童会は通年制</li>
+        </ul>
+      </li>
+      <li><strong>全校遊び</strong>: 昼休みが少ないため毎日実施していた → 週1回にして企画・運営を児童会の仕事にする案</li>
+      <li><strong>体力向上</strong>: ジョギング・縄跳び・ボール運動の実績あり → 改めて話し合い必要</li>
+    </ul>
+    <h3>総合的な学習の時間</h3>
+    <ul>
+      <li>学校全体テーマ:「地域大好き」</li>
+      <li>学年テーマ: 防災 / 福祉 / SDGs / キャリア教育 / 平和学習</li>
+      <li><strong>課題</strong>: 学校行事の準備に追われ、探究活動が十分にできていない</li>
+      <li><strong>昨年度の反省</strong>:
+        <ul>
+          <li>カヤック・川活動: 外部との事前打ち合わせ不足で安全面の不安</li>
+          <li>SDGs提案が強い反発を受けた</li>
+        </ul>
+      </li>
+      <li>来年度: 予算あり。カヤック・海釣りなど候補。外部連携の改善が課題</li>
+    </ul>
+    <h3>授業研究の方向性</h3>
+    <ul>
+      <li>教科: <strong>算数</strong>に決定（評価のしやすさ）</li>
+      <li>研究発表会の形式: 単式 vs 複式 → 未決定</li>
+      <li>冊子作成の有無 → 未決定</li>
+      <li>「碧福」の要素をどう取り入れるか → 未決定</li>
+      <li>人権研修レポートと授業研究のスケジュール重複に懸念</li>
+      <li>1学期の行事は参加者で分担する方針</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SECTION 5: IT対応 -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section-header" id="sec5">
+  <h2>第5部: IT環境整備の奮闘</h2>
+  <div class="time-range">15:27 〜 16:23（2件・計200分）</div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">15:27</span>
+    <span class="rec-title">校内ITシステムの認証・アクセス障害</span>
+    <span class="rec-tag tag-it">IT障害</span>
+    <span class="rec-dur">28分</span>
+  </div>
+  <div class="rec-body">
+    <h3>3重のアクセス障害</h3>
+    <h4>障害1: 東先生のPC &#8212; ログイン完全不可</h4>
+    <ul>
+      <li>正しいはずのパスワードで「ユーザー名またはパスワードが正しくありません」</li>
+      <li><strong>仮説</strong>: パスワード入力ミスの可能性は低い。アカウント自体がロックされているか、PC側の認証システムとサーバー側の情報に不整合が生じている可能性が高い</li>
+    </ul>
+    <h4>障害2: 上ノ坊先生のPC &#8212; 共有フォルダアクセス不可</h4>
+    <ul>
+      <li>PCログインは成功。共有フォルダのショートカットを開こうとすると「ネットワーク資格情報の入力」要求</li>
+      <li>指示通りにメールアドレス形式のユーザー名＋パスワードを入力してもアクセス拒否</li>
+      <li>「非認証のゲストアクセスがブロックされている」エラー</li>
+      <li><strong>診断</strong>: NAS（ネットワーク接続ストレージ）が認証されていないユーザーからのゲストアクセスをブロック。PCログイン認証とNASアクセス認証が別系統になっており、後者が通過できていない</li>
+    </ul>
+    <h4>障害3: 別のPC &#8212; ユーザー選択画面が出ない</h4>
+    <ul>
+      <li>起動画面で「その他のユーザー」を選択するオプション自体が表示されない</li>
+      <li>特定のユーザーでしかログインを試みることができない状態</li>
+      <li><strong>最も深刻</strong>: OSレベルまたはシステム管理ポリシーレベルでの異常。ユーザーが自身の環境にアクセスする入り口が完全に塞がれている</li>
+    </ul>
+    <div class="quote">個々の操作ミスではなく、ユーザー認証とアクセス権限管理という基盤システムが機能不全に陥っている。ITサポートから提供された手順書だけでは解決できない根本的な設定不備、または認証システムそのものの不整合</div>
+    <h3>対応方針</h3>
+    <ul>
+      <li>ITサポートに3障害を一括報告（(1)ログイン不可 (2)共有フォルダ不可 (3)ユーザー選択不可）</li>
+      <li>Outlook設定資料の受領待ち</li>
+      <li>日吉先生（ICT支援員）の帰着を待って直接対応依頼</li>
+      <li>放置すれば新年度準備に深刻な遅延をもたらす</li>
+    </ul>
+  </div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">16:23</span>
+    <span class="rec-title">新任教職員PCセットアップと業務引き継ぎ</span>
+    <span class="rec-tag tag-it">IT作業</span>
+    <span class="rec-dur">172分（最長）</span>
+  </div>
+  <div class="rec-body">
+    <h3>共有フォルダへのアクセス設定</h3>
+    <ul>
+      <li>Windowsの「資格情報マネージャー」でネットワーク資格情報を追加</li>
+      <li>デスクトップのショートカットIP「172.17.8.x」→ 正しくは「172.17.4.211」で混乱</li>
+      <li>ユーザー名「0わせ@KYO9」で複数回試行 → パスワード誤りでエラー頻発</li>
+      <li>最終的に「尾鷲教（尾鷲教）」で資格情報登録成功</li>
+      <li>デスクトップにショートカットを作成して完了</li>
+    </ul>
+    <h3>マスターキー（USBデバイス）による認証</h3>
+    <ul>
+      <li>脇先生用PC（管理番号103番）でユーザー認証不可</li>
+      <li>「マスターキー（指キー）」と呼ばれるUSBデバイスが必要と判明</li>
+      <li>校内を探し回って発見</li>
+      <li>サポート担当と電話連携: USBキー挿入 → 特殊パスワード（大文字W、数字2、大文字C…）入力</li>
+      <li>数回の試行の末「ようこそ」画面が表示 → 認証成功</li>
+      <li>セキュリティ運用: 離席時はUSBキーを抜いてロック → 戻ったら再挿入＋パスワード</li>
+    </ul>
+    <h3>メール設定（Outlook）</h3>
+    <ul>
+      <li>アカウント: <code>e-mukai@oase.ed.jp</code></li>
+      <li>初期パスワード「M!+職員番号」で認証失敗</li>
+      <li>POP/IMAP設定変更も試行 → 「ドメイン管理者にお問い合わせください」</li>
+      <li>ITサポート回答: 過去メールは閲覧可、新規設定には別手順が必要</li>
+      <li><strong>後日対応に持ち越し</strong></li>
+      <li>Microsoft Teamsが未インストールという別課題も発覚</li>
+    </ul>
+    <h3>管理業務の引き継ぎ（PCセットアップと並行）</h3>
+    <ul>
+      <li><strong>PTA役員名簿の提出</strong>: 会長・西村智則氏、家庭教育部長・中平ゆきこ氏</li>
+      <li><strong>スクールガードボランティア名簿</strong>: 画像データから報告書を作成し、教育委員会・伊藤氏宛にメール送付が必要</li>
+      <li><strong>職員会議資料の準備</strong>: 共有フォルダにアクセスできない教職員が多いため紙印刷が必須。校務分掌の担当者変更案を記した資料を共有</li>
+      <li><strong>公務用パソコン管理表</strong>: 共有フォルダ「共有2026」内の「訂正公務用パソコン管理表」をもとに、各教職員の使用者名・MSアカウント・パスワードをカード形式で作成する指示</li>
+      <li><strong>勤怠管理システム</strong>: 時間外勤務時間のみを記録する目的であることを確認。明日から出退勤記録を開始</li>
+      <li><strong>回覧文書</strong>: 受付した書類に担当者として押印し、校長へ回付する運用</li>
+      <li><strong>共有フォルダ内の体裁崩れ</strong>: Wordファイルの体裁が崩れている → 修正が必要</li>
+      <li><strong>第2回職員会議の準備</strong>: 校務分掌案の担当者を更新し、会議で提案・相談する事項をまとめる</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SECTION 6: 夕方 -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section-header" id="sec6">
+  <h2>第6部: 夕方 &#8212; 運用確認と標準化計画</h2>
+  <div class="time-range">19:17 〜 20:17（3件・計30分）</div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">19:17</span>
+    <span class="rec-title">共有フォルダ運用確認・R8職員会議8時合意</span>
+    <span class="rec-tag tag-work">運用</span>
+    <span class="rec-dur">14分</span>
+  </div>
+  <div class="rec-body">
+    <ul>
+      <li>Teams上の共有データから共有フォルダへのファイル格納手順を確認</li>
+      <li>「向井小学校教員用フォルダ」のZIPファイル → 右クリックDL → 共有フォルダへ格納</li>
+      <li>校長先生の共有フォルダ設定完了を確認（メール通知済み）</li>
+      <li><strong>R8職員会議の時刻</strong>:「8時」で口頭合意</li>
+      <li class="quote">「一時半なら8時な。2つのうちどっちかや。8時かな。8時な。」</li>
+    </ul>
+  </div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">19:48</span>
+    <span class="rec-title">職員ファイル共有の課題認識</span>
+    <span class="rec-tag tag-plan">課題</span>
+    <span class="rec-dur">1分</span>
+  </div>
+  <div class="rec-body">
+    <div class="quote">「職員ファイルの共有について教頭と相談して、データを共有して、だから一人しか書き込めないのがダメなんかワードとかエクセル。それを結局、紙で印刷するためになる。この仕組みだとそうなる。ただ。」</div>
+    <ul>
+      <li>Word/Excelの同時編集不可問題を認識</li>
+      <li>現状の仕組みでは紙印刷に頼らざるを得ない</li>
+    </ul>
+  </div>
+</div>
+
+<div class="recording">
+  <div class="rec-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" data-toggle>
+    <span class="rec-time">20:17</span>
+    <span class="rec-title">学校現場のオペレーション標準化計画</span>
+    <span class="rec-tag tag-plan">構想</span>
+    <span class="rec-dur">15分</span>
+  </div>
+  <div class="rec-body">
+    <h3>3つの基本動作の同時崩壊を認識</h3>
+
+    <h4>1. アクセス管理の破綻</h4>
+    <ul>
+      <li>PCが起動しない・パスワード不明で業務開始が遅延</li>
+      <li>教育委員会側の設定・運用に依存しつつ現場の一次対応ガイドが欠落</li>
+      <li>→ 起動不可時の一次切替（代替端末・共通アカウント）と二次手続（ロック解除依頼）の明文化</li>
+    </ul>
+
+    <h4>2. 施錠動線の混乱</h4>
+    <ul>
+      <li class="quote">「おらん時には開けたらまた閉めといて」&#8212; 口頭運用のみに依存</li>
+      <li>鍵の所在と施錠の責任者が曖昧</li>
+      <li>→ 開閉責任者・タイミング・チェックリスト（開→閉の二重確認）を固定</li>
+      <li>→ 鍵貸出・返却の記録化と予備鍵の管理ルール整備</li>
+    </ul>
+
+    <h4>3. 回覧・承認フローの滞り</h4>
+    <ul>
+      <li>昨年度の回覧が途中で止まっている</li>
+      <li>「見た→押印→回す」の順序と起点（誰から開始か）が不統一</li>
+      <li>→ 起点・順序・期限・保管先を定義。年度跨ぎ案件は初回職員会で一括再起動</li>
+      <li>→ 進捗の可視化（一覧表・期限表示）で滞留防止</li>
+    </ul>
+
+    <h4>4. 現場安全管理</h4>
+    <ul>
+      <li>下校後の定常巡回（施錠・照明消灯・床面チェック）の担当割と記録様式が必要</li>
+      <li>ワックスの状態確認、照明チェックは発言レベルにとどまっている</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 職員一覧 -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section-header" id="staff">
+  <h2>職員構成（確認済み）</h2>
+</div>
+<div class="recording">
+  <div class="rec-body">
+    <table class="staff-table">
+      <tr><th>名前</th><th>役職</th><th>担任</th><th>備考</th></tr>
+      <tr><td>渡邉史次</td><td>校長</td><td>&#8212;</td><td>新任。初めての校長。笑い話が好き</td></tr>
+      <tr><td>田上良</td><td>教頭</td><td>&#8212;</td><td>新任。教育研究所から異動。IT得意</td></tr>
+      <tr><td>内山真穂</td><td>教員</td><td>1・2年</td><td>唯一の残留。体調面の問題あり</td></tr>
+      <tr><td>上ノ坊拓人</td><td>教員</td><td>3・4年</td><td>新任。尾鷲初。低学年経験少</td></tr>
+      <tr><td>脇奈緒子</td><td>教員</td><td>5・6年</td><td>新任。現場3年ぶり。複式初</td></tr>
+      <tr><td>東利香</td><td>教員</td><td>&#8212;</td><td>新任。給食・プール担当</td></tr>
+      <tr><td>米倉すが</td><td>教員</td><td>&#8212;</td><td></td></tr>
+      <tr><td>川端昌</td><td>&#8212;</td><td>&#8212;</td><td>4年目</td></tr>
+      <tr><td>京呂平紀身</td><td>業務員</td><td>&#8212;</td><td>4年目</td></tr>
+      <tr><td>庄司光寿</td><td>学校業務支援</td><td>&#8212;</td><td>7年目。力仕事可</td></tr>
+    </table>
+    <p style="color:var(--muted);font-size:.8rem;margin-top:.5rem">
+      児童数: 全校で十数名規模の小規模校（3複式）。スクールカウンセラーは未定。
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- アクション -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section-header" id="actions">
+  <h2>アクションアイテム</h2>
+</div>
+<div class="recording">
+  <div class="rec-body">
+    <div class="action">
+      <h4>最優先（明日まで）</h4>
+      <ul>
+        <li>職員会議（第2回）の校務分掌案を更新・印刷</li>
+        <li>スクールガードボランティア報告書 → 教育委員会伊藤氏へメール</li>
+        <li>5年生保護者への修学旅行説明（今年は6年のみ、来年は行ける旨）</li>
+        <li>脇先生・上ノ坊先生のPCにMicrosoft Teamsインストール</li>
+        <li>全教職員分の共有フォルダアクセス設定</li>
+      </ul>
+    </div>
+    <div class="action">
+      <h4>今週中</h4>
+      <ul>
+        <li>ITサポートへ3障害の正式報告（ログイン不可・共有フォルダ不可・ユーザー選択不可）</li>
+        <li>県教育委員会にOutlookメール設定を問い合わせ</li>
+        <li>公務用パソコン管理表の作成（カード形式）</li>
+        <li>入学式の進行案確定（児童の個別対応含む）</li>
+        <li>回覧フローの年度再起動ルール策定</li>
+        <li>滞留中の回覧文書を確認・押印・回付</li>
+      </ul>
+    </div>
+    <div class="action">
+      <h4>今後検討</h4>
+      <ul>
+        <li>児童会と委員会の分離案を具体化</li>
+        <li>全校遊びの頻度見直し（毎日→週1回案）</li>
+        <li>授業研究の形式（単式/複式、冊子、碧福）を校長と確定</li>
+        <li>端末障害時の一次・二次対応手順の文書化</li>
+        <li>鍵運用標準（開閉責任者・チェックリスト）の策定</li>
+        <li>壁面の美観復旧計画（予算確認）</li>
+        <li>総合学習の外部連携改善策</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<p style="text-align:center;color:var(--muted);font-size:.75rem;margin-top:3rem;padding:1rem;border-top:1px solid var(--border)">
+  Generated from Plaud Cloud Note Pro recordings &middot; 2026-04-01 &middot; 16 recordings / 850+ minutes
+</p>
+
+</div><!-- .container -->
+
+<button class="print-btn" onclick="window.print()">印刷</button>
+
+<script>
+// Sticky nav highlight
+const sections = document.querySelectorAll('.section-header[id]');
+const navLinks = document.querySelectorAll('nav.toc a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) current = s.id; });
+  navLinks.forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
