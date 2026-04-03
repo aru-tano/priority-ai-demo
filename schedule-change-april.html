@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>4月行事予定 変更一覧</title>
+<style>
+  @page { size: A4 portrait; margin: 12mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "UD デジタル 教科書体 NK-R", "UDDigiKyokashoNK-R", "Hiragino Sans", sans-serif;
+    color: #222;
+    padding: 16px;
+    max-width: 210mm;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 18pt;
+    text-align: center;
+    margin-bottom: 2px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 9pt;
+    color: #888;
+    margin-bottom: 14px;
+  }
+
+  /* 凡例 */
+  .legend {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    margin-bottom: 12px;
+    font-size: 9pt;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+  }
+
+  /* テーブル */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5pt;
+  }
+  thead th {
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 10pt;
+    letter-spacing: 0.05em;
+  }
+  th.col-date { width: 88px; background: #444; color: #fff; }
+  th.col-before { background: #e8e8e8; color: #555; border-right: 2px solid #fff; }
+  th.col-arrow { width: 32px; background: #fff; }
+  th.col-after { background: #1a5276; color: #fff; }
+
+  td {
+    padding: 7px 10px;
+    vertical-align: top;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  td.date-cell {
+    font-weight: bold;
+    font-size: 10.5pt;
+    white-space: nowrap;
+    background: #fafafa;
+    border-right: 1px solid #e0e0e0;
+  }
+  td.before-cell {
+    color: #666;
+    border-right: none;
+  }
+  td.arrow-cell {
+    text-align: center;
+    color: #aaa;
+    font-size: 11pt;
+    border-right: none;
+    padding: 7px 2px;
+  }
+  td.after-cell {}
+
+  /* 変更あり行 */
+  tr.changed {
+    background: #fff9e6;
+  }
+  tr.changed td.date-cell {
+    background: #fff3cc;
+    border-left: 4px solid #f0a500;
+  }
+  tr.changed td.arrow-cell {
+    color: #f0a500;
+    font-weight: bold;
+    font-size: 14pt;
+  }
+
+  /* 取り消し（移動元） */
+  .removed {
+    text-decoration: line-through;
+    color: #c0392b;
+  }
+
+  /* 新規・移動先 */
+  .added {
+    color: #1a5276;
+    font-weight: bold;
+  }
+
+  /* 補足 */
+  .detail {
+    font-size: 8.5pt;
+    color: #888;
+    margin-top: 1px;
+  }
+
+  /* 変更なし行 */
+  tr.same td {
+    color: #888;
+  }
+  tr.same td.date-cell {
+    color: #666;
+  }
+
+  /* 土日 */
+  tr.weekend td {
+    color: #bbb;
+    padding: 3px 10px;
+    font-size: 9pt;
+  }
+  tr.weekend td.date-cell {
+    color: #bbb;
+    font-weight: normal;
+  }
+
+  /* 月ヘッダ */
+  tr.month-row td {
+    background: #444;
+    color: #fff;
+    font-weight: bold;
+    font-size: 11pt;
+    padding: 5px 10px;
+    border-bottom: none;
+  }
+
+  @media print {
+    body { padding: 0; }
+    tr.changed { background: #fff9e6 !important; }
+    tr.changed td.date-cell { background: #fff3cc !important; }
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+</style>
+</head>
+<body>
+
+<h1>行事予定 変更一覧</h1>
+<div class="subtitle">2026年4月3日 校長より提示</div>
+
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-swatch" style="background:#fff3cc;border-left:4px solid #f0a500;"></div>
+    変更あり
+  </div>
+  <div class="legend-item">
+    <div class="legend-swatch" style="background:#fff;"></div>
+    変更なし
+  </div>
+  <div class="legend-item">
+    <span style="color:#c0392b;text-decoration:line-through;">取消</span>
+    移動元・削除
+  </div>
+  <div class="legend-item">
+    <span style="color:#1a5276;font-weight:bold;">太字</span>
+    移動先・追加
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th class="col-date">日付</th>
+      <th class="col-before">現予定</th>
+      <th class="col-arrow"></th>
+      <th class="col-after">変更後</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="month-row"><td colspan="4">4月</td></tr>
+
+    <tr class="weekend">
+      <td class="date-cell">15 水</td>
+      <td colspan="3"></td>
+    </tr>
+
+    <tr class="changed">
+      <td class="date-cell">16 木</td>
+      <td class="before-cell">PTA役員会</td>
+      <td class="arrow-cell">&rarr;</td>
+      <td class="after-cell">
+        <span class="added">CS会議 16:00</span><br>
+        PTA役員会 <span class="added">19:00</span>
+        <div class="detail">CS会議が4/24から移動</div>
+      </td>
+    </tr>
+
+    <tr class="same">
+      <td class="date-cell">17 金</td>
+      <td class="before-cell">児童会役員選挙・モップ洗い</td>
+      <td class="arrow-cell"></td>
+      <td class="after-cell">児童会役員選挙・モップ洗い</td>
+    </tr>
+
+    <tr class="weekend">
+      <td class="date-cell">18 土</td>
+      <td colspan="3"></td>
+    </tr>
+    <tr class="weekend">
+      <td class="date-cell">19 日</td>
+      <td colspan="3"></td>
+    </tr>
+
+    <tr class="same">
+      <td class="date-cell">20 月</td>
+      <td class="before-cell">県校長会理事会</td>
+      <td class="arrow-cell"></td>
+      <td class="after-cell">県校長会理事会</td>
+    </tr>
+
+    <tr class="changed">
+      <td class="date-cell">21 火</td>
+      <td class="before-cell"><span class="removed">避難訓練</span></td>
+      <td class="arrow-cell">&rarr;</td>
+      <td class="after-cell">
+        <span class="added">春の遠足</span>
+        <div class="detail">雨天：体育館で迎える会</div>
+      </td>
+    </tr>
+
+    <tr class="changed">
+      <td class="date-cell">22 水</td>
+      <td class="before-cell">職員会議</td>
+      <td class="arrow-cell">&rarr;</td>
+      <td class="after-cell">
+        職員会議<br>
+        <span class="added">避難訓練</span>
+        <div class="detail">避難訓練が4/21から移動</div>
+      </td>
+    </tr>
+
+    <tr class="same">
+      <td class="date-cell">23 木</td>
+      <td class="before-cell">学力調査・心臓検診</td>
+      <td class="arrow-cell"></td>
+      <td class="after-cell">学力調査・心臓検診</td>
+    </tr>
+
+    <tr class="changed">
+      <td class="date-cell">24 金</td>
+      <td class="before-cell">
+        <span class="removed">春の遠足</span><br>
+        <span class="removed">CS会議</span><br>
+        県校長会総会
+      </td>
+      <td class="arrow-cell">&rarr;</td>
+      <td class="after-cell">
+        県校長会総会のみ
+      </td>
+    </tr>
+
+    <tr class="weekend">
+      <td class="date-cell">25 土</td>
+      <td colspan="3"></td>
+    </tr>
+    <tr class="weekend">
+      <td class="date-cell">26 日</td>
+      <td colspan="3"></td>
+    </tr>
+
+    <tr class="same">
+      <td class="date-cell">27 月</td>
+      <td class="before-cell">学力調査 質問紙</td>
+      <td class="arrow-cell"></td>
+      <td class="after-cell">学力調査 質問紙</td>
+    </tr>
+
+    <tr class="same">
+      <td class="date-cell">28 火</td>
+      <td class="before-cell">参観会・PTA総会</td>
+      <td class="arrow-cell"></td>
+      <td class="after-cell">参観会・PTA総会</td>
+    </tr>
+
+    <tr class="same">
+      <td class="date-cell">29 水</td>
+      <td class="before-cell">休み</td>
+      <td class="arrow-cell"></td>
+      <td class="after-cell">休み</td>
+    </tr>
+
+    <tr class="weekend">
+      <td class="date-cell">30 木</td>
+      <td colspan="3"></td>
+    </tr>
+
+    <tr class="month-row"><td colspan="4">5月</td></tr>
+
+    <tr class="changed">
+      <td class="date-cell">1 金</td>
+      <td class="before-cell">
+        <span class="removed">遠足予備</span><br>
+        稚鮎の放流
+      </td>
+      <td class="arrow-cell">&rarr;</td>
+      <td class="after-cell">
+        稚鮎の放流
+        <div class="detail">遠足予備は削除（4/21に前倒し）</div>
+      </td>
+    </tr>
+
+    <tr class="weekend">
+      <td class="date-cell">2 土 〜 6 水</td>
+      <td class="before-cell">休み</td>
+      <td class="arrow-cell"></td>
+      <td class="after-cell">休み</td>
+    </tr>
+
+    <tr class="same">
+      <td class="date-cell">7 木</td>
+      <td class="before-cell">市校長会</td>
+      <td class="arrow-cell"></td>
+      <td class="after-cell">市校長会</td>
+    </tr>
+
+  </tbody>
+</table>
+
+</body>
+</html>
