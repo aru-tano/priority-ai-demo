@@ -569,6 +569,7 @@ body.dark .header{background:rgba(17,17,16,0.85)}
       <div class="panel" id="p-board"></div>
       <div class="panel" id="p-overview"></div>
       <div class="panel" id="p-resources"></div>
+      <div class="panel" id="p-links"></div>
       <div class="panel" id="p-input" style="display:none">
         <div style="text-align:center;padding:80px 40px;color:var(--text-dim)">
           <i class="fa-solid fa-pen-to-square" style="font-size:48px;opacity:0.2;margin-bottom:16px;display:block"></i>
@@ -776,6 +777,7 @@ const TAB_DEF=[
   {id:'board',icon:'fa-solid fa-columns',label:'ボード'},
   {id:'overview',icon:'fa-solid fa-chart-bar',label:'概要'},
   {id:'resources',icon:'fa-solid fa-folder-open',label:'資料'},
+  {id:'links',icon:'fa-solid fa-link',label:'リンク集'},
   {id:'input',icon:'fa-solid fa-pen-to-square',label:'タスク入力'},
 ];
 function renderNav(){
@@ -1493,6 +1495,62 @@ function renderAll(){
   else if(S.tab==='board')renderBoard();
   else if(S.tab==='overview')renderOverview();
   else if(S.tab==='resources')renderResources();
+  else if(S.tab==='links')renderLinks();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LINKS (リンク集)
+// ═══════════════════════════════════════════════════════════════
+const LINKS_DATA = [
+  {cat:'Googleカレンダー', items:[
+    {name:'向井小 月中行事カレンダー',icon:'fa-solid fa-calendar-days',color:'#4285f4',url:'https://calendar.google.com/calendar/embed?src=e11ca53225a507ae1554482374e7bd12aa246f10611a7abd387201719c11b90b%40group.calendar.google.com'},
+    {name:'カレンダー追加ページ（職員配布用）',icon:'fa-solid fa-calendar-plus',color:'#34a853',url:'https://aru-tano.github.io/mukai-calendar/'},
+    {name:'Googleカレンダー（自分）',icon:'fa-regular fa-calendar',color:'#4285f4',url:'https://calendar.google.com/'},
+  ]},
+  {cat:'Google Workspace', items:[
+    {name:'月中行事カレンダー案内（スプレッドシート）',icon:'fa-solid fa-table',color:'#0f9d58',url:'https://docs.google.com/spreadsheets/d/1z2LiONR2Tc7dEO3m7hTGunp-IMGBVfz2OC9bdiuxmnE/edit'},
+    {name:'Google Drive',icon:'fa-brands fa-google-drive',color:'#4285f4',url:'https://drive.google.com/'},
+    {name:'Gmail',icon:'fa-solid fa-envelope',color:'#ea4335',url:'https://mail.google.com/'},
+  ]},
+  {cat:'学校・校務', items:[
+    {name:'月中行事Excel（NAS）',icon:'fa-solid fa-file-excel',color:'#217346',desc:'NAS接続時のみ',url:'file:///tmp/owase_kyoyu/2026/g-%E8%A1%8C%E4%BA%8B%E4%BA%88%E5%AE%9A%E2%98%85/'},
+    {name:'NAS共有フォルダ（2026年度）',icon:'fa-solid fa-server',color:'#6b7280',desc:'NAS接続時のみ',url:'file:///tmp/owase_kyoyu/2026/'},
+  ]},
+  {cat:'ツール', items:[
+    {name:'教頭ダッシュボード（スプレッドシート）',icon:'fa-solid fa-table-columns',color:'#0f9d58',url:'https://docs.google.com/spreadsheets/d/1opzwUpZIRBHR8ufN9kfvP7U0MSkHXpJzL3P0jW_W4KU/edit'},
+    {name:'FW アプリカタログ',icon:'fa-solid fa-rocket',color:'#8b5cf6',url:'../文章_作業スペース/FriendlyWorkshop/catalog.html'},
+    {name:'GitHub',icon:'fa-brands fa-github',color:'#333',url:'https://github.com/aru-tano'},
+  ]},
+];
+
+function renderLinks(){
+  const p=document.getElementById('p-links');
+  p.innerHTML=`
+    <h2 style="margin:0 0 20px;font-size:20px;font-weight:700">
+      <i class="fa-solid fa-link" style="margin-right:8px;color:var(--accent)"></i>リンク集
+    </h2>
+    ${LINKS_DATA.map(cat=>`
+      <div style="margin-bottom:24px">
+        <h3 style="font-size:14px;font-weight:700;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">${cat.cat}</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">
+          ${cat.items.map(lk=>`
+            <a href="${lk.url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;text-decoration:none;color:var(--text);transition:all .15s;cursor:pointer"
+               onmouseover="this.style.borderColor='${lk.color}';this.style.boxShadow='0 2px 8px ${lk.color}22'"
+               onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+              <div style="width:36px;height:36px;border-radius:8px;background:${lk.color}15;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <i class="${lk.icon}" style="font-size:16px;color:${lk.color}"></i>
+              </div>
+              <div style="min-width:0">
+                <div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${lk.name}</div>
+                ${lk.desc?`<div style="font-size:11px;color:var(--text-dim)">${lk.desc}</div>`:''}
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square" style="margin-left:auto;font-size:11px;color:var(--text-dim);flex-shrink:0"></i>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    `).join('')}
+  `;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1520,6 +1578,7 @@ const RESOURCES = [
   {name:'教頭ダッシュボード',tag:'教頭業務',desc:'カレンダー連携・スプレッドシート連携。',icon:'fa-solid fa-table-columns',thumb:SS+'res_kyoto_dashboard.png',link:'kyoto-dashboard.html'},
   {name:'教科書PDF・テキストデータ',tag:'教科書データ',desc:'算数・国語 1〜6年の教科書PDF+OCRテキスト化データ。',icon:'fa-solid fa-book',link:'../文章_作業スペース/05_仕事_Work/教科書PDF/'},
   {name:'FW アプリカタログ',tag:'アプリ',desc:'教育アプリ15本のカタログページ。',icon:'fa-solid fa-rocket',link:'../文章_作業スペース/FriendlyWorkshop/catalog.html'},
+  {name:'月中行事カレンダー案内',tag:'教頭業務',desc:'月中行事Googleカレンダーの職員向け追加手順（QRコード付き）。',icon:'fa-solid fa-calendar-plus',thumb:SS+'res_calendar_guide.png',links:[{label:'HTML版',url:'../文章_作業スペース/05_仕事_Work/向井小学校/向井小_月中行事カレンダー案内.html'},{label:'PDF版',url:'../文章_作業スペース/05_仕事_Work/向井小学校/向井小_月中行事カレンダー案内.pdf'},{label:'シート版',url:'https://docs.google.com/spreadsheets/d/1z2LiONR2Tc7dEO3m7hTGunp-IMGBVfz2OC9bdiuxmnE/edit'}]},
 ];
 
 // Apps data (from dev_dashboard)
