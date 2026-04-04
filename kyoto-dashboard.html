@@ -2503,6 +2503,7 @@ const RESOURCES = [
   {name:'inbox仕分けフロー',tag:'AI秘書',desc:'受信箱→DB振り分けの対話型仕分けフロー図。タスク・暗黙知・参考資料・個人情報の5分類。',icon:'fa-solid fa-arrows-split-up-and-left',thumb:'',link:'inbox-sort-flow.html'},
   {name:'出退勤管理',tag:'教頭業務',desc:'職員の出退勤をブラウザで記録。CE-Net代替のタイムカードアプリ。',icon:'fa-solid fa-clock',thumb:'',link:'../文章_作業スペース/05_仕事_Work/向井小_inbox/attendance/index.html'},
   {name:'出退勤タイムカード（50名サンプル）',tag:'ツール紹介',desc:'50名規模対応のタブ切替サンプル。HTML1枚・予算ゼロ。デモデータ生成で動作確認可。',icon:'fa-solid fa-users-rectangle',thumb:'',link:'../文章_作業スペース/05_仕事_Work/向井小_inbox/attendance/sample_50.html'},
+  {name:'向井小 人物DB',tag:'教頭業務',desc:'教職員15名・児童12名・来賓地域13名・PTA4名の人物データベース。カテゴリ別フィルタ・名前検索付き。NAS実データ照合済み。',icon:'fa-solid fa-address-book',thumb:'',link:'mukai-context-db-viewer.html'},
 ];
 
 // Apps data (from dev_dashboard)
@@ -2724,6 +2725,94 @@ const DB_CAT_ICONS={edu_practice:'fa-solid fa-chalkboard-user',edu_curriculum:'f
 let resSubTab='resources';
 let resSearch='';
 let resTagFilter='all';
+
+// Drag & Drop: restore saved order
+(function(){
+  const saved=localStorage.getItem('resOrder');
+  if(saved){
+    try{
+      const order=JSON.parse(saved);
+      const map=new Map(RESOURCES.map(r=>[r.name,r]));
+      const reordered=order.map(n=>map.get(n)).filter(Boolean);
+      const remaining=RESOURCES.filter(r=>!order.includes(r.name));
+      RESOURCES.length=0;
+      RESOURCES.push(...reordered,...remaining);
+    }catch(e){}
+  }
+})();
+
+const RES_TAG_COLORS={
+  '教頭業務':['#4A7C59','rgba(74,124,89,.1)'],
+  '研修スライド':['#7c3aed','rgba(124,58,237,.1)'],
+  'ツール紹介':['#0891b2','rgba(8,145,178,.1)'],
+  'レポート':['#d97706','rgba(217,119,6,.1)'],
+  'デザイン':['#be185d','rgba(190,24,93,.1)'],
+  '教育':['#2563eb','rgba(37,99,235,.1)'],
+  '教材サンプル':['#059669','rgba(5,150,105,.1)'],
+  'テンプレート':['#6366f1','rgba(99,102,241,.1)'],
+  '写真分析':['#9333ea','rgba(147,51,234,.1)'],
+  '教材セット':['#0d9488','rgba(13,148,136,.1)'],
+  '学校経営':['#b45309','rgba(180,83,9,.1)'],
+  '教科書データ':['#1d4ed8','rgba(29,78,216,.1)'],
+  'アプリ':['#dc2626','rgba(220,38,38,.1)'],
+  '会議録':['#64748b','rgba(100,116,139,.1)'],
+  'AI秘書':['#c026d3','rgba(192,38,211,.1)'],
+};
+function resTagColor(tag){return RES_TAG_COLORS[tag]||['var(--accent)','var(--accent-bg)'];}
+
+let resDragEl=null;
+function initResDragDrop(){
+  const grid=document.getElementById('resGrid');
+  if(!grid)return;
+  const cards=grid.querySelectorAll('.res-card');
+  cards.forEach(card=>{
+    card.addEventListener('dragstart',e=>{
+      resDragEl=card;
+      card.classList.add('dragging');
+      card.style.opacity='0.4';
+      e.dataTransfer.effectAllowed='move';
+    });
+    card.addEventListener('dragend',()=>{
+      card.classList.remove('dragging');
+      card.style.opacity='';
+      card.style.transform='';
+      card.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)';
+      resDragEl=null;
+      // Save new order
+      const names=[...grid.querySelectorAll('.res-card')].map(c=>c.dataset.resName);
+      localStorage.setItem('resOrder',JSON.stringify(names));
+      // Sync RESOURCES array
+      const map=new Map(RESOURCES.map(r=>[r.name,r]));
+      const reordered=names.map(n=>map.get(n)).filter(Boolean);
+      const remaining=RESOURCES.filter(r=>!names.includes(r.name));
+      RESOURCES.length=0;
+      RESOURCES.push(...reordered,...remaining);
+    });
+    card.addEventListener('dragover',e=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect='move';
+      if(!resDragEl||resDragEl===card)return;
+      const rect=card.getBoundingClientRect();
+      const mid=rect.left+rect.width/2;
+      const after=e.clientX>mid;
+      if(after){card.parentNode.insertBefore(resDragEl,card.nextSibling)}
+      else{card.parentNode.insertBefore(resDragEl,card)}
+    });
+    card.addEventListener('dragenter',e=>{
+      e.preventDefault();
+      if(resDragEl&&resDragEl!==card){
+        card.style.borderColor='var(--accent)';
+      }
+    });
+    card.addEventListener('dragleave',()=>{
+      card.style.borderColor='';
+    });
+    card.addEventListener('drop',e=>{
+      e.preventDefault();
+      card.style.borderColor='';
+    });
+  });
+}
 let resDbCatFilter='all';
 let resAppStatusFilter='all';
 
@@ -2762,25 +2851,26 @@ function renderResourcesContent(){
   if(resSubTab==='resources'){
     // Tag filter buttons
     const allTags=[...new Set(RESOURCES.map(r=>r.tag))].sort();
-    html+=`<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap"><button onclick="resTagFilter='all';renderResourcesContent()" style="padding:4px 12px;border-radius:7px;border:1px solid ${resTagFilter==='all'?'var(--accent)':'var(--border)'};background:${resTagFilter==='all'?'var(--accent)':'var(--surface)'};color:${resTagFilter==='all'?'#fff':'var(--text-dim)'};font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s">全て</button>${allTags.map(t=>`<button onclick="resTagFilter='${t}';renderResourcesContent()" style="padding:4px 12px;border-radius:7px;border:1px solid ${resTagFilter===t?'var(--accent)':'var(--border)'};background:${resTagFilter===t?'var(--accent)':'var(--surface)'};color:${resTagFilter===t?'#fff':'var(--text-dim)'};font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s">${t}</button>`).join('')}</div>`;
+    html+=`<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap"><button onclick="resTagFilter='all';renderResourcesContent()" style="padding:4px 12px;border-radius:7px;border:1px solid ${resTagFilter==='all'?'var(--accent)':'var(--border)'};background:${resTagFilter==='all'?'var(--accent)':'var(--surface)'};color:${resTagFilter==='all'?'#fff':'var(--text-dim)'};font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s">全て</button>${allTags.map(t=>{const tc=resTagColor(t);return`<button onclick="resTagFilter='${t}';renderResourcesContent()" style="padding:4px 12px;border-radius:7px;border:1px solid ${resTagFilter===t?tc[0]:'var(--border)'};background:${resTagFilter===t?tc[0]:'var(--surface)'};color:${resTagFilter===t?'#fff':tc[0]};font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s">${t}</button>`}).join('')}</div>`;
     const filtered=RESOURCES.filter(r=>{
       if(resTagFilter!=='all'&&r.tag!==resTagFilter)return false;
       if(q&&!r.name.toLowerCase().includes(q)&&!r.tag.toLowerCase().includes(q)&&!r.desc.toLowerCase().includes(q))return false;
       return true;
     });
-    html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">${filtered.map((r,i)=>{
+    html+=`<div id="resGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">${filtered.map((r,i)=>{
       const actionHTML=r.links?r.links.map(l=>`<a href="${l.url}" target="_blank" style="font-size:13px;font-weight:600;padding:4px 10px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;transition:all .2s">${l.label}</a>`).join(''):r.link?`<a href="${r.link}" target="_blank" style="font-size:13px;font-weight:600;padding:4px 10px;border-radius:7px;background:var(--accent);color:#fff;text-decoration:none;transition:all .2s">開く</a>`:'';
       const thumbHTML=r.thumb?`<img src="${r.thumb}" alt="${r.name}" style="width:100%;height:100%;object-fit:cover;transition:transform .5s ease" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:'';
       const fallbackIcon=`<div style="display:${r.thumb?'none':'flex'};align-items:center;justify-content:center;width:100%;height:100%"><i class="${r.icon}" style="font-size:1.8em;color:var(--accent);opacity:0.4"></i></div>`;
-      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 2px 8px rgba(0,0,0,0.04)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.07)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
+      return `<div class="res-card" draggable="true" data-res-name="${r.name}" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;transition:all .3s cubic-bezier(.16,1,.3,1);box-shadow:0 2px 8px rgba(0,0,0,0.04);cursor:grab" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.07)'" onmouseout="if(!this.classList.contains('dragging')){this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'}">
         <div style="width:100%;aspect-ratio:16/10;border-radius:10px;overflow:hidden;margin-bottom:10px;background:var(--surface-dim)">${thumbHTML}${fallbackIcon}</div>
-        <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--accent-bg);color:var(--accent);display:inline-block;margin-bottom:6px;align-self:flex-start">${r.tag}</span>
+        <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;background:${resTagColor(r.tag)[1]};color:${resTagColor(r.tag)[0]};display:inline-block;margin-bottom:6px;align-self:flex-start">${r.tag}</span>
         <div style="font-size:15px;font-weight:700;margin-bottom:3px">${r.name}</div>
         <div style="font-size:13px;color:var(--text-secondary);line-height:1.5;flex:1;margin-bottom:8px">${r.desc}</div>
         <div style="display:flex;gap:5px">${actionHTML}</div>
       </div>`;
     }).join('')}</div>`;
     if(!filtered.length) html+=`<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:15px">該当する資料がありません</div>`;
+    setTimeout(initResDragDrop,0);
 
   } else if(resSubTab==='apps'){
     // Status filter
